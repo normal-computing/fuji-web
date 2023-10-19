@@ -1,5 +1,6 @@
 // WARNING: background page does not have access to the DOM.
 // Be careful not to import dependencies that use DOM methods.
+// Do NOT export anything other than types from this file.
 
 import { sleep } from '../../helpers/utils';
 import { callDOMAction } from '../../helpers/domActions';
@@ -66,7 +67,7 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
       console.log(chatGPTTabId);
       await sleep(1000);
       chrome.tabs.sendMessage(chatGPTTabId, {
-        type: 'submitScreenshot',
+        type: 'attachFile',
         payload: [imageData],
       });
     }
