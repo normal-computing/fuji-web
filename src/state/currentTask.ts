@@ -151,9 +151,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           }
 
           if (action.parsedAction.name === 'click') {
-            await callDOMAction('click', action.parsedAction.args);
+            await callDOMAction(tabId, 'click', action.parsedAction.args);
           } else if (action.parsedAction.name === 'setValue') {
             await callDOMAction(
+              tabId,
               action?.parsedAction.name,
               action?.parsedAction.args
             );

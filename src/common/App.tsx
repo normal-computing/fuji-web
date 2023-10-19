@@ -13,7 +13,7 @@ const App = () => {
   return (
     <ChakraProvider>
       <Box p="8" fontSize="lg" w="full">
-        <HStack mb={4} alignItems="center">
+        {/* <HStack mb={4} alignItems="center">
           <img
             src={logo}
             width={32}
@@ -29,7 +29,7 @@ const App = () => {
             <ModelDropdown />
             <OptionsDropdown />
           </HStack>
-        </HStack>
+        </HStack> */}
         {openAIKey ? <TaskUI /> : <SetAPIKey />}
       </Box>
     </ChakraProvider>

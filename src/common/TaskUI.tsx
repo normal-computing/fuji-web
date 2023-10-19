@@ -36,6 +36,12 @@ const TaskUI = () => {
     state.instructions && state.runTask(toastError);
   };
 
+  const findChatGPTPage = async () => {
+    chrome.runtime.sendMessage({
+      action: 'navigate',
+    });
+  };
+
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -45,7 +51,8 @@ const TaskUI = () => {
 
   return (
     <>
-      <Textarea
+      <button onClick={findChatGPTPage}>send screenshot to chatgpt</button>
+      {/* <Textarea
         autoFocus
         placeholder="Taxy uses OpenAI's GPT-4 API to perform actions on the current page. Try telling it to sign up for a newsletter, or to add an item to your cart."
         value={state.instructions || ''}
@@ -59,7 +66,7 @@ const TaskUI = () => {
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>
-      <TaskHistory />
+      <TaskHistory /> */}
     </>
   );
 };
