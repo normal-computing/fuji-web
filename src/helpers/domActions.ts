@@ -1,5 +1,5 @@
 import { TAXY_ELEMENT_SELECTOR } from '../constants';
-import { callRPC } from './pageRPC';
+import { callRPC, callRPCWithTab } from './pageRPC';
 import { scrollScriptString } from './runtimeFunctionStrings';
 import { sleep } from './utils';
 
@@ -38,7 +38,10 @@ class DomActions {
   }
 
   async getObjectId(originalId: number) {
-    const uniqueId = await callRPC('getUniqueElementSelectorId', [originalId]);
+    const uniqueId = await callRPC({
+      type: 'getUniqueElementSelectorId',
+      payload: [originalId],
+    });
     return this.getObjectIdBySelector(
       `[${TAXY_ELEMENT_SELECTOR}="${uniqueId}"]`
     );
@@ -63,7 +66,10 @@ class DomActions {
   }
 
   async clickAtPosition(x: number, y: number, clickCount = 1): Promise<void> {
-    callRPC('ripple', [x, y]);
+    callRPC({
+      type: 'ripple',
+      payload: [x, y],
+    });
     await this.sendCommand('Input.dispatchMouseEvent', {
       type: 'mousePressed',
       x,
@@ -81,14 +87,14 @@ class DomActions {
     await sleep(DomActions.delayBetweenClicks);
   }
 
-  async click(payload: { elementId: number }) {
+  public async click(payload: { elementId: number }) {
     const objectId = await this.getObjectId(payload.elementId);
     await this.scrollIntoView(objectId);
     const { x, y } = await this.getCenterCoordinates(objectId);
     await this.clickAtPosition(x, y);
   }
 
-  async clickWithSelector(selector: string) {
+  public async clickWithSelector(selector: string) {
     const objectId = await this.getObjectIdBySelector(selector);
     await this.scrollIntoView(objectId);
     const { x, y } = await this.getCenterCoordinates(objectId);
@@ -125,7 +131,10 @@ class DomActions {
     });
   }
 
-  async setValue(payload: { elementId: number; value: string }): Promise<void> {
+  public async setValue(payload: {
+    elementId: number;
+    value: string;
+  }): Promise<void> {
     const objectId = await this.getObjectId(payload.elementId);
     await this.scrollIntoView(objectId);
     const { x, y } = await this.getCenterCoordinates(objectId);
@@ -135,9 +144,20 @@ class DomActions {
     // blur the element
     await this.blurFocusedElement();
   }
+
+  public async attachFile(payload: { data: string; selector?: string }) {
+    await callRPCWithTab(this.tabId, {
+      type: 'attachFile',
+      payload: [payload.data, payload.selector],
+    });
+  }
 }
 
-export type ActionName = 'click' | 'setValue' | 'clickWithSelector';
+export type ActionName =
+  | 'click'
+  | 'setValue'
+  | 'clickWithSelector'
+  | 'attachFile';
 export type ActionPayload<T extends ActionName> = Parameters<DomActions[T]>[0];
 
 // Call this function from the content script

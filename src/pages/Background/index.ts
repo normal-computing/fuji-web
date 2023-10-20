@@ -4,6 +4,7 @@
 
 import { sleep } from '../../helpers/utils';
 import { callDOMAction } from '../../helpers/domActions';
+import { callRPCWithTab } from '../../helpers/pageRPC';
 
 console.log('This is the background page.');
 
@@ -66,7 +67,7 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
       const chatGPTTabId = await createChatGPTTab();
       console.log(chatGPTTabId);
       await sleep(1000);
-      chrome.tabs.sendMessage(chatGPTTabId, {
+      callRPCWithTab(chatGPTTabId, {
         type: 'attachFile',
         payload: [imageData],
       });

@@ -1,15 +1,12 @@
 import { sleep } from './utils';
-import type { RPCMethods, MethodName } from '../pages/Content';
+import type { MethodRT, RPCMessage } from '../pages/Content';
 
-type Payload<T extends MethodName> = Parameters<RPCMethods[T]>;
-type MethodRT<T extends MethodName> = ReturnType<RPCMethods[T]>;
+// Call these functions to execute code in the content script
 
-// Call this function from the content script
-export const callRPC = async <T extends MethodName>(
-  type: MethodName,
-  payload?: Payload<T>,
+export const callRPC = async (
+  message: RPCMessage,
   maxTries = 1
-): Promise<MethodRT<T>> => {
+): Promise<MethodRT> => {
   let queryOptions = { active: true, currentWindow: true };
   let activeTab = (await chrome.tabs.query(queryOptions))[0];
 
@@ -20,13 +17,20 @@ export const callRPC = async <T extends MethodName>(
   }
 
   if (!activeTab?.id) throw new Error('No active tab found');
+  return callRPCWithTab(activeTab.id, message, maxTries);
+};
 
+export const callRPCWithTab = async (
+  tabId: number,
+  message: RPCMessage,
+  maxTries = 1
+): Promise<MethodRT> => {
   let err: any;
   for (let i = 0; i < maxTries; i++) {
     try {
-      const response = await chrome.tabs.sendMessage(activeTab.id, {
-        type,
-        payload: payload || [],
+      const response = await chrome.tabs.sendMessage(tabId, {
+        type: message.type,
+        payload: message.payload || [],
       });
       return response;
     } catch (e) {
