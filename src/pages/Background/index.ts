@@ -3,7 +3,7 @@
 // Do NOT export anything other than types from this file.
 
 import { sleep } from '../../helpers/utils';
-import { callDOMAction } from '../../helpers/domActions';
+import { DomActions } from '../../helpers/domActions';
 import { callRPCWithTab } from '../../helpers/pageRPC';
 
 console.log('This is the background page.');
@@ -18,10 +18,13 @@ async function createChatGPTTab() {
     // TODO: replace this with a more robust method
     await sleep(6000);
     // make sure we are on GPT-4 mode
-    callDOMAction(tab.id, 'clickWithSelector', '[data-testid="gpt-4"]');
+    const domActions = new DomActions(tab.id);
+    await domActions.clickWithSelector({ selector: '[data-testid="gpt-4"]' });
     await sleep(2000);
     // get rid of the new user popup
-    callDOMAction(tab.id, 'clickWithSelector', "[role='dialog'] button.btn");
+    await domActions.clickWithSelector({
+      selector: "[role='dialog'] button.btn",
+    });
   } else {
     throw new Error('Could create one tab');
   }

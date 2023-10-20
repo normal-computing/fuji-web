@@ -4,7 +4,7 @@ import {
   disableIncompatibleExtensions,
   reenableExtensions,
 } from '../helpers/disableExtensions';
-import { callDOMAction } from '../helpers/domActions';
+import { DomActions } from '../helpers/domActions';
 import {
   ParsedResponse,
   ParsedResponseSuccess,
@@ -150,14 +150,11 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             break;
           }
 
+          const domActions = new DomActions(tabId);
           if (action.parsedAction.name === 'click') {
-            await callDOMAction(tabId, 'click', action.parsedAction.args);
+            await domActions.clickWithElementId(action.parsedAction.args);
           } else if (action.parsedAction.name === 'setValue') {
-            await callDOMAction(
-              tabId,
-              action?.parsedAction.name,
-              action?.parsedAction.args
-            );
+            await domActions.setValueWithElementId(action.parsedAction.args);
           }
 
           if (wasStopped()) break;

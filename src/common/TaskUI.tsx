@@ -52,7 +52,7 @@ const TaskUI = () => {
   return (
     <>
       <button onClick={findChatGPTPage}>send screenshot to chatgpt</button>
-      {/* <Textarea
+      <Textarea
         autoFocus
         placeholder="Taxy uses OpenAI's GPT-4 API to perform actions on the current page. Try telling it to sign up for a newsletter, or to add an item to your cart."
         value={state.instructions || ''}
@@ -66,7 +66,7 @@ const TaskUI = () => {
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>
-      <TaskHistory /> */}
+      <TaskHistory />
     </>
   );
 };

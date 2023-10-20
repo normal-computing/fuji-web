@@ -3,7 +3,7 @@ import { callRPC, callRPCWithTab } from './pageRPC';
 import { scrollScriptString } from './runtimeFunctionStrings';
 import { sleep } from './utils';
 
-class DomActions {
+export class DomActions {
   static delayBetweenClicks = 1000; // Set this value to control the delay between clicks
   static delayBetweenKeystrokes = 100; // Set this value to control typing speed
 
@@ -13,11 +13,11 @@ class DomActions {
     this.tabId = tabId;
   }
 
-  async sendCommand(method: string, params?: any) {
+  private async sendCommand(method: string, params?: any) {
     return chrome.debugger.sendCommand({ tabId: this.tabId }, method, params);
   }
 
-  async getObjectIdBySelector(selector: string) {
+  private async getObjectIdBySelector(selector: string) {
     const document = (await this.sendCommand('DOM.getDocument')) as any;
     const { nodeId } = (await this.sendCommand('DOM.querySelector', {
       nodeId: document.root.nodeId,
@@ -37,7 +37,7 @@ class DomActions {
     return objectId;
   }
 
-  async getObjectId(originalId: number) {
+  private async getObjectId(originalId: number) {
     const uniqueId = await callRPC({
       type: 'getUniqueElementSelectorId',
       payload: [originalId],
@@ -47,7 +47,7 @@ class DomActions {
     );
   }
 
-  async scrollIntoView(objectId: string) {
+  private async scrollIntoView(objectId: string) {
     await this.sendCommand('Runtime.callFunctionOn', {
       objectId,
       functionDeclaration: scrollScriptString,
@@ -55,7 +55,7 @@ class DomActions {
     await sleep(1000);
   }
 
-  async getCenterCoordinates(objectId: string) {
+  private async getCenterCoordinates(objectId: string) {
     const { model } = (await this.sendCommand('DOM.getBoxModel', {
       objectId,
     })) as any;
@@ -65,7 +65,11 @@ class DomActions {
     return { x: centerX, y: centerY };
   }
 
-  async clickAtPosition(x: number, y: number, clickCount = 1): Promise<void> {
+  private async clickAtPosition(
+    x: number,
+    y: number,
+    clickCount = 1
+  ): Promise<void> {
     callRPC({
       type: 'ripple',
       payload: [x, y],
@@ -87,25 +91,11 @@ class DomActions {
     await sleep(DomActions.delayBetweenClicks);
   }
 
-  public async click(payload: { elementId: number }) {
-    const objectId = await this.getObjectId(payload.elementId);
-    await this.scrollIntoView(objectId);
-    const { x, y } = await this.getCenterCoordinates(objectId);
-    await this.clickAtPosition(x, y);
-  }
-
-  public async clickWithSelector(selector: string) {
-    const objectId = await this.getObjectIdBySelector(selector);
-    await this.scrollIntoView(objectId);
-    const { x, y } = await this.getCenterCoordinates(objectId);
-    await this.clickAtPosition(x, y);
-  }
-
-  async selectAllText(x: number, y: number) {
+  private async selectAllText(x: number, y: number) {
     await this.clickAtPosition(x, y, 3);
   }
 
-  async typeText(text: string): Promise<void> {
+  private async typeText(text: string): Promise<void> {
     for (const char of text) {
       await this.sendCommand('Input.dispatchKeyEvent', {
         type: 'keyDown',
@@ -120,7 +110,7 @@ class DomActions {
     }
   }
 
-  async blurFocusedElement() {
+  private async blurFocusedElement() {
     const blurFocusedElementScript = `
       if (document.activeElement) {
         document.activeElement.blur();
@@ -131,7 +121,7 @@ class DomActions {
     });
   }
 
-  public async setValue(payload: {
+  public async setValueWithElementId(payload: {
     elementId: number;
     value: string;
   }): Promise<void> {
@@ -151,22 +141,18 @@ class DomActions {
       payload: [payload.data, payload.selector],
     });
   }
+
+  public async clickWithElementId(payload: { elementId: number }) {
+    const objectId = await this.getObjectId(payload.elementId);
+    await this.scrollIntoView(objectId);
+    const { x, y } = await this.getCenterCoordinates(objectId);
+    await this.clickAtPosition(x, y);
+  }
+
+  public async clickWithSelector(payload: { selector: string }) {
+    const objectId = await this.getObjectIdBySelector(payload.selector);
+    await this.scrollIntoView(objectId);
+    const { x, y } = await this.getCenterCoordinates(objectId);
+    await this.clickAtPosition(x, y);
+  }
 }
-
-export type ActionName =
-  | 'click'
-  | 'setValue'
-  | 'clickWithSelector'
-  | 'attachFile';
-export type ActionPayload<T extends ActionName> = Parameters<DomActions[T]>[0];
-
-// Call this function from the content script
-export const callDOMAction = async <T extends ActionName>(
-  tabId: number,
-  type: T,
-  payload: ActionPayload<T>
-): Promise<void> => {
-  const domActions = new DomActions(tabId);
-  // @ts-expect-error - we know that the type is valid
-  await domActions[type](payload);
-};
