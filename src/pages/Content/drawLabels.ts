@@ -46,6 +46,10 @@ function isElementNode(node: Node): node is Element {
   return node.nodeType === Node.ELEMENT_NODE;
 }
 
+function isInputElement(node: Node): node is HTMLInputElement {
+  return isElementNode(node) && node.tagName === 'INPUT';
+}
+
 function isVisible(element: Element, checkViewport = false) {
   const style = getComputedStyle(element);
   const rect = element.getBoundingClientRect();
@@ -110,7 +114,34 @@ function traverseDom(node: Node, selector: string): DomAttrs {
 
     let visibleText = '';
     let ariaLabel = '';
-    if (node.hasAttribute('aria-label')) {
+    // aria-labelledby has higher priority than aria-label
+    // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-labelledby
+    if (node.hasAttribute('aria-labelledby')) {
+      // use Set to dedupe
+      const ids = new Set<string>(
+        node.getAttribute('aria-labelledby')?.split(' ') ?? []
+      );
+
+      const label = Array.from(ids)
+        .map((id: string) => {
+          const labelElem = document.getElementById(id);
+          if (labelElem) {
+            if (isInputElement(labelElem)) {
+              // for input elements, use the value as the label
+              return labelElem.value;
+            }
+            // doesn't matter if the text is visible or not
+            return labelElem.textContent ?? '';
+          }
+        })
+        .join(' ')
+        .trim();
+
+      if (ariaLabel.length === 0 && label.length > 0) {
+        ariaLabel = label;
+      }
+    }
+    if (ariaLabel.length === 0 && node.hasAttribute('aria-label')) {
       ariaLabel = node.getAttribute('aria-label') ?? '';
     }
 
@@ -153,19 +184,34 @@ function drawLabelsOnSelector(selector: string) {
     // skip if the element is already touched
     // this is avoid cases where the selector matches nested elements, e.g. an input and its parent label
     if (isTouchedElement(elem)) return;
+    // if the element has aria-hidden="true", skip it
+    if (elem.getAttribute('aria-hidden') === 'true') return;
+    // if the tabindex is negative, skip it
+    if (elem.hasAttribute('tabindex')) {
+      const tabIndex = parseInt(elem.getAttribute('tabindex') ?? '');
+      if (tabIndex < 0) return;
+    }
     // if the element is not visible, skip it
     if (!isVisible(elem, true)) return;
+    // if the element is an input, hopefully the value or the placeholder is visible
+    if (isInputElement(elem)) {
+      if (elem.value.length > 0 || elem.placeholder.length > 0) {
+        return;
+      }
+    }
 
     const { visibleText, ariaLabel } = traverseDom(elem, selector);
     // if the element already has visible text, no need to add a label
     if (visibleText !== '') {
       return;
     }
-    // use the aria-label if it exists, otherwise just use the tag+index
+    // use the aria-label if it exists
     let labelBase = '';
     if (ariaLabel.length > 0) {
       labelBase = ariaLabel;
-    } else {
+    }
+    // fallback to tag+index
+    if (labelBase.length === 0) {
       // for tag A we use "button" for better readability
       const tagName =
         elem.tagName === 'A' ? 'button' : elem.tagName.toLowerCase();
