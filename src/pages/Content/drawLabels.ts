@@ -1,3 +1,9 @@
+import {
+  VISIBLE_TEXT_ATTRIBUTE_NAME,
+  ARIA_LABEL_ATTRIBUTE_NAME,
+  WEB_WAND_LABEL_ATTRIBUTE_NAME,
+} from '../../constants';
+
 const styleElem = document.createElement('style');
 styleElem.setAttribute('type', 'text/css');
 styleElem.innerHTML = `
@@ -80,15 +86,11 @@ const emptyDomAttrs: DomAttrs = {
   ariaLabel: '',
 };
 
-const visibleTextAttributeName = 'data-md-visible-text';
-const ariaLabelArributeName = 'data-md-aria-label';
-const labelAttributeName = 'data-md-label';
-
 // check if the node has the attributes we added
 function isTouchedElement(elem: Element) {
   return (
-    elem.hasAttribute(visibleTextAttributeName) ||
-    elem.hasAttribute(ariaLabelArributeName)
+    elem.hasAttribute(VISIBLE_TEXT_ATTRIBUTE_NAME) ||
+    elem.hasAttribute(ARIA_LABEL_ATTRIBUTE_NAME)
   );
 }
 
@@ -101,8 +103,8 @@ function traverseDom(node: Node, selector: string): DomAttrs {
     if (!isVisible(node)) return emptyDomAttrs; // skip if the element is not visible
     if (isTouchedElement(node)) {
       return {
-        visibleText: node.getAttribute(visibleTextAttributeName) ?? '',
-        ariaLabel: node.getAttribute(ariaLabelArributeName) ?? '',
+        visibleText: node.getAttribute(VISIBLE_TEXT_ATTRIBUTE_NAME) ?? '',
+        ariaLabel: node.getAttribute(ARIA_LABEL_ATTRIBUTE_NAME) ?? '',
       };
     }
 
@@ -127,8 +129,8 @@ function traverseDom(node: Node, selector: string): DomAttrs {
     }
 
     // cache attributes in DOM
-    node.setAttribute(visibleTextAttributeName, visibleText);
-    node.setAttribute(ariaLabelArributeName, ariaLabel);
+    node.setAttribute(VISIBLE_TEXT_ATTRIBUTE_NAME, visibleText);
+    node.setAttribute(ARIA_LABEL_ATTRIBUTE_NAME, ariaLabel);
     return { visibleText, ariaLabel };
   }
   return emptyDomAttrs;
@@ -178,7 +180,7 @@ function drawLabelsOnSelector(selector: string) {
 
     const label = `${labelBase}${labelSuffix}`;
     // set attribute so it's easier to find the element with selector
-    elem.setAttribute(labelAttributeName, label);
+    elem.setAttribute(WEB_WAND_LABEL_ATTRIBUTE_NAME, label);
 
     const rect = elem.getBoundingClientRect();
     // Create a new <div>
