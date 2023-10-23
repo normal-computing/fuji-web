@@ -209,6 +209,12 @@ const selectorForInteractiveElements =
   '[tabindex], [onclick], [onmouseover], [onmousedown], [onmouseup],' + // we don't include keyboard events yet
   '[role="button"], [role="link"], [role="textbox"]';
 
-export default function drawLabels() {
+export function drawLabels() {
   drawLabelsOnSelector(selectorForInteractiveElements);
+}
+
+export function removeLabels() {
+  document.querySelectorAll('._label_overlay_wrapper').forEach((elem) => {
+    elem.remove();
+  });
 }

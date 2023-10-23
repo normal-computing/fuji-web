@@ -4,7 +4,7 @@
 import getAnnotatedDOM, { getUniqueElementSelectorId } from './getAnnotatedDOM';
 import { copyToClipboard } from './copyToClipboard';
 import attachFile from './attachFile';
-import drawLabels from './drawLabels';
+import { drawLabels, removeLabels } from './drawLabels';
 import ripple from './ripple';
 
 const rpcMethods = {
@@ -14,6 +14,7 @@ const rpcMethods = {
   copyToClipboard,
   attachFile,
   drawLabels,
+  removeLabels,
 } as const;
 
 export type RPCMethods = typeof rpcMethods;

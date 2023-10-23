@@ -43,6 +43,10 @@ async function takeScreenshot(): Promise<string | null> {
   const tab = tabs[0];
   if (tab && tab.id != null) {
     await chrome.debugger.attach({ tabId: tab.id }, '1.3');
+    await callRPCWithTab(tab.id, {
+      type: 'drawLabels',
+      payload: [],
+    });
     const screenshotData = (await chrome.debugger.sendCommand(
       { tabId: tab.id },
       'Page.captureScreenshot',
@@ -50,6 +54,10 @@ async function takeScreenshot(): Promise<string | null> {
         format: 'png', // or 'jpeg'
       }
     )) as any;
+    await callRPCWithTab(tab.id, {
+      type: 'removeLabels',
+      payload: [],
+    });
     return screenshotData.data;
   }
   return null;
