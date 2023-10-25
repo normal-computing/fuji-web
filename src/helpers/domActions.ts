@@ -21,23 +21,22 @@ export class DomActions {
     return chrome.debugger.sendCommand({ tabId: this.tabId }, method, params);
   }
 
-  private async getObjectIdBySelector(selector: string) {
+  private async getObjectIdBySelector(
+    selector: string
+  ): Promise<string | undefined> {
     const document = await this.sendCommand('DOM.getDocument');
     const { nodeId } = await this.sendCommand('DOM.querySelector', {
       nodeId: document.root.nodeId,
       selector,
     });
     if (!nodeId) {
-      throw new Error('Could not find node');
+      return;
     }
     // get object id
     const result = await this.sendCommand('DOM.resolveNode', {
       nodeId,
     });
     const objectId = result.object.objectId;
-    if (!objectId) {
-      throw new Error('Could not find object');
-    }
     return objectId;
   }
 
@@ -170,6 +169,9 @@ export class DomActions {
     value: string;
   }): Promise<void> {
     const objectId = await this.getObjectId(payload.elementId);
+    if (!objectId) {
+      return;
+    }
     await this.scrollIntoView(objectId);
     const { x, y } = await this.getCenterCoordinates(objectId);
 
@@ -188,26 +190,21 @@ export class DomActions {
 
   public async clickWithElementId(payload: { elementId: number }) {
     const objectId = await this.getObjectId(payload.elementId);
+    if (!objectId) {
+      return;
+    }
     await this.scrollIntoView(objectId);
     const { x, y } = await this.getCenterCoordinates(objectId);
     await this.clickAtPosition(x, y);
   }
 
-  public async clickWithSelector(payload: {
-    selector: string;
-    throwIfNotFound?: boolean; // defaults to falsy
-  }) {
-    try {
-      const objectId = await this.getObjectIdBySelector(payload.selector);
-      await this.scrollIntoView(objectId);
-      const { x, y } = await this.getCenterCoordinates(objectId);
-      await this.clickAtPosition(x, y);
-    } catch (e) {
-      if (payload.throwIfNotFound) {
-        throw e;
-      } else {
-        return;
-      }
+  public async clickWithSelector(payload: { selector: string }) {
+    const objectId = await this.getObjectIdBySelector(payload.selector);
+    if (!objectId) {
+      return;
     }
+    await this.scrollIntoView(objectId);
+    const { x, y } = await this.getCenterCoordinates(objectId);
+    await this.clickAtPosition(x, y);
   }
 }
