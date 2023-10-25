@@ -13,19 +13,18 @@ async function createChatGPTTab() {
     await chrome.tabs.update(tab.id, { pinned: true });
     await chrome.debugger.attach({ tabId: tab.id }, '1.3');
     console.log(tab);
-    // wait for the page to load
-    // TODO: replace this with a more robust method
-    await sleep(6000);
-    // make sure we are on GPT-4 mode
     const domActions = new DomActions(tab.id);
-    await domActions.clickWithSelector({ selector: '[data-testid="gpt-4"]' });
-    await sleep(2000);
-    // get rid of the new user popup
+    // wait for the page to load
+    // TODO: set a timeout and handle it as error, instead of waiting forever
+    await domActions.waitTillHTMLRendered();
+    // get rid of the new user popup if it shows up
     await domActions.clickWithSelector({
       selector: "[role='dialog'] button.btn",
     });
+    // make sure we are on GPT-4 mode
+    await domActions.clickWithSelector({ selector: '[data-testid="gpt-4"]' });
   } else {
-    throw new Error('Could create one tab');
+    throw new Error('Could not create new tab for ChatGPT');
   }
   return tab.id;
 }
@@ -84,7 +83,7 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
     if (imageData) {
       const chatGPTTabId = await createChatGPTTab();
       console.log(chatGPTTabId);
-      await sleep(1000);
+      await sleep(500);
       callRPCWithTab(chatGPTTabId, {
         type: 'attachFile',
         payload: [imageData],

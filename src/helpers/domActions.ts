@@ -1,7 +1,10 @@
 import { TAXY_ELEMENT_SELECTOR } from '../constants';
 import { callRPC, callRPCWithTab } from './pageRPC';
 import { scrollScriptString } from './runtimeFunctionStrings';
-import { sleep } from './utils';
+import { sleep, waitFor, waitTillStable } from './utils';
+
+const DEFAULT_INTERVAL = 500;
+const DEFAULT_TIMEOUT = 0;
 
 export class DomActions {
   static delayBetweenClicks = 1000; // Set this value to control the delay between clicks
@@ -13,23 +16,24 @@ export class DomActions {
     this.tabId = tabId;
   }
 
-  private async sendCommand(method: string, params?: any) {
+  // TODO: investigate whether it's possible to type this
+  private async sendCommand(method: string, params?: any): Promise<any> {
     return chrome.debugger.sendCommand({ tabId: this.tabId }, method, params);
   }
 
   private async getObjectIdBySelector(selector: string) {
-    const document = (await this.sendCommand('DOM.getDocument')) as any;
-    const { nodeId } = (await this.sendCommand('DOM.querySelector', {
+    const document = await this.sendCommand('DOM.getDocument');
+    const { nodeId } = await this.sendCommand('DOM.querySelector', {
       nodeId: document.root.nodeId,
       selector,
-    })) as any;
+    });
     if (!nodeId) {
       throw new Error('Could not find node');
     }
     // get object id
-    const result = (await this.sendCommand('DOM.resolveNode', {
+    const result = await this.sendCommand('DOM.resolveNode', {
       nodeId,
-    })) as any;
+    });
     const objectId = result.object.objectId;
     if (!objectId) {
       throw new Error('Could not find object');
@@ -56,9 +60,9 @@ export class DomActions {
   }
 
   private async getCenterCoordinates(objectId: string) {
-    const { model } = (await this.sendCommand('DOM.getBoxModel', {
+    const { model } = await this.sendCommand('DOM.getBoxModel', {
       objectId,
-    })) as any;
+    });
     const [x1, y1, x2, y2, x3, y3, x4, y4] = model.border;
     const centerX = (x1 + x3) / 2;
     const centerY = (y1 + y3) / 2;
@@ -121,6 +125,46 @@ export class DomActions {
     });
   }
 
+  public async waitForElement(
+    selector: string,
+    interval = DEFAULT_INTERVAL,
+    timeout = DEFAULT_TIMEOUT
+  ): Promise<number | undefined> {
+    let result: number | undefined;
+    waitFor(
+      async () => {
+        const document = await this.sendCommand('DOM.getDocument');
+        const { nodeId } = await this.sendCommand('DOM.querySelector', {
+          nodeId: document.root.nodeId,
+          selector,
+        });
+        if (nodeId) {
+          result = nodeId;
+        }
+        return !!nodeId;
+      },
+      interval,
+      timeout / interval
+    );
+    return result;
+  }
+
+  public async waitTillHTMLRendered(
+    interval = DEFAULT_INTERVAL,
+    timeout = DEFAULT_TIMEOUT
+  ): Promise<void> {
+    return waitTillStable(
+      async () => {
+        const { result } = await this.sendCommand('Runtime.evaluate', {
+          expression: 'document.documentElement.innerHTML.length',
+        });
+        return result.value;
+      },
+      interval,
+      timeout
+    );
+  }
+
   public async setValueWithElementId(payload: {
     elementId: number;
     value: string;
@@ -149,10 +193,21 @@ export class DomActions {
     await this.clickAtPosition(x, y);
   }
 
-  public async clickWithSelector(payload: { selector: string }) {
-    const objectId = await this.getObjectIdBySelector(payload.selector);
-    await this.scrollIntoView(objectId);
-    const { x, y } = await this.getCenterCoordinates(objectId);
-    await this.clickAtPosition(x, y);
+  public async clickWithSelector(payload: {
+    selector: string;
+    throwIfNotFound?: boolean; // defaults to falsy
+  }) {
+    try {
+      const objectId = await this.getObjectIdBySelector(payload.selector);
+      await this.scrollIntoView(objectId);
+      const { x, y } = await this.getCenterCoordinates(objectId);
+      await this.clickAtPosition(x, y);
+    } catch (e) {
+      if (payload.throwIfNotFound) {
+        throw e;
+      } else {
+        return;
+      }
+    }
   }
 }

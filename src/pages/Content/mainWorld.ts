@@ -8,9 +8,8 @@ import attachFile from './attachFile';
 import { drawLabels, removeLabels } from './drawLabels';
 import ripple from './ripple';
 
-console.log(debugMode);
 if (debugMode) {
-  console.log('GET_WW_RPC_METHODS');
+  console.log('debug mode enabled');
   // @ts-expect-error - this is for debugging only
   window.WW_RPC_METHODS = {
     getAnnotatedDOM,
