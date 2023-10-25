@@ -2,11 +2,10 @@
 // Be careful not to import dependencies that use DOM methods.
 // Do NOT export anything other than types from this file.
 
+import { debugMode } from '../../constants';
 import { sleep } from '../../helpers/utils';
 import { DomActions } from '../../helpers/domActions';
 import { callRPCWithTab } from '../../helpers/pageRPC';
-
-console.log('This is the background page.');
 
 async function createChatGPTTab() {
   const tab = await chrome.tabs.create({ url: 'https://chat.openai.com/' });
@@ -31,7 +30,7 @@ async function createChatGPTTab() {
   return tab.id;
 }
 
-async function takeScreenshot(): Promise<string | null> {
+async function findActiveTab() {
   const currentWindow = await chrome.windows.getCurrent();
   if (!currentWindow || !currentWindow.id) {
     throw new Error('Could not find window');
@@ -41,6 +40,14 @@ async function takeScreenshot(): Promise<string | null> {
     windowId: currentWindow.id,
   });
   const tab = tabs[0];
+  if (tab && tab.id != null) {
+    return tab;
+  }
+  return null;
+}
+
+async function takeScreenshot(): Promise<string | null> {
+  const tab = await findActiveTab();
   if (tab && tab.id != null) {
     await chrome.debugger.attach({ tabId: tab.id }, '1.3');
     await callRPCWithTab(tab.id, {
@@ -82,6 +89,18 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
         type: 'attachFile',
         payload: [imageData],
       });
+    }
+  }
+  if (debugMode) {
+    if (request.action == 'injectFunctions') {
+      const tab = await findActiveTab();
+      if (tab && tab.id) {
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['mainWorld.bundle.js'],
+          world: 'MAIN',
+        });
+      }
     }
   }
 

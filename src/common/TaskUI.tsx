@@ -41,6 +41,11 @@ const TaskUI = () => {
       action: 'navigate',
     });
   };
+  const injectFunctions = async () => {
+    chrome.runtime.sendMessage({
+      action: 'injectFunctions',
+    });
+  };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -51,7 +56,16 @@ const TaskUI = () => {
 
   return (
     <>
-      <button onClick={findChatGPTPage}>send screenshot to chatgpt</button>
+      {debugMode && (
+        <div>
+          <button onClick={injectFunctions}>
+            inject global functions for testing
+          </button>
+        </div>
+      )}
+      <div>
+        <button onClick={findChatGPTPage}>send screenshot to chatgpt</button>
+      </div>
       <Textarea
         autoFocus
         placeholder="Taxy uses OpenAI's GPT-4 API to perform actions on the current page. Try telling it to sign up for a newsletter, or to add an item to your cart."
