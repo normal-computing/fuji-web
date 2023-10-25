@@ -52,7 +52,7 @@ export async function waitTillStable(
       }
 
       if (countStableSizeIterations >= minStableSizeIterations) {
-        console.log('Page rendered fully..');
+        console.log('Size stable! Assume fully rendered..');
         return true;
       }
 

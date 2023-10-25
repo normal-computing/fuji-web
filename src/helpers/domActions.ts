@@ -40,14 +40,16 @@ export class DomActions {
     return objectId;
   }
 
-  private async getObjectId(originalId: number) {
+  private async getTaxySelector(originalId: number) {
     const uniqueId = await callRPC({
       type: 'getUniqueElementSelectorId',
       payload: [originalId],
     });
-    return this.getObjectIdBySelector(
-      `[${TAXY_ELEMENT_SELECTOR}="${uniqueId}"]`
-    );
+    return `[${TAXY_ELEMENT_SELECTOR}="${uniqueId}"]`;
+  }
+
+  private async getObjectId(originalId: number) {
+    return this.getObjectIdBySelector(await this.getTaxySelector(originalId));
   }
 
   private async scrollIntoView(objectId: string) {
@@ -164,11 +166,26 @@ export class DomActions {
     );
   }
 
+  public async attachFile(payload: { data: string; selector?: string }) {
+    return callRPCWithTab(this.tabId, {
+      type: 'attachFile',
+      payload: [payload.data, payload.selector || 'input[type="file"]'],
+    });
+  }
+
   public async setValueWithElementId(payload: {
     elementId: number;
     value: string;
   }): Promise<void> {
-    const objectId = await this.getObjectId(payload.elementId);
+    const selector = await this.getTaxySelector(payload.elementId);
+    return this.setValueWithSelector({ selector, value: payload.value });
+  }
+
+  public async setValueWithSelector(payload: {
+    selector: string;
+    value: string;
+  }): Promise<void> {
+    const objectId = await this.getObjectIdBySelector(payload.selector);
     if (!objectId) {
       return;
     }
@@ -181,21 +198,9 @@ export class DomActions {
     await this.blurFocusedElement();
   }
 
-  public async attachFile(payload: { data: string; selector?: string }) {
-    await callRPCWithTab(this.tabId, {
-      type: 'attachFile',
-      payload: [payload.data, payload.selector],
-    });
-  }
-
   public async clickWithElementId(payload: { elementId: number }) {
-    const objectId = await this.getObjectId(payload.elementId);
-    if (!objectId) {
-      return;
-    }
-    await this.scrollIntoView(objectId);
-    const { x, y } = await this.getCenterCoordinates(objectId);
-    await this.clickAtPosition(x, y);
+    const selector = await this.getTaxySelector(payload.elementId);
+    return this.clickWithSelector({ selector });
   }
 
   public async clickWithSelector(payload: { selector: string }) {

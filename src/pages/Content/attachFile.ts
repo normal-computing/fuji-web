@@ -5,10 +5,7 @@ function base64ToBlob(base64: string, mimeType = '') {
   return new Blob([byteArray], { type: mimeType });
 }
 
-export default function attachFile(
-  data: string,
-  selector = 'input[type="file"]'
-) {
+export default function attachFile(data: string, selector: string) {
   const screenshotBlob = base64ToBlob(data, 'image/png');
   // Create a virtual input element
   const input = document.createElement('input');
@@ -25,7 +22,7 @@ export default function attachFile(
 
   // Find the actual file input on the page and set its files property
   const actualFileInput = document.querySelector(selector) as HTMLInputElement;
-  console.log(actualFileInput);
+  console.log(actualFileInput, selector);
   if (!actualFileInput) {
     console.log('could not find file input');
     return;

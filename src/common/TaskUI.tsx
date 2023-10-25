@@ -39,6 +39,7 @@ const TaskUI = () => {
   const findChatGPTPage = async () => {
     chrome.runtime.sendMessage({
       action: 'navigate',
+      task: 'test text',
     });
   };
   const injectFunctions = async () => {

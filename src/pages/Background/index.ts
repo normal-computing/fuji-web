@@ -82,12 +82,18 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
     await sleep(500);
     if (imageData) {
       const chatGPTTabId = await createChatGPTTab();
-      console.log(chatGPTTabId);
       await sleep(500);
-      callRPCWithTab(chatGPTTabId, {
-        type: 'attachFile',
-        payload: [imageData],
+      const domActions = new DomActions(chatGPTTabId);
+      await domActions.attachFile({
+        data: imageData,
+        selector: 'input[type="file"]',
       });
+      await domActions.setValueWithSelector({
+        selector: '#prompt-textarea',
+        value: request.task, // TODO: add a prompt
+      });
+      await domActions.waitForElement('[data-testid="send-button"]:enabled');
+      console.log('good to send!!');
     }
   }
   if (debugMode) {
