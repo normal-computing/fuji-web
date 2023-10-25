@@ -7,11 +7,22 @@ import { sleep } from '../../helpers/utils';
 import { DomActions } from '../../helpers/domActions';
 import { callRPCWithTab } from '../../helpers/pageRPC';
 
+async function attachToTab(tabId: number) {
+  try {
+    await chrome.debugger.attach({ tabId }, '1.3');
+  } catch {
+    // Chrome throws an error if the debugger is already attached
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=108519#c2
+    console.log('Could not attach debugger -- assume already attached');
+  }
+}
+
+const GPT4_BUTTON_SELECTOR = '[data-testid="gpt-4"]';
+
 async function createChatGPTTab() {
   const tab = await chrome.tabs.create({ url: 'https://chat.openai.com/' });
   if (tab && tab.id != null) {
-    await chrome.tabs.update(tab.id, { pinned: true });
-    await chrome.debugger.attach({ tabId: tab.id }, '1.3');
+    await attachToTab(tab.id);
     console.log(tab);
     const domActions = new DomActions(tab.id);
     // wait for the page to load
@@ -22,7 +33,8 @@ async function createChatGPTTab() {
       selector: "[role='dialog'] button.btn",
     });
     // make sure we are on GPT-4 mode
-    await domActions.clickWithSelector({ selector: '[data-testid="gpt-4"]' });
+    await domActions.waitForElement(GPT4_BUTTON_SELECTOR, 500, 10000);
+    await domActions.clickWithSelector({ selector: GPT4_BUTTON_SELECTOR });
   } else {
     throw new Error('Could not create new tab for ChatGPT');
   }
@@ -48,7 +60,7 @@ async function findActiveTab() {
 async function takeScreenshot(): Promise<string | null> {
   const tab = await findActiveTab();
   if (tab && tab.id != null) {
-    await chrome.debugger.attach({ tabId: tab.id }, '1.3');
+    await attachToTab(tab.id);
     await callRPCWithTab(tab.id, {
       type: 'drawLabels',
       payload: [],
