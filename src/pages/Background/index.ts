@@ -22,6 +22,8 @@ const GPT4_BUTTON_SELECTOR = '[data-testid="gpt-4"]';
 const SHARED_CHAT =
   'https://chat.openai.com/share/4116307f-6853-4fc5-8840-2698a06f8963';
 const SHARED_CHAT_SELECTOR = `[to="${SHARED_CHAT}/continue"]`;
+const FINAL_MESSAGE_SELECTOR =
+  '.final-completion[data-testid*="conversation-turn-"]';
 
 async function createChatGPTTab() {
   const tab = await chrome.tabs.create({
@@ -68,28 +70,24 @@ async function findActiveTab() {
   return null;
 }
 
-async function takeScreenshot(): Promise<string | null> {
-  const tab = await findActiveTab();
-  if (tab && tab.id != null) {
-    await attachToTab(tab.id);
-    await callRPCWithTab(tab.id, {
-      type: 'drawLabels',
-      payload: [],
-    });
-    const screenshotData = (await chrome.debugger.sendCommand(
-      { tabId: tab.id },
-      'Page.captureScreenshot',
-      {
-        format: 'png', // or 'jpeg'
-      }
-    )) as any;
-    await callRPCWithTab(tab.id, {
-      type: 'removeLabels',
-      payload: [],
-    });
-    return screenshotData.data;
-  }
-  return null;
+async function takeScreenshot(tabId: number): Promise<string | null> {
+  await attachToTab(tabId);
+  await callRPCWithTab(tabId, {
+    type: 'drawLabels',
+    payload: [],
+  });
+  const screenshotData = (await chrome.debugger.sendCommand(
+    { tabId: tabId },
+    'Page.captureScreenshot',
+    {
+      format: 'png', // or 'jpeg'
+    }
+  )) as any;
+  await callRPCWithTab(tabId, {
+    type: 'removeLabels',
+    payload: [],
+  });
+  return screenshotData.data;
 }
 
 chrome.runtime.onMessage.addListener(async (request, sender) => {
@@ -100,7 +98,12 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
     request
   );
   if (request.action == 'runTask') {
-    const imageData = await takeScreenshot();
+    const tab = await findActiveTab();
+    if (!tab || tab.id == null) {
+      return;
+    }
+
+    const imageData = await takeScreenshot(tab.id);
     await sleep(200);
     if (imageData) {
       const chatGPTTabId = await createChatGPTTab();
@@ -119,6 +122,39 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
       await domActions.clickWithSelector({
         selector: '[data-testid="send-button"]:enabled',
       });
+      await sleep(500);
+      // make sure the .final-completion element is rendered
+      await domActions.waitForElement(FINAL_MESSAGE_SELECTOR);
+      // at this point ChatGPT should be streaming the latest message, wait for it to finish
+      // TODO: investigate if there's a better way to do this
+      await domActions.waitTillElementRendered(
+        `document.querySelector('${FINAL_MESSAGE_SELECTOR}')`
+      );
+      const message = await callRPCWithTab(chatGPTTabId, {
+        type: 'getDataFromRenderedMarkdown',
+        payload: [FINAL_MESSAGE_SELECTOR],
+      });
+      // TODO: make this more robust
+      if (message && typeof message === 'object' && message.codeBlocks) {
+        const codeBlock = message.codeBlocks[0] || '{}';
+        try {
+          const action = JSON.parse(codeBlock);
+          // TODO: handle actions
+          if (action.action === 'click') {
+            // await chrome.tabs.update(tab.id, {
+            //   active: true,
+            // });
+            // const domActionsOnOldTab = new DomActions(tab.id);
+            // // click on the element
+            // await domActionsOnOldTab.clickWithSelector({
+            //   selector: action.selector,
+            // });
+          }
+        } catch (e) {
+          console.log('bad action format');
+          console.log(e);
+        }
+      }
     }
   }
   if (debugMode) {
