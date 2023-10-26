@@ -6,6 +6,7 @@ import { copyToClipboard } from './copyToClipboard';
 import attachFile from './attachFile';
 import { drawLabels, removeLabels } from './drawLabels';
 import ripple from './ripple';
+import { getDataFromRenderedMarkdown } from './reverseMarkdown';
 
 const rpcMethods = {
   getAnnotatedDOM,
@@ -15,19 +16,20 @@ const rpcMethods = {
   attachFile,
   drawLabels,
   removeLabels,
+  getDataFromRenderedMarkdown,
 } as const;
 
 export type RPCMethods = typeof rpcMethods;
 export type MethodName = keyof RPCMethods;
 export type Payload<T extends MethodName> = Parameters<RPCMethods[T]>;
 // export type MethodRT<T extends MethodName> = ReturnType<RPCMethods[T]>;
-export type MethodRT = {
-  [K in MethodName]: ReturnType<RPCMethods[MethodName]>;
-}[MethodName];
-export type RPCMessage = {
+export type RPCDefinition = {
   [K in MethodName]: {
-    type: K;
-    payload: Parameters<RPCMethods[K]>;
+    ReturnType: ReturnType<RPCMethods[K]>;
+    Message: {
+      type: K;
+      payload: Parameters<RPCMethods[K]>;
+    };
   };
 }[MethodName];
 
@@ -38,7 +40,11 @@ const isKnownMethodName = (type: string) => {
 // This function should run in the content script
 const watchForRPCRequests = () => {
   chrome.runtime.onMessage.addListener(
-    (message: RPCMessage, sender, sendResponse): true | undefined => {
+    (
+      message: RPCDefinition['Message'],
+      sender,
+      sendResponse
+    ): true | undefined => {
       if (!isKnownMethodName(message.type)) {
         return;
       }

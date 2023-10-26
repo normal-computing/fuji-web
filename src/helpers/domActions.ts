@@ -176,6 +176,25 @@ export class DomActions {
     return result;
   }
 
+  // Note: if element is not in the DOM, it is "stable" at 0 length
+  // so always check if it exists first (e.g. with waitForElement)
+  public async waitTillElementRendered(
+    selectorExpression: string,
+    interval = DEFAULT_INTERVAL,
+    timeout = DEFAULT_TIMEOUT
+  ): Promise<void> {
+    return waitTillStable(
+      async () => {
+        const { result } = await this.sendCommand('Runtime.evaluate', {
+          expression: `${selectorExpression}?.innerHTML?.length`,
+        });
+        return result.value || 0;
+      },
+      interval,
+      timeout
+    );
+  }
+
   public async waitTillHTMLRendered(
     interval = DEFAULT_INTERVAL,
     timeout = DEFAULT_TIMEOUT
