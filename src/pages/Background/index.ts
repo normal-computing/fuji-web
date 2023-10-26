@@ -6,6 +6,7 @@ import { debugMode } from '../../constants';
 import { sleep } from '../../helpers/utils';
 import { DomActions } from '../../helpers/domActions';
 import { callRPCWithTab } from '../../helpers/pageRPC';
+import { getPrompt } from './prompt';
 
 async function attachToTab(tabId: number) {
   try {
@@ -18,23 +19,33 @@ async function attachToTab(tabId: number) {
 }
 
 const GPT4_BUTTON_SELECTOR = '[data-testid="gpt-4"]';
+const SHARED_CHAT =
+  'https://chat.openai.com/share/4116307f-6853-4fc5-8840-2698a06f8963';
+const SHARED_CHAT_SELECTOR = `[to="${SHARED_CHAT}/continue"]`;
 
 async function createChatGPTTab() {
-  const tab = await chrome.tabs.create({ url: 'https://chat.openai.com/' });
+  const tab = await chrome.tabs.create({
+    url: SHARED_CHAT,
+  });
   if (tab && tab.id != null) {
     await attachToTab(tab.id);
     console.log(tab);
     const domActions = new DomActions(tab.id);
     // wait for the page to load
-    // TODO: set a timeout and handle it as error, instead of waiting forever
+    await domActions.waitTillHTMLRendered();
+    // this is a shared chat, we expect to find a "Continue this conversation" button
+    await domActions.waitForElement(SHARED_CHAT_SELECTOR);
+    await domActions.clickWithSelector({ selector: SHARED_CHAT_SELECTOR });
+    // wait for the actual Chat Screen page to load
+    await sleep(1500);
     await domActions.waitTillHTMLRendered();
     // get rid of the new user popup if it shows up
     await domActions.clickWithSelector({
       selector: "[role='dialog'] button.btn",
     });
     // make sure we are on GPT-4 mode
-    await domActions.waitForElement(GPT4_BUTTON_SELECTOR, 500, 10000);
-    await domActions.clickWithSelector({ selector: GPT4_BUTTON_SELECTOR });
+    // await domActions.waitForElement(GPT4_BUTTON_SELECTOR, 500, 10000);
+    // await domActions.clickWithSelector({ selector: GPT4_BUTTON_SELECTOR });
   } else {
     throw new Error('Could not create new tab for ChatGPT');
   }
@@ -88,10 +99,9 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
       : 'from the extension',
     request
   );
-  if (request.action == 'navigate') {
+  if (request.action == 'runTask') {
     const imageData = await takeScreenshot();
-    console.log('imageDat', imageData);
-    await sleep(500);
+    await sleep(200);
     if (imageData) {
       const chatGPTTabId = await createChatGPTTab();
       await sleep(500);
@@ -102,10 +112,13 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
       });
       await domActions.setValueWithSelector({
         selector: '#prompt-textarea',
-        value: request.task, // TODO: add a prompt
+        value: getPrompt(request.task),
+        shiftEnter: true,
       });
       await domActions.waitForElement('[data-testid="send-button"]:enabled');
-      console.log('good to send!!');
+      await domActions.clickWithSelector({
+        selector: '[data-testid="send-button"]:enabled',
+      });
     }
   }
   if (debugMode) {

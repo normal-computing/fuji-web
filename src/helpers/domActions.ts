@@ -8,7 +8,7 @@ const DEFAULT_TIMEOUT = 0;
 
 export class DomActions {
   static delayBetweenClicks = 1000; // Set this value to control the delay between clicks
-  static delayBetweenKeystrokes = 100; // Set this value to control typing speed
+  static delayBetweenKeystrokes = 50; // Set this value to control typing speed
 
   tabId: number;
 
@@ -100,8 +100,34 @@ export class DomActions {
     await this.clickAtPosition(x, y, 3);
   }
 
-  private async typeText(text: string): Promise<void> {
+  private async typeText(text: string, shiftEnter = false): Promise<void> {
+    const enterModifier = shiftEnter ? 8 : 0;
     for (const char of text) {
+      // handle enter
+      if (char === '\n') {
+        await this.sendCommand('Input.dispatchKeyEvent', {
+          type: 'rawKeyDown',
+          modifiers: enterModifier,
+          windowsVirtualKeyCode: 13,
+          unmodifiedText: '\r',
+          text: '\r',
+        });
+        await this.sendCommand('Input.dispatchKeyEvent', {
+          type: 'char',
+          modifiers: enterModifier,
+          windowsVirtualKeyCode: 13,
+          unmodifiedText: '\r',
+          text: '\r',
+        });
+        await this.sendCommand('Input.dispatchKeyEvent', {
+          type: 'keyUp',
+          modifiers: enterModifier,
+          windowsVirtualKeyCode: 13,
+          unmodifiedText: '\r',
+          text: '\r',
+        });
+        continue;
+      }
       await this.sendCommand('Input.dispatchKeyEvent', {
         type: 'keyDown',
         text: char,
@@ -176,14 +202,20 @@ export class DomActions {
   public async setValueWithElementId(payload: {
     elementId: number;
     value: string;
+    shiftEnter?: boolean;
   }): Promise<void> {
     const selector = await this.getTaxySelector(payload.elementId);
-    return this.setValueWithSelector({ selector, value: payload.value });
+    return this.setValueWithSelector({
+      selector,
+      value: payload.value,
+      shiftEnter: payload.shiftEnter,
+    });
   }
 
   public async setValueWithSelector(payload: {
     selector: string;
     value: string;
+    shiftEnter?: boolean;
   }): Promise<void> {
     const objectId = await this.getObjectIdBySelector(payload.selector);
     if (!objectId) {
@@ -193,7 +225,7 @@ export class DomActions {
     const { x, y } = await this.getCenterCoordinates(objectId);
 
     await this.selectAllText(x, y);
-    await this.typeText(payload.value);
+    await this.typeText(payload.value, payload.shiftEnter ?? false);
     // blur the element
     await this.blurFocusedElement();
   }

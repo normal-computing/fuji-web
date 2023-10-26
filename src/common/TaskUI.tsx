@@ -33,7 +33,13 @@ const TaskUI = () => {
   );
 
   const runTask = () => {
-    state.instructions && state.runTask(toastError);
+    // state.instructions && state.runTask(toastError);
+    if (state.instructions) {
+      chrome.runtime.sendMessage({
+        action: 'runTask',
+        task: state.instructions,
+      });
+    }
   };
 
   const findChatGPTPage = async () => {
@@ -64,12 +70,9 @@ const TaskUI = () => {
           </button>
         </div>
       )}
-      <div>
-        <button onClick={findChatGPTPage}>send screenshot to chatgpt</button>
-      </div>
       <Textarea
         autoFocus
-        placeholder="Taxy uses OpenAI's GPT-4 API to perform actions on the current page. Try telling it to sign up for a newsletter, or to add an item to your cart."
+        placeholder="Try telling it to sign up for a newsletter, or to add an item to your cart."
         value={state.instructions || ''}
         disabled={taskInProgress}
         onChange={(e) => state.setInstructions(e.target.value)}

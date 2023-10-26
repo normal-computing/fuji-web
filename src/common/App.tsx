@@ -8,7 +8,7 @@ import OptionsDropdown from './OptionsDropdown';
 import logo from '../assets/img/icon-128.png';
 
 const App = () => {
-  const openAIKey = useAppState((state) => state.settings.openAIKey);
+  // const openAIKey = useAppState((state) => state.settings.openAIKey);
 
   return (
     <ChakraProvider>
@@ -30,7 +30,7 @@ const App = () => {
             <OptionsDropdown />
           </HStack>
         </HStack>
-        {openAIKey ? <TaskUI /> : <SetAPIKey />}
+        <TaskUI />
       </Box>
     </ChakraProvider>
   );
