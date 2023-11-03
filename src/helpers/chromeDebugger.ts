@@ -1,4 +1,13 @@
-export function attachDebugger(tabId: number) {
+export async function isDebuggerAttached(tabId: number) {
+  const targets = await chrome.debugger.getTargets();
+  return targets.some((target) => target.tabId === tabId && target.attached);
+}
+
+export async function attachDebugger(tabId: number) {
+  const isAttached = await isDebuggerAttached(tabId);
+  if (isAttached) {
+    return;
+  }
   return new Promise<void>((resolve, reject) => {
     try {
       chrome.debugger.attach({ tabId }, '1.2', async () => {
@@ -28,10 +37,7 @@ export function attachDebugger(tabId: number) {
 }
 
 export async function detachDebugger(tabId: number) {
-  const targets = await chrome.debugger.getTargets();
-  const isAttached = targets.some(
-    (target) => target.tabId === tabId && target.attached
-  );
+  const isAttached = await isDebuggerAttached(tabId);
   if (isAttached) {
     chrome.debugger.detach({ tabId: tabId });
   }

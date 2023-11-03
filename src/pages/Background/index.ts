@@ -7,16 +7,7 @@ import { sleep } from '../../helpers/utils';
 import { DomActions } from '../../helpers/domActions';
 import { callRPCWithTab } from '../../helpers/pageRPC';
 import { getPrompt } from './prompt';
-
-async function attachToTab(tabId: number) {
-  try {
-    await chrome.debugger.attach({ tabId }, '1.3');
-  } catch {
-    // Chrome throws an error if the debugger is already attached
-    // https://bugs.chromium.org/p/chromium/issues/detail?id=108519#c2
-    console.log('Could not attach debugger -- assume already attached');
-  }
-}
+import { attachDebugger } from '../../helpers/chromeDebugger';
 
 const GPT4_BUTTON_SELECTOR = '[data-testid="gpt-4"]';
 const SHARED_CHAT =
@@ -30,8 +21,8 @@ async function createChatGPTTab() {
     url: SHARED_CHAT,
   });
   if (tab && tab.id != null) {
-    await attachToTab(tab.id);
     console.log(tab);
+    await attachDebugger(tab.id);
     const domActions = new DomActions(tab.id);
     // wait for the page to load
     await domActions.waitTillHTMLRendered();
@@ -71,7 +62,7 @@ async function findActiveTab() {
 }
 
 async function takeScreenshot(tabId: number): Promise<string | null> {
-  await attachToTab(tabId);
+  await attachDebugger(tabId);
   await callRPCWithTab(tabId, {
     type: 'drawLabels',
     payload: [],
