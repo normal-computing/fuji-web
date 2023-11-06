@@ -7,6 +7,7 @@ import { sleep } from '../../helpers/utils';
 import { DomActions } from '../../helpers/domActions';
 import { callRPCWithTab } from '../../helpers/pageRPC';
 import { getPrompt } from './prompt';
+import performAction from './performAction';
 import { attachDebugger } from '../../helpers/chromeDebugger';
 
 const GPT4_BUTTON_SELECTOR = '[data-testid="gpt-4"]';
@@ -130,17 +131,11 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
         const codeBlock = message.codeBlocks[0] || '{}';
         try {
           const action = JSON.parse(codeBlock);
-          // TODO: handle actions
-          if (action.action === 'click') {
-            // await chrome.tabs.update(tab.id, {
-            //   active: true,
-            // });
-            // const domActionsOnOldTab = new DomActions(tab.id);
-            // // click on the element
-            // await domActionsOnOldTab.clickWithSelector({
-            //   selector: action.selector,
-            // });
-          }
+          await chrome.tabs.update(tab.id, {
+            active: true,
+          });
+          await sleep(200);
+          await performAction(tab.id, action);
         } catch (e) {
           console.log('bad action format');
           console.log(e);

@@ -222,7 +222,7 @@ export class DomActions {
     elementId: number;
     value: string;
     shiftEnter?: boolean;
-  }): Promise<void> {
+  }): Promise<boolean> {
     const selector = await this.getTaxySelector(payload.elementId);
     return this.setValueWithSelector({
       selector,
@@ -235,10 +235,10 @@ export class DomActions {
     selector: string;
     value: string;
     shiftEnter?: boolean;
-  }): Promise<void> {
+  }): Promise<boolean> {
     const objectId = await this.getObjectIdBySelector(payload.selector);
     if (!objectId) {
-      return;
+      return false;
     }
     await this.scrollIntoView(objectId);
     const { x, y } = await this.getCenterCoordinates(objectId);
@@ -247,6 +247,7 @@ export class DomActions {
     await this.typeText(payload.value, payload.shiftEnter ?? false);
     // blur the element
     await this.blurFocusedElement();
+    return true;
   }
 
   public async clickWithElementId(payload: { elementId: number }) {
@@ -254,13 +255,16 @@ export class DomActions {
     return this.clickWithSelector({ selector });
   }
 
-  public async clickWithSelector(payload: { selector: string }) {
+  public async clickWithSelector(payload: {
+    selector: string;
+  }): Promise<boolean> {
     const objectId = await this.getObjectIdBySelector(payload.selector);
     if (!objectId) {
-      return;
+      return false;
     }
     await this.scrollIntoView(objectId);
     const { x, y } = await this.getCenterCoordinates(objectId);
     await this.clickAtPosition(x, y);
+    return true;
   }
 }

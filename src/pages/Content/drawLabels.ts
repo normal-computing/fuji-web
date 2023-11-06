@@ -201,8 +201,10 @@ function drawLabelsOnSelector(selector: string) {
     }
 
     const { visibleText, ariaLabel } = traverseDom(elem, selector);
-    // if the element already has visible text, no need to add a label
+    // if the element already has visible text, just use it as label and skip
+    // TODO: detect and avoid duplication
     if (visibleText !== '') {
+      elem.setAttribute(WEB_WAND_LABEL_ATTRIBUTE_NAME, visibleText);
       return;
     }
     // use the aria-label if it exists
