@@ -30,6 +30,39 @@ export function extractJsonFromMarkdown(input: string): string[] {
   return results;
 }
 
+function parseFunctionCall(callString: string) {
+  // First, match the function name and the arguments part
+  const functionPattern = /(\w+)\((.*)\)/;
+  const matches = callString.match(functionPattern);
+
+  if (!matches) {
+    throw new Error('Input does not match a function call pattern.');
+  }
+
+  const [, name, argsPart] = matches;
+
+  // Then, match the arguments inside the args part
+  // This pattern looks for either strings or numbers as arguments
+  const argsPattern = /(".*?"|\d+|'.*?')/g;
+  const argsMatches = argsPart.match(argsPattern);
+
+  // Process matched arguments to strip quotes
+  const args = argsMatches
+    ? argsMatches.map((arg: string) => {
+        // Remove leading and trailing quotes if they exist
+        if (arg.startsWith(`"`) && arg.endsWith(`"`)) {
+          return arg.slice(1, -1);
+        } else if (arg.startsWith(`'`) && arg.endsWith(`'`)) {
+          return arg.slice(1, -1);
+        }
+        // Parse numbers directly
+        return JSON.parse(arg);
+      })
+    : [];
+
+  return { name, args };
+}
+
 export function parseResponse(text: string): ParsedResponse {
   let action;
   try {
@@ -56,18 +89,8 @@ export function parseResponse(text: string): ParsedResponse {
 
   const thought = action.thought;
   const actionString = action.action;
-  const actionPattern = /(\w+)\((.*?)\)/;
-  const actionParts = actionString.match(actionPattern);
 
-  if (!actionParts) {
-    return {
-      error:
-        'Invalid action format: Action should be in the format functionName(arg1, arg2, ...).',
-    };
-  }
-
-  const actionName = actionParts[1];
-  const actionArgsString = actionParts[2];
+  const { name: actionName, args: argsArray } = parseFunctionCall(actionString);
 
   const availableAction = availableActions.find(
     (action) => action.name === actionName
@@ -78,11 +101,6 @@ export function parseResponse(text: string): ParsedResponse {
       error: `Invalid action: "${actionName}" is not a valid action.`,
     };
   }
-
-  const argsArray = actionArgsString
-    .split(',')
-    .map((arg: string) => arg.trim())
-    .filter((arg: string) => arg !== '');
   const parsedArgs: Record<string, number | string> = {};
 
   if (argsArray.length !== availableAction.args.length) {
@@ -106,20 +124,7 @@ export function parseResponse(text: string): ParsedResponse {
 
       parsedArgs[expectedArg.name] = numberValue;
     } else if (expectedArg.type === 'string') {
-      const stringValue =
-        (arg.startsWith('"') && arg.endsWith('"')) ||
-        (arg.startsWith("'") && arg.endsWith("'")) ||
-        (arg.startsWith('`') && arg.endsWith('`'))
-          ? arg.slice(1, -1)
-          : null;
-
-      if (stringValue === null) {
-        return {
-          error: `Invalid argument type: Expected a string for argument "${expectedArg.name}", but got "${arg}".`,
-        };
-      }
-
-      parsedArgs[expectedArg.name] = stringValue;
+      parsedArgs[expectedArg.name] = arg;
     } else {
       return {
         // @ts-expect-error this is here to make sure we don't forget to update this code if we add a new arg type

@@ -6,7 +6,7 @@ function getSelector(selectorName: string): string {
 }
 
 export type Action = {
-  name: 'click' | 'setValue' | 'finish';
+  name: 'click' | 'setValue' | 'scroll' | 'finish';
   args: {
     text?: string;
     label?: string;
@@ -48,6 +48,12 @@ export default async function performAction(tabId: number, action: Action) {
         selector: getSelector(selectorName),
         value: action.args.value || '',
       });
+    }
+  } else if (action.name === 'scroll') {
+    if (action.args.value === 'up') {
+      await domActions.scrollUp();
+    } else {
+      await domActions.scrollDown();
     }
   }
 }

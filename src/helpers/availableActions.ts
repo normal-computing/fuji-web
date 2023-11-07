@@ -27,6 +27,16 @@ export const availableActions = [
     ],
   },
   {
+    name: 'scroll',
+    description: 'Scroll the page up or down. Value can be "up" or "down"',
+    args: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+    ],
+  },
+  {
     name: 'finish',
     description: 'Indicates the task is finished',
     args: [],

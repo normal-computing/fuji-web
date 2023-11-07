@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Taxy AI Alpha",
+  "name": "WebWand",
   "description": "A chrome extension that executes DOM actions to fulfill natural language commands on any website",
   "version": "1.1.0",
   "minimum_chrome_version": "102",

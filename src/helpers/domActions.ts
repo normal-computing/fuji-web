@@ -1,6 +1,10 @@
 import { TAXY_ELEMENT_SELECTOR } from '../constants';
 import { callRPCWithTab } from './pageRPC';
-import { scrollScriptString } from './runtimeFunctionStrings';
+import {
+  scrollScriptString,
+  scrollDownString,
+  scrollUpString,
+} from './runtimeFunctionStrings';
 import { sleep, waitFor, waitTillStable } from './utils';
 
 const DEFAULT_INTERVAL = 500;
@@ -216,6 +220,20 @@ export class DomActions {
       type: 'attachFile',
       payload: [payload.data, payload.selector || 'input[type="file"]'],
     });
+  }
+
+  public async scrollUp() {
+    await this.sendCommand('Runtime.evaluate', {
+      functionDeclaration: scrollUpString,
+    });
+    await sleep(300);
+  }
+
+  public async scrollDown() {
+    await this.sendCommand('Runtime.evaluate', {
+      functionDeclaration: scrollDownString,
+    });
+    await sleep(300);
   }
 
   public async setValueWithElementId(payload: {

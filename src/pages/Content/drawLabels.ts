@@ -57,8 +57,8 @@ function isVisible(element: Element, checkViewport = false) {
   if (display === 'none') return false;
   if (visibility !== 'visible') return false;
   if (opacity != null && parseFloat(opacity) < 0.1) return false; // considering something very close to 0 as invisible
-  // also respect 'aria-hidden' attribute
-  if (element.getAttribute('aria-hidden') === 'true') return false;
+  // don't respect 'aria-hidden' attribute since they are most likely visible to the user
+  // if (element.getAttribute('aria-hidden') === 'true') return false;
 
   if (rect.width === 0 || rect.height === 0) return false;
 

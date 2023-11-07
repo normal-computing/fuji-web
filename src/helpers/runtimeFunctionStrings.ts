@@ -9,3 +9,12 @@ function scrollIntoViewFunction() {
 }
 // Convert the TypeScript function to a string
 export const scrollScriptString = scrollIntoViewFunction.toString();
+
+function scrollUp() {
+  window.scrollBy(0, -window.screen.height / 2);
+}
+function scrollDown() {
+  window.scrollBy(0, window.screen.height / 2);
+}
+export const scrollUpString = scrollUp.toString();
+export const scrollDownString = scrollDown.toString();
