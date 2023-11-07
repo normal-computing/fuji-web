@@ -10,11 +10,17 @@ import {
   ParsedResponseSuccess,
   parseResponse,
 } from '../helpers/parseResponse';
-import { determineNextAction } from '../helpers/determineNextAction';
+import {
+  determineNextAction,
+  determineNextActionWithVision,
+  type NextAction,
+} from '../helpers/determineNextAction';
+import { callRPCWithTab } from '../helpers/pageRPC';
 import templatize from '../helpers/shrinkHTML/templatize';
 import { getSimplifiedDom } from '../helpers/simplifyDom';
 import { sleep, truthyFilter } from '../helpers/utils';
-import { MyStateCreator } from './store';
+import performAction from '../helpers/performAction';
+import { MyStateCreator, useAppState } from './store';
 
 async function findActiveTab() {
   const inspectedTabId = chrome?.devtools?.inspectedWindow?.tabId;
@@ -101,24 +107,11 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
         await attachDebugger(tabId);
         await disableIncompatibleExtensions();
+        const domActions = new DomActions(tabId);
 
         // eslint-disable-next-line no-constant-condition
         while (true) {
           if (wasStopped()) break;
-
-          setActionStatus('pulling-dom');
-          const pageDOM = await getSimplifiedDom();
-          if (!pageDOM) {
-            set((state) => {
-              state.currentTask.status = 'error';
-            });
-            break;
-          }
-          const html = pageDOM.outerHTML;
-
-          if (wasStopped()) break;
-          setActionStatus('transforming-dom');
-          const currentDom = templatize(html);
 
           const previousActions = get()
             .currentTask.history.map((entry) => entry.action)
@@ -126,17 +119,60 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           setActionStatus('performing-query');
 
-          const query = await determineNextAction(
-            instructions,
-            previousActions.filter(
-              (pa) => !('error' in pa)
-            ) as ParsedResponseSuccess[],
-            currentDom,
-            3,
-            onError
-          );
+          let query: NextAction | null = null;
 
-          if (!query) {
+          if (
+            useAppState.getState().settings.selectedModel ===
+            'gpt-4-vision-preview'
+          ) {
+            await callRPCWithTab(tabId, {
+              type: 'drawLabels',
+              payload: [],
+            });
+            const imgData = await chrome.tabs.captureVisibleTab({
+              format: 'jpeg',
+              quality: 85,
+            });
+            if (wasStopped()) break;
+            await callRPCWithTab(tabId, {
+              type: 'removeLabels',
+              payload: [],
+            });
+            query = await determineNextActionWithVision(
+              instructions,
+              previousActions.filter(
+                (pa) => !('error' in pa)
+              ) as ParsedResponseSuccess[],
+              imgData,
+              3,
+              onError
+            );
+          } else {
+            setActionStatus('pulling-dom');
+            const pageDOM = await getSimplifiedDom();
+            if (!pageDOM) {
+              set((state) => {
+                state.currentTask.status = 'error';
+              });
+              break;
+            }
+            const html = pageDOM.outerHTML;
+
+            if (wasStopped()) break;
+            setActionStatus('transforming-dom');
+            const currentDom = templatize(html);
+            query = await determineNextAction(
+              instructions,
+              previousActions.filter(
+                (pa) => !('error' in pa)
+              ) as ParsedResponseSuccess[],
+              currentDom,
+              3,
+              onError
+            );
+          }
+
+          if (query == null) {
             set((state) => {
               state.currentTask.status = 'error';
             });
@@ -149,12 +185,13 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           const action = parseResponse(query.response);
 
           set((state) => {
-            state.currentTask.history.push({
-              prompt: query.prompt,
-              response: query.response,
-              action,
-              usage: query.usage,
-            });
+            query &&
+              state.currentTask.history.push({
+                prompt: query.prompt,
+                response: query.response,
+                action,
+                usage: query.usage,
+              });
           });
           if ('error' in action) {
             onError(action.error);
@@ -167,13 +204,13 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           ) {
             break;
           }
+          await performAction(tabId, action.parsedAction);
 
-          const domActions = new DomActions(tabId);
-          if (action.parsedAction.name === 'click') {
-            await domActions.clickWithElementId(action.parsedAction.args);
-          } else if (action.parsedAction.name === 'setValue') {
-            await domActions.setValueWithElementId(action.parsedAction.args);
-          }
+          // if (action.parsedAction.name === 'click') {
+          //   await domActions.clickWithElementId(action.parsedAction.args);
+          // } else if (action.parsedAction.name === 'setValue') {
+          //   await domActions.setValueWithElementId(action.parsedAction.args);
+          // }
 
           if (wasStopped()) break;
 

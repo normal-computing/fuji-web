@@ -1,21 +1,24 @@
+// TODO: support the old Taxy actions
 export const availableActions = [
   {
     name: 'click',
-    description: 'Clicks on an element',
+    description:
+      'Clicks on an element with the text label appears on or associated with it.',
     args: [
       {
-        name: 'elementId',
-        type: 'number',
+        name: 'label',
+        type: 'string',
       },
     ],
   },
   {
     name: 'setValue',
-    description: 'Focuses on and sets the value of an input element',
+    description:
+      'Focuses on and sets the value of an input element. Label can be the text label appears on or associated with it, or the value in it',
     args: [
       {
-        name: 'elementId',
-        type: 'number',
+        name: 'label',
+        type: 'string',
       },
       {
         name: 'value',

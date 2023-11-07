@@ -7,7 +7,7 @@ import { sleep } from '../../helpers/utils';
 import { DomActions } from '../../helpers/domActions';
 import { callRPCWithTab } from '../../helpers/pageRPC';
 import { getPrompt } from './prompt';
-import performAction from './performAction';
+import performAction from '../../helpers/performAction';
 import { attachDebugger } from '../../helpers/chromeDebugger';
 
 const GPT4_BUTTON_SELECTOR = '[data-testid="gpt-4"]';
@@ -135,7 +135,7 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
             active: true,
           });
           await sleep(200);
-          await performAction(tab.id, action);
+          // await performAction(tab.id, action);
         } catch (e) {
           console.log('bad action format');
           console.log(e);
