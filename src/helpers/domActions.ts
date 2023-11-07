@@ -1,5 +1,5 @@
 import { TAXY_ELEMENT_SELECTOR } from '../constants';
-import { callRPC, callRPCWithTab } from './pageRPC';
+import { callRPCWithTab } from './pageRPC';
 import { scrollScriptString } from './runtimeFunctionStrings';
 import { sleep, waitFor, waitTillStable } from './utils';
 
@@ -41,7 +41,7 @@ export class DomActions {
   }
 
   private async getTaxySelector(originalId: number) {
-    const uniqueId = await callRPC({
+    const uniqueId = await callRPCWithTab(this.tabId, {
       type: 'getUniqueElementSelectorId',
       payload: [originalId],
     });
@@ -75,7 +75,7 @@ export class DomActions {
     y: number,
     clickCount = 1
   ): Promise<void> {
-    callRPC({
+    callRPCWithTab(this.tabId, {
       type: 'ripple',
       payload: [x, y],
     });

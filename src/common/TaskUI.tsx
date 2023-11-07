@@ -33,21 +33,15 @@ const TaskUI = () => {
   );
 
   const runTask = () => {
-    // state.instructions && state.runTask(toastError);
-    if (state.instructions) {
-      chrome.runtime.sendMessage({
-        action: 'runTask',
-        task: state.instructions,
-      });
-    }
+    state.instructions && state.runTask(toastError);
+    // if (state.instructions) {
+    //   chrome.runtime.sendMessage({
+    //     action: 'runTask',
+    //     task: state.instructions,
+    //   });
+    // }
   };
 
-  const findChatGPTPage = async () => {
-    chrome.runtime.sendMessage({
-      action: 'navigate',
-      task: 'test text',
-    });
-  };
   const injectFunctions = async () => {
     chrome.runtime.sendMessage({
       action: 'injectFunctions',
