@@ -42,12 +42,6 @@ const TaskUI = () => {
     // }
   };
 
-  const injectFunctions = async () => {
-    chrome.runtime.sendMessage({
-      action: 'injectFunctions',
-    });
-  };
-
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -57,13 +51,6 @@ const TaskUI = () => {
 
   return (
     <>
-      {debugMode && (
-        <div>
-          <button onClick={injectFunctions}>
-            inject global functions for testing
-          </button>
-        </div>
-      )}
       <Textarea
         autoFocus
         placeholder="Try telling it to sign up for a newsletter, or to add an item to your cart."

@@ -1,4 +1,4 @@
-import { RepeatIcon, SettingsIcon } from '@chakra-ui/icons';
+import { RepeatIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/icons';
 import {
   IconButton,
   Menu,
@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import { useAppState } from '../state/store';
+import { debugMode } from '../constants';
 
 const OptionsDropdown = () => {
   const { openAIKey, updateSettings } = useAppState((state) => ({
@@ -16,6 +17,12 @@ const OptionsDropdown = () => {
   }));
 
   if (!openAIKey) return null;
+
+  const injectFunctions = async () => {
+    chrome.runtime.sendMessage({
+      action: 'injectFunctions',
+    });
+  };
 
   return (
     <Menu>
@@ -34,6 +41,11 @@ const OptionsDropdown = () => {
         >
           Reset API Key
         </MenuItem>
+        {debugMode && (
+          <MenuItem icon={<UnlockIcon />} onClick={injectFunctions}>
+            Inject Global Functions (debug only)
+          </MenuItem>
+        )}
       </MenuList>
     </Menu>
   );
