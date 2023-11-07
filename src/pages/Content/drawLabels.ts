@@ -195,7 +195,9 @@ function drawLabelsOnSelector(selector: string) {
     if (!isVisible(elem, true)) return;
     // if the element is an input, hopefully the value or the placeholder is visible
     if (isInputElement(elem)) {
+      const visibleTextOnInput = elem.value || elem.placeholder || '';
       if (elem.value.length > 0 || elem.placeholder.length > 0) {
+        elem.setAttribute(WEB_WAND_LABEL_ATTRIBUTE_NAME, visibleTextOnInput);
         return;
       }
     }
