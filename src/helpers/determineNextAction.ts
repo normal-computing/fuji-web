@@ -1,8 +1,4 @@
-import {
-  Configuration,
-  CreateCompletionResponseUsage,
-  OpenAIApi,
-} from 'openai';
+import OpenAI from 'openai';
 import { useAppState } from '../state/store';
 import { availableActions } from './availableActions';
 import { ParsedResponseSuccess } from './parseResponse';
@@ -27,10 +23,12 @@ You will be be given a task to perform and the current state of the DOM. You wil
 
 This is an example of an action:
 
-<Thought>I should click the add to cart button</Thought>
-<Action>click(223)</Action>
+{
+  thought: "I should click the add to cart button",
+  action: "click(223)"
+}
 
-You must always include the <Thought> and <Action> open/close tags or else your response will be marked as invalid.`;
+Your response must always be in JSON format and must include "thought" and "action"`;
 
 export async function determineNextAction(
   taskInstructions: string,
@@ -47,16 +45,19 @@ export async function determineNextAction(
     return null;
   }
 
-  const openai = new OpenAIApi(
-    new Configuration({
-      apiKey: key,
-    })
-  );
+  const openai = new OpenAI({
+    apiKey: key,
+    dangerouslyAllowBrowser: true, // user provides the key
+  });
+  console.log(model);
 
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      const completion = await openai.createChatCompletion({
+      const completion = await openai.chat.completions.create({
         model: model,
+        // response_format: {
+        //   type: 'json_object',
+        // },
         messages: [
           {
             role: 'system',
@@ -64,27 +65,29 @@ export async function determineNextAction(
           },
           { role: 'user', content: prompt },
         ],
-        max_tokens: 500,
+        max_tokens: 1000,
         temperature: 0,
-        stop: ['</Action>'],
       });
 
+      console.log(completion);
+
       return {
-        usage: completion.data.usage as CreateCompletionResponseUsage,
+        usage: completion.usage,
         prompt,
-        response:
-          completion.data.choices[0].message?.content?.trim() + '</Action>',
+        response: completion.choices[0].message?.content?.trim() || '',
       };
     } catch (error: any) {
-      console.log('determineNextAction error', error);
-      if (error.response.data.error.message.includes('server error')) {
+      // TODO: need to verify the new API error format
+      console.error('determineNextAction error:');
+      console.error(error);
+      if (error.includes('server error')) {
         // Problem with the OpenAI API, try again
         if (notifyError) {
-          notifyError(error.response.data.error.message);
+          notifyError(error);
         }
       } else {
         // Another error, give up
-        throw new Error(error.response.data.error.message);
+        throw new Error(error);
       }
     }
   }
@@ -102,10 +105,7 @@ export function formatPrompt(
 
   if (previousActions.length > 0) {
     const serializedActions = previousActions
-      .map(
-        (action) =>
-          `<Thought>${action.thought}</Thought>\n<Action>${action.action}</Action>`
-      )
+      .map((action) => `Thought: ${action.thought}\nAction:${action.action}`)
       .join('\n\n');
     previousActionsString = `You have already taken the following actions: \n${serializedActions}\n\n`;
   }

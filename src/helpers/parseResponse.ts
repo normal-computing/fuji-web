@@ -12,24 +12,50 @@ export type ParsedResponse =
       error: string;
     };
 
-export function parseResponse(text: string): ParsedResponse {
-  const thoughtMatch = text.match(/<Thought>(.*?)<\/Thought>/);
-  const actionMatch = text.match(/<Action>(.*?)<\/Action>/);
+// sometimes AI replies with a JSON wrapped in triple backticks
+export function extractJsonFromMarkdown(input: string): string[] {
+  // Create a regular expression to capture code wrapped in triple backticks
+  const regex = /```(json)?\s*([\s\S]*?)\s*```/g;
 
-  if (!thoughtMatch) {
+  const results = [];
+  let match;
+  while ((match = regex.exec(input)) !== null) {
+    // If 'json' is specified, add the content to the results array
+    if (match[1] === 'json') {
+      results.push(match[2]);
+    } else if (match[2].startsWith('{')) {
+      results.push(match[2]);
+    }
+  }
+  return results;
+}
+
+export function parseResponse(text: string): ParsedResponse {
+  let action;
+  try {
+    action = JSON.parse(text);
+  } catch (_e) {
+    try {
+      action = JSON.parse(extractJsonFromMarkdown(text)[0]);
+    } catch (_e) {
+      throw new Error('Response does not contain valid JSON.');
+    }
+  }
+
+  if (!action.thought) {
     return {
       error: 'Invalid response: Thought not found in the model response.',
     };
   }
 
-  if (!actionMatch) {
+  if (!action.action) {
     return {
       error: 'Invalid response: Action not found in the model response.',
     };
   }
 
-  const thought = thoughtMatch[1];
-  const actionString = actionMatch[1];
+  const thought = action.thought;
+  const actionString = action.action;
   const actionPattern = /(\w+)\((.*?)\)/;
   const actionParts = actionString.match(actionPattern);
 
@@ -55,8 +81,8 @@ export function parseResponse(text: string): ParsedResponse {
 
   const argsArray = actionArgsString
     .split(',')
-    .map((arg) => arg.trim())
-    .filter((arg) => arg !== '');
+    .map((arg: string) => arg.trim())
+    .filter((arg: string) => arg !== '');
   const parsedArgs: Record<string, number | string> = {};
 
   if (argsArray.length !== availableAction.args.length) {

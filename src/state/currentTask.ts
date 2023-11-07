@@ -1,4 +1,4 @@
-import { CreateCompletionResponseUsage } from 'openai';
+import OpenAI from 'openai';
 import { attachDebugger, detachDebugger } from '../helpers/chromeDebugger';
 import {
   disableIncompatibleExtensions,
@@ -40,7 +40,7 @@ export type TaskHistoryEntry = {
   prompt: string;
   response: string;
   action: ParsedResponse;
-  usage: CreateCompletionResponseUsage;
+  usage: OpenAI.CompletionUsage | undefined;
 };
 
 export type CurrentTaskSlice = {
