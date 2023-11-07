@@ -256,7 +256,7 @@ function drawLabelsOnSelector(selector: string) {
 
 const selectorForInteractiveElements =
   'a, button, details, input, label, option, select, textarea, ' +
-  '[tabindex], [onclick], [onmouseover], [onmousedown], [onmouseup],' + // we don't include keyboard events yet
+  '[onclick], [onmouseover], [onmousedown], [onmouseup],' + // we don't include keyboard events yet
   '[role="button"], [role="link"], [role="textbox"]';
 
 export function drawLabels() {

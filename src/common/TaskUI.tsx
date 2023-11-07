@@ -87,7 +87,7 @@ const TaskUI = () => {
     <>
       <Textarea
         autoFocus
-        placeholder="Try telling it to sign up for a newsletter, or to add an item to your cart."
+        placeholder="Try telling WebWand to do something..."
         value={state.instructions || ''}
         disabled={taskInProgress}
         onChange={(e) => state.setInstructions(e.target.value)}
@@ -99,7 +99,7 @@ const TaskUI = () => {
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>
-      {debugMode && <ActionExecutor />}
+      {/* {debugMode && <ActionExecutor />} */}
       <TaskHistory />
     </>
   );

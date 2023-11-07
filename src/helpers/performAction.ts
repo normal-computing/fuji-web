@@ -35,6 +35,23 @@ async function clickWithSelector(
   });
 }
 
+async function setValueWithSelector(
+  domActions: DomActions,
+  selectorName: string,
+  value: string
+): Promise<boolean> {
+  console.log('setValueWithSelector', getSelector(selectorName));
+  const success = await domActions.setValueWithSelector({
+    selector: getSelector(selectorName),
+    value,
+  });
+  if (success) return true;
+  return await domActions.setValueWithSelector({
+    selector: getFallbackSelector(selectorName),
+    value,
+  });
+}
+
 export default async function performAction(tabId: number, action: Action) {
   console.log('performAction', tabId, action);
   const domActions = new DomActions(tabId);
@@ -57,17 +74,19 @@ export default async function performAction(tabId: number, action: Action) {
     let success = false;
     if (action.args.label) {
       selectorName = action.args.label;
-      success = await domActions.setValueWithSelector({
-        selector: getSelector(selectorName),
-        value: action.args.value || '',
-      });
+      success = await setValueWithSelector(
+        domActions,
+        selectorName,
+        action.args.value || ''
+      );
     }
     if (!success && action.args.text) {
       selectorName = action.args.text;
-      success = await domActions.setValueWithSelector({
-        selector: getSelector(selectorName),
-        value: action.args.value || '',
-      });
+      success = await setValueWithSelector(
+        domActions,
+        selectorName,
+        action.args.value || ''
+      );
     }
     if (!success) {
       console.error('Unable to find element with selector: ', selectorName);

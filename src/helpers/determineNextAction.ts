@@ -37,6 +37,8 @@ You can use the following tools:
 
 ${formattedActions}
 
+Pleaes note for setValue, you can press "enter" by including a line break (\`\\n\`) in the parameter to trigger form submitting.
+
 You will be be given a task to perform and a screenshot of the webpage. You will also be given previous actions that you have taken. You may retry a failed action up to one time.
 
 This is an example of an action:
@@ -46,7 +48,9 @@ This is an example of an action:
   action: "click('add to cart')"
 }
 
-Your response must always be in JSON format and must include "thought" and "action"`;
+Your response must always be in JSON format and must include "thought" and "action".
+When finish, use "finish()" in "action" and include a brief summary of the task in "thought"; if user is seeking an anwser, also include the answer in "thought".
+`;
 
 export type NextAction = {
   usage: OpenAI.CompletionUsage | undefined;

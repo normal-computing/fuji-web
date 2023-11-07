@@ -96,8 +96,17 @@ export class DomActions {
     await sleep(DomActions.delayBetweenClicks);
   }
 
-  private async selectAllText(x: number, y: number) {
-    await this.clickAtPosition(x, y, 3);
+  private async selectAllText() {
+    // TODO: on other OSes, use the appropriate modifier
+    const metaModifier = 4;
+    // send command to select all
+    await this.sendCommand('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      modifiers: metaModifier,
+      text: 'A',
+      commands: ['selectAll'],
+    });
+    await sleep(200);
   }
 
   private async typeText(text: string, shiftEnter = false): Promise<void> {
@@ -220,14 +229,16 @@ export class DomActions {
 
   public async scrollUp() {
     await this.sendCommand('Runtime.evaluate', {
-      expression: 'window.scrollBy(0, -window.screen.height / 2)',
+      expression:
+        'window.scrollBy({top: 0, left: -window.screen.height/2, behavior: "smooth"))',
     });
     await sleep(300);
   }
 
   public async scrollDown() {
     await this.sendCommand('Runtime.evaluate', {
-      expression: 'window.scrollBy(0, window.screen.height / 2)',
+      expression:
+        'window.scrollBy({top: 0, left: window.screen.height/2, behavior: "smooth"))',
     });
     await sleep(300);
   }
@@ -254,10 +265,11 @@ export class DomActions {
     if (!objectId) {
       return false;
     }
-    await this.scrollIntoView(objectId);
+    // await this.scrollIntoView(objectId);
     const { x, y } = await this.getCenterCoordinates(objectId);
 
-    await this.selectAllText(x, y);
+    await this.clickAtPosition(x, y);
+    await this.selectAllText();
     await this.typeText(payload.value, payload.shiftEnter ?? false);
     // blur the element
     await this.blurFocusedElement();
@@ -276,7 +288,7 @@ export class DomActions {
     if (!objectId) {
       return false;
     }
-    await this.scrollIntoView(objectId);
+    // await this.scrollIntoView(objectId);
     const { x, y } = await this.getCenterCoordinates(objectId);
     await this.clickAtPosition(x, y);
     return true;
