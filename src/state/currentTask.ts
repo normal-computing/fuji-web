@@ -65,6 +65,10 @@ export type CurrentTaskSlice = {
   actions: {
     runTask: (onError: (error: string) => void) => Promise<void>;
     interrupt: () => void;
+    attachDebugger: () => Promise<void>;
+    detachDebugger: () => Promise<void>;
+    prepareLabels: () => Promise<void>;
+    performActionString: (actionString: string) => Promise<void>;
   };
 };
 export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
@@ -241,6 +245,45 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       set((state) => {
         state.currentTask.status = 'interrupted';
       });
+    },
+    // for debugging
+    attachDebugger: async () => {
+      const activeTab = await findActiveTab();
+      if (!activeTab?.id) throw new Error('No active tab found');
+      const tabId = activeTab.id;
+      set((state) => {
+        state.currentTask.tabId = tabId;
+      });
+      await attachDebugger(tabId);
+    },
+    detachDebugger: async () => {
+      await detachDebugger(get().currentTask.tabId);
+    },
+    prepareLabels: async () => {
+      const tabId = get().currentTask.tabId;
+      await callRPCWithTab(tabId, {
+        type: 'drawLabels',
+        payload: [],
+      });
+      await sleep(800);
+      await callRPCWithTab(tabId, {
+        type: 'removeLabels',
+        payload: [],
+      });
+    },
+    performActionString: async (actionString: string) => {
+      const action = parseResponse(actionString);
+      if ('error' in action) {
+        throw action.error;
+      }
+      if (
+        action === null ||
+        action.parsedAction.name === 'finish' ||
+        action.parsedAction.name === 'fail'
+      ) {
+        return;
+      }
+      await performAction(get().currentTask.tabId, action.parsedAction);
     },
   },
 });

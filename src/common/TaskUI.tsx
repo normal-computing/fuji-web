@@ -1,10 +1,44 @@
-import { HStack, Spacer, Textarea, useToast } from '@chakra-ui/react';
-import React, { useCallback } from 'react';
+import { Button, HStack, Spacer, Textarea, useToast } from '@chakra-ui/react';
+import React, { useCallback, useState } from 'react';
 import { debugMode } from '../constants';
 import { useAppState } from '../state/store';
 import RunTaskButton from './RunTaskButton';
 import TaskHistory from './TaskHistory';
 import TaskStatus from './TaskStatus';
+
+function ActionExecutor() {
+  const state = useAppState((state) => ({
+    attachDegugger: state.currentTask.actions.attachDebugger,
+    detachDegugger: state.currentTask.actions.detachDebugger,
+    performActionString: state.currentTask.actions.performActionString,
+    prepareLabels: state.currentTask.actions.prepareLabels,
+  }));
+  const [action, setAction] = useState<string>(`{
+  "thought": "try searching",
+  "action": "click('search')"
+}
+`);
+  return (
+    <div>
+      <Textarea
+        value={action}
+        onChange={(e) => setAction(e.target.value)}
+        mb={2}
+      />
+      <HStack>
+        <Button onClick={state.attachDegugger}>Attach</Button>
+        <Button onClick={state.prepareLabels}>Prepare</Button>
+        <Button
+          onClick={() => {
+            state.performActionString(action);
+          }}
+        >
+          Run
+        </Button>
+      </HStack>
+    </div>
+  );
+}
 
 const TaskUI = () => {
   const state = useAppState((state) => ({
@@ -65,6 +99,7 @@ const TaskUI = () => {
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>
+      {debugMode && <ActionExecutor />}
       <TaskHistory />
     </>
   );

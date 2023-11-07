@@ -1,8 +1,15 @@
 import { DomActions } from './domActions';
-import { WEB_WAND_LABEL_ATTRIBUTE_NAME } from '../constants';
+import {
+  WEB_WAND_LABEL_ATTRIBUTE_NAME,
+  VISIBLE_TEXT_ATTRIBUTE_NAME,
+} from '../constants';
 
 function getSelector(selectorName: string): string {
   return `[${WEB_WAND_LABEL_ATTRIBUTE_NAME}="${selectorName}"]`;
+}
+
+function getFallbackSelector(selectorName: string): string {
+  return `[${VISIBLE_TEXT_ATTRIBUTE_NAME}="${selectorName}"]`;
 }
 
 export type Action = {
@@ -14,6 +21,20 @@ export type Action = {
   };
 };
 
+async function clickWithSelector(
+  domActions: DomActions,
+  selectorName: string
+): Promise<boolean> {
+  console.log('clickWithSelector', getSelector(selectorName));
+  const success = await domActions.clickWithSelector({
+    selector: getSelector(selectorName),
+  });
+  if (success) return true;
+  return await domActions.clickWithSelector({
+    selector: getFallbackSelector(selectorName),
+  });
+}
+
 export default async function performAction(tabId: number, action: Action) {
   console.log('performAction', tabId, action);
   const domActions = new DomActions(tabId);
@@ -22,15 +43,14 @@ export default async function performAction(tabId: number, action: Action) {
     let success = false;
     if (action.args.label) {
       selectorName = action.args.label;
-      success = await domActions.clickWithSelector({
-        selector: getSelector(selectorName),
-      });
+      success = await clickWithSelector(domActions, selectorName);
     }
     if (!success && action.args.text) {
       selectorName = action.args.text;
-      success = await domActions.clickWithSelector({
-        selector: getSelector(selectorName),
-      });
+      success = await clickWithSelector(domActions, selectorName);
+    }
+    if (!success) {
+      console.error('Unable to find element with selector: ', selectorName);
     }
   } else if (action.name === 'setValue') {
     let selectorName = '';
@@ -48,6 +68,9 @@ export default async function performAction(tabId: number, action: Action) {
         selector: getSelector(selectorName),
         value: action.args.value || '',
       });
+    }
+    if (!success) {
+      console.error('Unable to find element with selector: ', selectorName);
     }
   } else if (action.name === 'scroll') {
     if (action.args.value === 'up') {

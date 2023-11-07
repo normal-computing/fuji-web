@@ -1,10 +1,6 @@
 import { TAXY_ELEMENT_SELECTOR } from '../constants';
 import { callRPCWithTab } from './pageRPC';
-import {
-  scrollScriptString,
-  scrollDownString,
-  scrollUpString,
-} from './runtimeFunctionStrings';
+import { scrollScriptString } from './runtimeFunctionStrings';
 import { sleep, waitFor, waitTillStable } from './utils';
 
 const DEFAULT_INTERVAL = 500;
@@ -224,14 +220,14 @@ export class DomActions {
 
   public async scrollUp() {
     await this.sendCommand('Runtime.evaluate', {
-      functionDeclaration: scrollUpString,
+      expression: 'window.scrollBy(0, -window.screen.height / 2)',
     });
     await sleep(300);
   }
 
   public async scrollDown() {
     await this.sendCommand('Runtime.evaluate', {
-      functionDeclaration: scrollDownString,
+      expression: 'window.scrollBy(0, window.screen.height / 2)',
     });
     await sleep(300);
   }
