@@ -9,7 +9,7 @@ export type SettingsSlice = {
 };
 export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
   openAIKey: null,
-  selectedModel: 'gpt-4',
+  selectedModel: 'gpt-4-vision-preview',
   actions: {
     update: (values) => {
       set((state) => {
