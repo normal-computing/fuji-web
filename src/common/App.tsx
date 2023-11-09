@@ -15,7 +15,7 @@ const App = () => {
       <Box p="8" fontSize="lg" w="full">
         <HStack mb={4} alignItems="center">
           <Heading as="h1" size="lg" flex={1}>
-            WebWand
+            WebWand 🪄
           </Heading>
           <HStack spacing={2}>
             <ModelDropdown />
