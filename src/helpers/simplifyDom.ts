@@ -1,5 +1,3 @@
-// console.log('Content script loaded..');
-
 import { callRPC } from './pageRPC';
 import { truthyFilter } from './utils';
 
@@ -11,7 +9,7 @@ export async function getSimplifiedDom() {
     },
     3
   );
-  if (!fullDom) return null;
+  if (!fullDom || typeof fullDom !== 'string') return null;
 
   const dom = new DOMParser().parseFromString(fullDom, 'text/html');
 
@@ -27,7 +25,7 @@ export async function getSimplifiedDom() {
   return simplifiedDom;
 }
 
-function generateSimplifiedDom(
+export function generateSimplifiedDom(
   element: ChildNode,
   interactiveElements: HTMLElement[]
 ): ChildNode | null {

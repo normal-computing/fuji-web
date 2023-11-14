@@ -16,7 +16,6 @@ import {
   type NextAction,
 } from '../helpers/determineNextAction';
 import { callRPCWithTab } from '../helpers/pageRPC';
-import templatize from '../helpers/shrinkHTML/templatize';
 import { getSimplifiedDom } from '../helpers/simplifyDom';
 import { sleep, truthyFilter } from '../helpers/utils';
 import performAction from '../helpers/performAction';
@@ -160,17 +159,14 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               });
               break;
             }
-            const html = pageDOM.outerHTML;
 
             if (wasStopped()) break;
-            setActionStatus('transforming-dom');
-            const currentDom = templatize(html);
             query = await determineNextAction(
               instructions,
               previousActions.filter(
                 (pa) => !('error' in pa)
               ) as ParsedResponseSuccess[],
-              currentDom,
+              pageDOM.outerHTML,
               3,
               onError
             );

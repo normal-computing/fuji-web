@@ -10,7 +10,7 @@ import { getPrompt } from './prompt';
 import performAction from '../../helpers/performAction';
 import { attachDebugger } from '../../helpers/chromeDebugger';
 
-const GPT4_BUTTON_SELECTOR = '[data-testid="gpt-4"]';
+// const GPT4_BUTTON_SELECTOR = '[data-testid="gpt-4"]';
 const SHARED_CHAT =
   'https://chat.openai.com/share/4116307f-6853-4fc5-8840-2698a06f8963';
 const SHARED_CHAT_SELECTOR = `[to="${SHARED_CHAT}/continue"]`;
@@ -89,6 +89,7 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
       : 'from the extension',
     request
   );
+  // deprecated; used for run task on a ChatGPT page
   if (request.action == 'runTask') {
     const tab = await findActiveTab();
     if (!tab || tab.id == null) {
