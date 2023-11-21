@@ -64,10 +64,7 @@ async function findActiveTab() {
 
 async function takeScreenshot(tabId: number): Promise<string | null> {
   await attachDebugger(tabId);
-  await callRPCWithTab(tabId, {
-    type: 'drawLabels',
-    payload: [],
-  });
+  await callRPCWithTab(tabId, 'drawLabels', []);
   const screenshotData = (await chrome.debugger.sendCommand(
     { tabId: tabId },
     'Page.captureScreenshot',
@@ -75,10 +72,7 @@ async function takeScreenshot(tabId: number): Promise<string | null> {
       format: 'png', // or 'jpeg'
     }
   )) as any;
-  await callRPCWithTab(tabId, {
-    type: 'removeLabels',
-    payload: [],
-  });
+  await callRPCWithTab(tabId, 'removeLabels', []);
   return screenshotData.data;
 }
 
@@ -123,12 +117,12 @@ chrome.runtime.onMessage.addListener(async (request, sender) => {
       await domActions.waitTillElementRendered(
         `document.querySelector('${FINAL_MESSAGE_SELECTOR}')`
       );
-      const message = await callRPCWithTab(chatGPTTabId, {
-        type: 'getDataFromRenderedMarkdown',
-        payload: [FINAL_MESSAGE_SELECTOR],
-      });
-      // TODO: make this more robust
-      if (message && typeof message === 'object' && message.codeBlocks) {
+      const message = await callRPCWithTab(
+        chatGPTTabId,
+        'getDataFromRenderedMarkdown',
+        [FINAL_MESSAGE_SELECTOR]
+      );
+      if (message && message.codeBlocks) {
         const codeBlock = message.codeBlocks[0] || '{}';
         try {
           const action = JSON.parse(codeBlock);

@@ -2,13 +2,7 @@ import { callRPC } from './pageRPC';
 import { truthyFilter } from './utils';
 
 export async function getSimplifiedDom() {
-  const fullDom = await callRPC(
-    {
-      type: 'getAnnotatedDOM',
-      payload: [],
-    },
-    3
-  );
+  const fullDom = await callRPC('getAnnotatedDOM', [], 3);
   if (!fullDom || typeof fullDom !== 'string') return null;
 
   const dom = new DOMParser().parseFromString(fullDom, 'text/html');

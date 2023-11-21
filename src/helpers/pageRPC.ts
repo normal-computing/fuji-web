@@ -1,12 +1,31 @@
 import { sleep } from './utils';
-import type { RPCDefinition } from '../pages/Content';
+import type { RPCMethods } from '../pages/Content';
 
 // Call these functions to execute code in the content script
 
-export const callRPC = async (
-  message: RPCDefinition['Message'],
+function sendMessage<K extends keyof RPCMethods>(
+  tabId: number,
+  method: K,
+  payload: Parameters<RPCMethods[K]>
+): Promise<ReturnType<RPCMethods[K]>> {
+  // Send a message to the other world
+  // Ensure that the method and arguments are correct according to RpcMethods
+  return new Promise((resolve, reject) => {
+    chrome.tabs.sendMessage(tabId, { method, payload }, (response) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(response);
+      }
+    });
+  });
+}
+
+export const callRPC = async <K extends keyof RPCMethods>(
+  method: K,
+  payload: Parameters<RPCMethods[K]>,
   maxTries = 1
-): Promise<RPCDefinition['ReturnType']> => {
+): Promise<ReturnType<RPCMethods[K]>> => {
   let queryOptions = { active: true, currentWindow: true };
   let activeTab = (await chrome.tabs.query(queryOptions))[0];
 
@@ -17,21 +36,19 @@ export const callRPC = async (
   }
 
   if (!activeTab?.id) throw new Error('No active tab found');
-  return callRPCWithTab(activeTab.id, message, maxTries);
+  return callRPCWithTab(activeTab.id, method, payload, maxTries);
 };
 
-export const callRPCWithTab = async (
+export const callRPCWithTab = async <K extends keyof RPCMethods>(
   tabId: number,
-  message: RPCDefinition['Message'],
+  method: K,
+  payload: Parameters<RPCMethods[K]>,
   maxTries = 1
-): Promise<RPCDefinition['ReturnType']> => {
+): Promise<ReturnType<RPCMethods[K]>> => {
   let err: any;
   for (let i = 0; i < maxTries; i++) {
     try {
-      const response = await chrome.tabs.sendMessage(tabId, {
-        type: message.type,
-        payload: message.payload || [],
-      });
+      const response = await sendMessage(tabId, method, payload);
       return response;
     } catch (e) {
       if (i === maxTries - 1) {

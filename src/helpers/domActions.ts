@@ -41,10 +41,11 @@ export class DomActions {
   }
 
   private async getTaxySelector(originalId: number) {
-    const uniqueId = await callRPCWithTab(this.tabId, {
-      type: 'getUniqueElementSelectorId',
-      payload: [originalId],
-    });
+    const uniqueId = await callRPCWithTab(
+      this.tabId,
+      'getUniqueElementSelectorId',
+      [originalId]
+    );
     return `[${TAXY_ELEMENT_SELECTOR}="${uniqueId}"]`;
   }
 
@@ -75,10 +76,7 @@ export class DomActions {
     y: number,
     clickCount = 1
   ): Promise<void> {
-    callRPCWithTab(this.tabId, {
-      type: 'ripple',
-      payload: [x, y],
-    });
+    callRPCWithTab(this.tabId, 'ripple', [x, y]);
     await this.sendCommand('Input.dispatchMouseEvent', {
       type: 'mousePressed',
       x,
@@ -221,10 +219,10 @@ export class DomActions {
   }
 
   public async attachFile(payload: { data: string; selector?: string }) {
-    return callRPCWithTab(this.tabId, {
-      type: 'attachFile',
-      payload: [payload.data, payload.selector || 'input[type="file"]'],
-    });
+    return callRPCWithTab(this.tabId, 'attachFile', [
+      payload.data,
+      payload.selector || 'input[type="file"]',
+    ]);
   }
 
   public async scrollUp() {

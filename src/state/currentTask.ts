@@ -128,19 +128,13 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             useAppState.getState().settings.selectedModel ===
             'gpt-4-vision-preview'
           ) {
-            await callRPCWithTab(tabId, {
-              type: 'drawLabels',
-              payload: [],
-            });
+            await callRPCWithTab(tabId, 'drawLabels', []);
             const imgData = await chrome.tabs.captureVisibleTab({
               format: 'jpeg',
               quality: 85,
             });
             if (wasStopped()) break;
-            await callRPCWithTab(tabId, {
-              type: 'removeLabels',
-              payload: [],
-            });
+            await callRPCWithTab(tabId, 'removeLabels', []);
             query = await determineNextActionWithVision(
               instructions,
               previousActions.filter(
@@ -257,15 +251,9 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
     },
     prepareLabels: async () => {
       const tabId = get().currentTask.tabId;
-      await callRPCWithTab(tabId, {
-        type: 'drawLabels',
-        payload: [],
-      });
+      await callRPCWithTab(tabId, 'drawLabels', []);
       await sleep(800);
-      await callRPCWithTab(tabId, {
-        type: 'removeLabels',
-        payload: [],
-      });
+      await callRPCWithTab(tabId, 'removeLabels', []);
     },
     performActionString: async (actionString: string) => {
       const action = parseResponse(actionString);

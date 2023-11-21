@@ -8,7 +8,7 @@ import { drawLabels, removeLabels } from './drawLabels';
 import ripple from './ripple';
 import { getDataFromRenderedMarkdown } from './reverseMarkdown';
 
-const rpcMethods = {
+export const rpcMethods = {
   getAnnotatedDOM,
   getUniqueElementSelectorId,
   ripple,
@@ -20,43 +20,31 @@ const rpcMethods = {
 } as const;
 
 export type RPCMethods = typeof rpcMethods;
-export type MethodName = keyof RPCMethods;
-export type Payload<T extends MethodName> = Parameters<RPCMethods[T]>;
-// export type MethodRT<T extends MethodName> = ReturnType<RPCMethods[T]>;
-export type RPCDefinition = {
+type MethodName = keyof RPCMethods;
+
+type RPCMessage = {
   [K in MethodName]: {
-    ReturnType: ReturnType<RPCMethods[K]>;
-    Message: {
-      type: K;
-      payload: Parameters<RPCMethods[K]>;
-    };
+    method: K;
+    payload: Parameters<RPCMethods[K]>;
   };
 }[MethodName];
-
-const isKnownMethodName = (type: string) => {
-  return type in rpcMethods;
-};
 
 // This function should run in the content script
 const watchForRPCRequests = () => {
   chrome.runtime.onMessage.addListener(
-    (
-      message: RPCDefinition['Message'],
-      sender,
-      sendResponse
-    ): true | undefined => {
-      if (!isKnownMethodName(message.type)) {
-        return;
-      }
-      // @ts-expect-error - we know that the payload type is valid
-      const resp = rpcMethods[message.type](...message.payload);
-      if (resp instanceof Promise) {
-        resp.then((resolvedResp) => {
-          sendResponse(resolvedResp);
-        });
-        return true;
-      } else {
-        sendResponse(resp);
+    (message: RPCMessage, sender, sendResponse): true | undefined => {
+      const { method, payload } = message;
+      if (method in rpcMethods) {
+        // @ts-expect-error - we know this is valid (see pageRPC)
+        const resp = rpcMethods[method as keyof RPCMethods](...payload);
+        if (resp instanceof Promise) {
+          resp.then((resolvedResp) => {
+            sendResponse(resolvedResp);
+          });
+          return true;
+        } else {
+          sendResponse(resp);
+        }
       }
     }
   );
