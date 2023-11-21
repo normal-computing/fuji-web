@@ -267,6 +267,8 @@ function drawLabelsOnSelector(selector: string) {
   document.body.appendChild(wrapper);
 }
 
+// This selector should match most interactive elements that we want to label
+// it doesn't pick elements with only cursor: 'pointer' in computed style; we can revisit this if needed
 const selectorForInteractiveElements =
   'a, button, details, input, label, option, select, textarea, ' +
   '[onclick], [onmouseover], [onmousedown], [onmouseup],' + // we don't include keyboard events yet

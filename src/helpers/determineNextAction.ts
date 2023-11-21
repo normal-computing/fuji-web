@@ -100,6 +100,7 @@ export async function determineNextActionWithVision(
               {
                 type: 'image_url',
                 image_url: {
+                  // detail: 'low',
                   url: screenshotData, // this is already base64 encoded
                 },
               },

@@ -120,24 +120,27 @@ export function parseResponse(text: string): ParsedResponse {
     const arg = argsArray[i];
     const expectedArg = availableAction.args[i];
 
-    if (expectedArg.type === 'number') {
-      const numberValue = Number(arg);
+    parsedArgs[expectedArg.name] = arg;
 
-      if (isNaN(numberValue)) {
-        return {
-          error: `Invalid argument type: Expected a number for argument "${expectedArg.name}", but got "${arg}".`,
-        };
-      }
+    // TODO: type-parsing is currently disabled because all our args are strings
+    // if (expectedArg.type === 'number') {
+    //   const numberValue = Number(arg);
 
-      parsedArgs[expectedArg.name] = numberValue;
-    } else if (expectedArg.type === 'string') {
-      parsedArgs[expectedArg.name] = arg;
-    } else {
-      return {
-        // @ts-expect-error this is here to make sure we don't forget to update this code if we add a new arg type
-        error: `Invalid argument type: Unknown type "${expectedArg.type}" for argument "${expectedArg.name}".`,
-      };
-    }
+    //   if (isNaN(numberValue)) {
+    //     return {
+    //       error: `Invalid argument type: Expected a number for argument "${expectedArg.name}", but got "${arg}".`,
+    //     };
+    //   }
+
+    //   parsedArgs[expectedArg.name] = numberValue;
+    // } else if (expectedArg.type === 'string') {
+    //   parsedArgs[expectedArg.name] = arg;
+    // } else {
+    //   return {
+    //     // @ts-expect-error this is here to make sure we don't forget to update this code if we add a new arg type
+    //     error: `Invalid argument type: Unknown type "${expectedArg.type}" for argument "${expectedArg.name}".`,
+    //   };
+    // }
   }
 
   const parsedAction = {

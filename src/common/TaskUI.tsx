@@ -99,7 +99,7 @@ const TaskUI = () => {
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>
-      {/* {debugMode && <ActionExecutor />} */}
+      {debugMode && <ActionExecutor />}
       <TaskHistory />
     </>
   );
