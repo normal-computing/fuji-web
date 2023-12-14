@@ -7,8 +7,8 @@ const DEFAULT_INTERVAL = 500;
 const DEFAULT_TIMEOUT = 0;
 
 export class DomActions {
-  static delayBetweenClicks = 1000; // Set this value to control the delay between clicks
-  static delayBetweenKeystrokes = 50; // Set this value to control typing speed
+  static delayBetweenClicks = 500; // Set this value to control the delay between clicks
+  static delayBetweenKeystrokes = 10; // Set this value to control typing speed
 
   tabId: number;
 
