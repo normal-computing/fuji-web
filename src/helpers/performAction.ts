@@ -53,8 +53,9 @@ async function setValueWithSelector(
   console.log('setValueWithSelector', selectorName);
   let success = false;
   try {
-    success = await domActions.clickWithSelector({
+    success = await domActions.setValueWithSelector({
       selector: `#${selectorName}`,
+      value,
     });
   } catch (e) {
     // `#${selectorName}` might not be valid
