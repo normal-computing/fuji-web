@@ -8,7 +8,7 @@ import TaskStatus from './TaskStatus';
 
 function ActionExecutor() {
   const state = useAppState((state) => ({
-    attachDegugger: state.currentTask.actions.attachDebugger,
+    attachDebugger: state.currentTask.actions.attachDebugger,
     detachDegugger: state.currentTask.actions.detachDebugger,
     performActionString: state.currentTask.actions.performActionString,
     prepareLabels: state.currentTask.actions.prepareLabels,
@@ -26,7 +26,7 @@ function ActionExecutor() {
         mb={2}
       />
       <HStack>
-        <Button onClick={state.attachDegugger}>Attach</Button>
+        <Button onClick={state.attachDebugger}>Attach</Button>
         <Button onClick={state.prepareLabels}>Prepare</Button>
         <Button
           onClick={() => {
