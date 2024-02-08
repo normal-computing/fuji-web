@@ -27,9 +27,14 @@ async function clickWithSelector(
 ): Promise<boolean> {
   console.log('clickWithSelector', selectorName);
   // start with ID
-  let success = await domActions.clickWithSelector({
-    selector: `#${selectorName}`,
-  });
+  let success = false;
+  try {
+    success = await domActions.clickWithSelector({
+      selector: `#${selectorName}`,
+    });
+  } catch (e) {
+    // `#${selectorName}` might not be valid
+  }
   if (success) return true;
   success = await domActions.clickWithSelector({
     selector: getSelector(selectorName),
@@ -46,11 +51,14 @@ async function setValueWithSelector(
   value: string
 ): Promise<boolean> {
   console.log('setValueWithSelector', selectorName);
-  // start with ID
-  let success = await domActions.setValueWithSelector({
-    selector: `#${selectorName}`,
-    value,
-  });
+  let success = false;
+  try {
+    success = await domActions.clickWithSelector({
+      selector: `#${selectorName}`,
+    });
+  } catch (e) {
+    // `#${selectorName}` might not be valid
+  }
   if (success) return true;
   success = await domActions.setValueWithSelector({
     selector: getSelector(selectorName),
