@@ -1,6 +1,12 @@
-import React from 'react';
-import App from '../../common/App';
+import React from "react";
+import "@pages/panel/Panel.css";
 
-const Panel = () => <App />;
+const Panel: React.FC = () => {
+  return (
+    <div className="container">
+      <h1 className="">Dev Tools Panel</h1>
+    </div>
+  );
+};
 
 export default Panel;

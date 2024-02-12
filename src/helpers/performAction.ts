@@ -1,8 +1,8 @@
-import { DomActions } from './domActions';
+import { DomActions } from "./domActions";
 import {
   WEB_WAND_LABEL_ATTRIBUTE_NAME,
   VISIBLE_TEXT_ATTRIBUTE_NAME,
-} from '../constants';
+} from "../constants";
 
 function getSelector(selectorName: string): string {
   return `[${WEB_WAND_LABEL_ATTRIBUTE_NAME}="${selectorName}"]`;
@@ -13,7 +13,7 @@ function getFallbackSelector(selectorName: string): string {
 }
 
 export type Action = {
-  name: 'click' | 'setValue' | 'scroll' | 'finish';
+  name: "click" | "setValue" | "scroll" | "finish";
   args: {
     text?: string;
     label?: string;
@@ -23,10 +23,20 @@ export type Action = {
 
 async function clickWithSelector(
   domActions: DomActions,
-  selectorName: string
+  selectorName: string,
 ): Promise<boolean> {
-  console.log('clickWithSelector', getSelector(selectorName));
-  const success = await domActions.clickWithSelector({
+  console.log("clickWithSelector", selectorName);
+  // start with ID
+  let success = false;
+  try {
+    success = await domActions.clickWithSelector({
+      selector: `#${selectorName}`,
+    });
+  } catch (e) {
+    // `#${selectorName}` might not be valid
+  }
+  if (success) return true;
+  success = await domActions.clickWithSelector({
     selector: getSelector(selectorName),
   });
   if (success) return true;
@@ -38,10 +48,20 @@ async function clickWithSelector(
 async function setValueWithSelector(
   domActions: DomActions,
   selectorName: string,
-  value: string
+  value: string,
 ): Promise<boolean> {
-  console.log('setValueWithSelector', getSelector(selectorName));
-  const success = await domActions.setValueWithSelector({
+  console.log("setValueWithSelector", selectorName);
+  let success = false;
+  try {
+    success = await domActions.setValueWithSelector({
+      selector: `#${selectorName}`,
+      value,
+    });
+  } catch (e) {
+    // `#${selectorName}` might not be valid
+  }
+  if (success) return true;
+  success = await domActions.setValueWithSelector({
     selector: getSelector(selectorName),
     value,
   });
@@ -53,10 +73,10 @@ async function setValueWithSelector(
 }
 
 export default async function performAction(tabId: number, action: Action) {
-  console.log('performAction', tabId, action);
+  console.log("performAction", tabId, action);
   const domActions = new DomActions(tabId);
-  if (action.name === 'click') {
-    let selectorName = '';
+  if (action.name === "click") {
+    let selectorName = "";
     let success = false;
     if (action.args.label) {
       selectorName = action.args.label;
@@ -67,17 +87,17 @@ export default async function performAction(tabId: number, action: Action) {
       success = await clickWithSelector(domActions, selectorName);
     }
     if (!success) {
-      console.error('Unable to find element with selector: ', selectorName);
+      console.error("Unable to find element with selector: ", selectorName);
     }
-  } else if (action.name === 'setValue') {
-    let selectorName = '';
+  } else if (action.name === "setValue") {
+    let selectorName = "";
     let success = false;
     if (action.args.label) {
       selectorName = action.args.label;
       success = await setValueWithSelector(
         domActions,
         selectorName,
-        action.args.value || ''
+        action.args.value || "",
       );
     }
     if (!success && action.args.text) {
@@ -85,14 +105,14 @@ export default async function performAction(tabId: number, action: Action) {
       success = await setValueWithSelector(
         domActions,
         selectorName,
-        action.args.value || ''
+        action.args.value || "",
       );
     }
     if (!success) {
-      console.error('Unable to find element with selector: ', selectorName);
+      console.error("Unable to find element with selector: ", selectorName);
     }
-  } else if (action.name === 'scroll') {
-    if (action.args.value === 'up') {
+  } else if (action.name === "scroll") {
+    if (action.args.value === "up") {
       await domActions.scrollUp();
     } else {
       await domActions.scrollDown();

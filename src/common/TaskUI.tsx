@@ -1,14 +1,14 @@
-import { Button, HStack, Spacer, Textarea, useToast } from '@chakra-ui/react';
-import React, { useCallback, useState } from 'react';
-import { debugMode } from '../constants';
-import { useAppState } from '../state/store';
-import RunTaskButton from './RunTaskButton';
-import TaskHistory from './TaskHistory';
-import TaskStatus from './TaskStatus';
+import { Button, HStack, Spacer, Textarea, useToast } from "@chakra-ui/react";
+import React, { useCallback, useState } from "react";
+import { debugMode } from "../constants";
+import { useAppState } from "../state/store";
+import RunTaskButton from "./RunTaskButton";
+import TaskHistory from "./TaskHistory";
+import TaskStatus from "./TaskStatus";
 
 function ActionExecutor() {
   const state = useAppState((state) => ({
-    attachDegugger: state.currentTask.actions.attachDebugger,
+    attachDebugger: state.currentTask.actions.attachDebugger,
     detachDegugger: state.currentTask.actions.detachDebugger,
     performActionString: state.currentTask.actions.performActionString,
     prepareLabels: state.currentTask.actions.prepareLabels,
@@ -26,7 +26,7 @@ function ActionExecutor() {
         mb={2}
       />
       <HStack>
-        <Button onClick={state.attachDegugger}>Attach</Button>
+        <Button onClick={state.attachDebugger}>Attach</Button>
         <Button onClick={state.prepareLabels}>Prepare</Button>
         <Button
           onClick={() => {
@@ -49,21 +49,21 @@ const TaskUI = () => {
     setInstructions: state.ui.actions.setInstructions,
   }));
 
-  const taskInProgress = state.taskStatus === 'running';
+  const taskInProgress = state.taskStatus === "running";
 
   const toast = useToast();
 
   const toastError = useCallback(
     (message: string) => {
       toast({
-        title: 'Error',
+        title: "Error",
         description: message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
     },
-    [toast]
+    [toast],
   );
 
   const runTask = () => {
@@ -77,7 +77,7 @@ const TaskUI = () => {
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       runTask();
     }
@@ -86,9 +86,10 @@ const TaskUI = () => {
   return (
     <>
       <Textarea
+        // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         placeholder="Try telling WebWand to do something..."
-        value={state.instructions || ''}
+        value={state.instructions || ""}
         disabled={taskInProgress}
         onChange={(e) => state.setInstructions(e.target.value)}
         mb={2}

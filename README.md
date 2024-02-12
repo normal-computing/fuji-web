@@ -1,43 +1,473 @@
-# WebWand: Vision based Full Browser Automation 🪄
 
-[Demo](https://twitter.com/mengdi_en/status/1721965940680565166)
+<div align="center">
+<img src="public/icon-128.png" alt="logo"/>
+<h1> Chrome Extension Boilerplate with<br/>React + Vite + TypeScript</h1>
 
-WebWand uses [GPT-4 with vision](https://platform.openai.com/docs/guides/vision) to control your browser and perform repetitive actions on your behalf. Currently it allows you to define ad-hoc instructions. In the future it will also support saved and scheduled workflows.
+![](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
+![](https://img.shields.io/badge/Typescript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![](https://badges.aleen42.com/src/vitejs.svg)
+![GitHub action badge](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/actions/workflows/build-zip.yml/badge.svg)
+<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/Jonghakseo/chrome-extension-boilerplate-react-viteFactions&count_bg=%23#222222&title_bg=%23#454545&title=😀&edge_flat=true" alt="hits"/>
 
-WebWand's current status is **research preview**. Many workflows fail or confuse the agent. If you'd like to hack on WebWand to make it better or test it on your own workflows, follow the instructions below to run it locally.
 
-You will need your own [OpenAI API Key](https://platform.openai.com/account/api-keys) to use WebWand.
+> This project is listed in the [Awesome Vite](https://github.com/vitejs/awesome-vite)
 
-WebWand only sends data to OpenAI's API. It does not send any data to third parties.
+</div>
 
-## Installing and Running
+## Table of Contents
 
-Currently this extension is only available through this GitHub repo. To build and install the extension locally on your machine, follow the instructions below.
+- [Intro](#intro)
+- [Features](#features)
+- [Installation](#installation)
+    - [Procedures](#procedures)
+      - [Chrome](#chrome) 
+      - [Firefox](#firefox) 
+- [Add Style Library](#add-style-library)
+    - [Twind](#twind)
+    - [Chakra UI](#chakra-ui) 
+- [Pages](#pages)
+- [Screenshots](#screenshots)
+    - [NewTab](#newtab)
+    - [Popup](#popup)
+    - [Devtools](#devtools)
+- [Examples](#examples)
+- [Documents](#documents)
 
-### Installing the extension
+## Intro <a name="intro"></a>
 
-1. Ensure you have [Node.js](https://nodejs.org/). The developement was done on Node v20 but it should work with some lower versions.
-2. Clone this repository
-3. Run `yarn` to install the dependencies. If you haven't used yarn before, you'll need to install it first with `npm install -g yarn`
-4. Run `yarn start` to build the package
-5. Load your extension on Chrome by doing the following:
-   1. Navigate to `chrome://extensions/`
-   2. Toggle `Developer mode`
-   3. Click on `Load unpacked extension`
-   4. Select the `build` folder that `yarn start` generated
+This boilerplate is made for creating chrome extensions using React and Typescript.
+> The focus was on improving the build speed and development experience with Vite.
 
-### Running in your browser
+## Features <a name="features"></a>
 
-1. Once installed, the browser plugin will be available in two forms:
-   1. As a Popup. Activate by pressing `cmd+shift+y` on mac or `ctrl+shift+y` on windows/linux, or by clicking the extension logo in your browser.
-   2. As a devtools panel. Activate by first opening the browser's developer tools, then navigating to the `WebWand` panel.
-2. The next thing you need to do is create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) and paste it in the provided box. This key will be stored securely in your browser, and will not be uploaded to a third party.
-3. Finally, navigate to a webpage you want WebWand and type in the task you want it to perform. For example, if you want to search for a movie on Google, you can type `Search for the movie Oblivion`. Then press `Enter` or click `Run` to execute the task.
+- [React 18](https://reactjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Jest](https://jestjs.io/)
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+- [Vite](https://vitejs.dev/)
+- [SASS](https://sass-lang.com/)
+- [Prettier](https://prettier.io/)
+- [ESLint](https://eslint.org/)
+- [Husky](https://typicode.github.io/husky/getting-started.html#automatic-recommended)
+- [Commitlint](https://commitlint.js.org/#/guides-local-setup?id=install-commitlint)
+- [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
+- [Chrome Extension Manifest Version 3](https://developer.chrome.com/docs/extensions/mv3/intro/)
+- HRR(Hot Rebuild & Refresh/Reload)
 
-## How it Works
+## Installation <a name="installation"></a>
 
-TBA
+## Procedures: <a name="procedures"></a>
 
-## Credits
+1. Clone this repository.
+2. Change `name` and `description` in package.json => **Auto synchronize with manifest**
+3. Install pnpm globally: `npm install -g pnpm` (check your node version >= 16.6, recommended >= 18)
+4. Run `pnpm install` 
 
-WebWand was inspired by and built on top of [TaxyAI's browser extension](https://github.com/TaxyAI/browser-extension), and reuses its UI and part of its action execution cycle code. 
+## And next, depending on the needs:
+
+### For Chrome: <a name="chrome"></a>
+
+1. Run:
+    - Dev: `pnpm dev` or `npm run dev`
+    - Prod: `pnpm build` or `npm run build`
+2. Open in browser - `chrome://extensions`
+3. Check - `Developer mode`
+4. Find and Click - `Load unpacked extension`
+5. Select - `dist` folder
+
+### For Firefox: <a name="firefox"></a>
+
+1. Run:
+    - Dev: `pnpm dev:firefox` or `npm run dev:firefox`
+    - Prod: `pnpm build:firefox` or `npm run build:firefox`
+2. Open in browser - `about:debugging#/runtime/this-firefox`
+3. Find and Click - `Load Temporary Add-on...`
+4. Select - `manifest.json` from `dist` folder
+
+### <i>Remember in firefox you add plugin in temporary mode, that's mean it's disappear after close browser, you must do it again, on next launch.</i>
+
+## Add Style Library <a name="add-style-library"></a>
+
+### Twind <a name="twind"></a>
+> The smallest, fastest, most feature complete Tailwind-in-JS solution in existence
+
+**1. Install the library:**
+
+```bash
+$ pnpm install -D @twind/core @twind/preset-autoprefix @twind/preset-tailwind
+```
+
+**2. Create twind.config.ts in the root folder**
+
+<details>
+<summary>twind.config.ts</summary>
+
+```ts
+import { defineConfig } from '@twind/core';
+import presetTailwind from '@twind/preset-tailwind';
+import presetAutoprefix from '@twind/preset-autoprefix';
+
+export default defineConfig({
+  presets: [presetAutoprefix(), presetTailwind()],
+});
+```
+</details>
+
+**3. Create src/shared/style/twind.ts for importing**
+
+<details>
+<summary>src/shared/style/twind.ts</summary>
+
+```ts
+import { twind, cssom, observe } from '@twind/core';
+import 'construct-style-sheets-polyfill';
+import config from '@root/twind.config';
+
+export function attachTwindStyle<T extends { adoptedStyleSheets: unknown }>(
+  observedElement: Element,
+  documentOrShadowRoot: T,
+) {
+  const sheet = cssom(new CSSStyleSheet());
+  const tw = twind(config, sheet);
+  observe(tw, observedElement);
+  documentOrShadowRoot.adoptedStyleSheets = [sheet.target];
+}
+```
+</details>
+
+**4. You can use Tailwind in your project:**
+
+<details>
+<summary>src/pages/popup/Popup.tsx</summary>
+
+```tsx
+import { attachTwindStyle } from '@src/shared/style/twind';
+
+...
+  attachTwindStyle(appContainer, document);
+  const root = createRoot(appContainer);
+  root.render(<Popup />);
+```
+</details>
+
+**5. If you want to use Twind in the content script, you need to add the following code:**
+
+<details>
+<summary>src/pages/content/ui/index.tsx</summary>
+
+"""tsx
+import { attachTwindStyle } from '@src/shared/style/twind';
+
+...
+attachTwindStyle(rootIntoShadow, shadowRoot);
+createRoot(rootIntoShadow).render(<App />);
+"""
+</details>
+
+[See more examples](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/pull/244/)
+
+### Chakra UI <a name="chakra-ui"></a>
+
+**1. Install the library:**
+
+```bash
+$ pnpm install @chakra-ui/react @emotion/cache @emotion/react
+```
+
+**2. You should add the code to `vite.config.ts` for [Ignore unnecessary warnings](https://github.com/TanStack/query/pull/5161#issuecomment-1506683450)**
+
+<details>
+<summary>vite.config.ts</summary>
+
+```ts
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      // Add below code ~~~~~
+      onwarn(warning, warn) {
+        if (
+          warning.code === "MODULE_LEVEL_DIRECTIVE" &&
+          warning.message.includes(`"use client"`)
+        ) {
+          return;
+        }
+        warn(warning);
+      },
+      // Add above code ~~~~
+    },
+  },
+});
+```
+
+</details>
+
+**3. You can use Chakra UI in your project:**
+
+<details>
+<summary>src/pages/popup/Popup.tsx</summary>
+
+```tsx
+import { Button } from "@chakra-ui/react";
+
+export default function Popup() {
+  return <Button colorScheme="teal">Button</Button>;
+}
+```
+
+</details>
+
+---
+
+> if you don't want to use Chakra UI in the content script, you can skip 4,5 step.
+
+**4. If you want to use Chakra UI in the content script, you need to add the following code:**
+
+<details>
+<summary>src/pages/content/ui/CustomChakraProvider.tsx</summary>
+
+```tsx
+import { ReactNode, useCallback, useEffect, useState } from "react";
+import {
+  ColorMode,
+  ColorModeContext,
+  ColorModeScript,
+  CSSReset,
+  extendTheme,
+  GlobalStyle,
+  ThemeProvider
+} from "@chakra-ui/react";
+
+const theme = extendTheme();
+
+const getCurrentTheme = () => {
+  const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  return isDark ? "dark" : "light";
+};
+
+type CustomChakraProviderProps = {
+  shadowRootId: string;
+  children: ReactNode;
+};
+export default function CustomChakraProvider({ children, shadowRootId }: CustomChakraProviderProps) {
+  const [colorMode, setColorMode] = useState<ColorMode>(getCurrentTheme());
+
+  useEffect(() => {
+    const darkThemeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChangeColorSchema = (event: MediaQueryListEvent) => {
+      const isDark = event.matches;
+      setColorMode(isDark ? "dark" : "light");
+    };
+
+    darkThemeMediaQuery.addEventListener("change", onChangeColorSchema);
+
+    return () => {
+      darkThemeMediaQuery.removeEventListener("change", onChangeColorSchema);
+    };
+  }, []);
+
+  const toggleColorMode = useCallback(() => {
+    setColorMode(prev => (prev === "dark" ? "light" : "dark"));
+  }, []);
+
+  return (
+    <ThemeProvider theme={theme} cssVarsRoot={`#${shadowRootId}`}>
+      <ColorModeScript initialColorMode="system" />
+      <ColorModeContext.Provider value={{ colorMode, setColorMode, toggleColorMode }}>
+        <CSSReset />
+        <GlobalStyle />
+        {children}
+      </ColorModeContext.Provider>
+    </ThemeProvider>
+  );
+}
+```
+
+</details>
+<details>
+<summary>src/pages/content/ui/EmotionCacheProvider.tsx</summary>
+
+```tsx
+import createCache from '@emotion/cache';
+import { CacheProvider, type EmotionCache } from '@emotion/react';
+import { ReactNode, useEffect, useState } from 'react';
+
+export default function EmotionCacheProvider({ children, rootId }: { rootId: string; children: ReactNode }) {
+  const [emotionCache, setEmotionCache] = useState<EmotionCache | null>(null);
+
+  useEffect(() => {
+    function setEmotionStyles(shadowRoot: ShadowRoot) {
+      setEmotionCache(
+        createCache({
+          key: rootId,
+          container: shadowRoot,
+        }),
+      );
+    }
+
+    const root = document.getElementById(rootId);
+    if (root && root.shadowRoot) {
+      setEmotionStyles(root.shadowRoot);
+    }
+  }, []);
+
+  return emotionCache ? <CacheProvider value={emotionCache}>{children}</CacheProvider> : null;
+}
+```
+
+</details>
+
+**5. Fix the `src/pages/content/index.tsx` file:**
+
+<details>
+<summary>src/pages/content/index.tsx</summary>
+
+```tsx
+import CustomChakraProvider from '@pages/content/ui/CustomChakraProvider';
+import EmotionCacheProvider from '@pages/content/ui/EmotionCacheProvider';
+
+// ...
+
+createRoot(rootIntoShadow).render(
+  // Add Providers
+  <EmotionCacheProvider rootId={root.id}>
+    <CustomChakraProvider shadowRootId={rootIntoShadow.id}>
+      <App />
+    </CustomChakraProvider>
+  </EmotionCacheProvider>,
+);
+
+```
+
+</details>
+
+
+## Pages <a name="pages"></a>
+
+### New Tab <a name="newtab"></a>
+
+[Override Chrome pages](https://developer.chrome.com/docs/extensions/mv3/override/)<br/>`chrome_url_overrides.newtab` in manifest.json
+
+### Popup <a name="popup"></a>
+
+[Browser actions](https://developer.chrome.com/docs/extensions/reference/browserAction/)<br/>`action.default_pupup` in manifest.json
+
+### Devtools <a name="devtools"></a>
+
+[Devtools](https://developer.chrome.com/docs/extensions/mv3/devtools/#creating)<br/>`devtools_page` in manifest.json
+
+### Background <a name="background"></a>
+
+[Background](https://developer.chrome.com/docs/extensions/mv3/background_pages/)<br/>`background.service_worker` in manifest.json
+
+### ContentScript <a name="contentscript"></a>
+
+[Content Script](https://developer.chrome.com/docs/extensions/mv3/content_scripts/)<br/>`content_scripts[0]` in manifest.json
+
+### Options <a name="options"></a>
+
+[Options](https://developer.chrome.com/docs/extensions/mv3/options/)<br/>`options_page` in manifest.json
+
+### SidePanel (Chrome 144+) <a name="sidepanel"></a>
+
+[SidePanel](https://developer.chrome.com/docs/extensions/reference/sidePanel/)<br/>`side_panel.default_path` in manifest.json
+
+
+## Screenshots <a name="screenshots"></a>
+
+### New Tab <a name="newtab"></a>
+
+<img width="800" alt="newtab" src="https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/assets/53500778/3e782e41-b605-4956-90e2-20cc48252820">
+
+### Popup <a name="popup"></a>
+
+| Black | White |
+|--------|--------|
+| <img width="300" alt="black" src="https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/assets/53500778/35423617-e6f5-4f65-adb3-03f068236648"> | <img width="300" alt="white" src="https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/assets/53500778/99886d92-b6f0-4e41-b70e-5afc6d2f7eab"> |
+
+### Devtools <a name="devtools"></a>
+
+<img width="450" alt="devtools" src="https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/assets/53500778/467d719d-a7db-4f77-8504-cd5ce7567793">
+
+## Examples <a name="examples"></a>
+
+- https://github.com/Jonghakseo/drag-gpt-extension
+- https://github.com/Jonghakseo/pr-commit-noti
+- https://github.com/ariburaco/chatgpt-file-uploader-extended
+
+## Documents <a name="documents"></a>
+
+- [Vite Plugin](https://vitejs.dev/guide/api-plugin.html)
+- [ChromeExtension](https://developer.chrome.com/docs/extensions/mv3/)
+- [Rollup](https://rollupjs.org/guide/en/)
+- [Rollup-plugin-chrome-extension](https://www.extend-chrome.dev/rollup-plugin)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Jonghakseo/chrome-extension-boilerplate-react-vite&type=Date)](https://star-history.com/#Jonghakseo/chrome-extension-boilerplate-react-vite&Date)
+
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JunyWuuuu91"><img src="https://avatars.githubusercontent.com/u/33750626?v=4?s=50" width="50px;" alt="JunyWuuuu91"/><br /><sub><b>JunyWuuuu91</b></sub></a><br /><a href="#code-JunyWuuuu91" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dim0147"><img src="https://avatars.githubusercontent.com/u/44487221?v=4?s=50" width="50px;" alt="dim0147"/><br /><sub><b>dim0147</b></sub></a><br /><a href="#bug-dim0147" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.youtube.com/user/Learnbynet"><img src="https://avatars.githubusercontent.com/u/24865815?v=4?s=50" width="50px;" alt="jon lepage"/><br /><sub><b>jon lepage</b></sub></a><br /><a href="#bug-djmisterjon" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://lironhazan.com/"><img src="https://avatars.githubusercontent.com/u/9695142?v=4?s=50" width="50px;" alt="LironH"/><br /><sub><b>LironH</b></sub></a><br /><a href="#ideas-LironHazan" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://spencerchang.me"><img src="https://avatars.githubusercontent.com/u/14796580?v=4?s=50" width="50px;" alt="Spencer Chang"/><br /><sub><b>Spencer Chang</b></sub></a><br /><a href="#bug-spencerc99" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/deld123"><img src="https://avatars.githubusercontent.com/u/110054621?v=4?s=50" width="50px;" alt="deld123"/><br /><sub><b>deld123</b></sub></a><br /><a href="#bug-deld123" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/hakunin"><img src="https://avatars.githubusercontent.com/u/65846?v=4?s=50" width="50px;" alt="Michal Hantl"/><br /><sub><b>Michal Hantl</b></sub></a><br /><a href="#ideas-hakunin" title="Ideas, Planning, & Feedback">🤔</a> <a href="#bug-hakunin" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://twitter.com/jordnb"><img src="https://avatars.githubusercontent.com/u/1463197?v=4?s=50" width="50px;" alt="Jordan Burgess"/><br /><sub><b>Jordan Burgess</b></sub></a><br /><a href="#ideas-jordn" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/NAMU1105"><img src="https://avatars.githubusercontent.com/u/47317129?v=4?s=50" width="50px;" alt="NAMEUN CHO"/><br /><sub><b>NAMEUN CHO</b></sub></a><br /><a href="#bug-NAMU1105" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Araneline"><img src="https://avatars.githubusercontent.com/u/2670262?v=4?s=50" width="50px;" alt="Andrew Mudrov"/><br /><sub><b>Andrew Mudrov</b></sub></a><br /><a href="#question-Araneline" title="Answering Questions">💬</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://shubhamlad.in"><img src="https://avatars.githubusercontent.com/u/30789414?v=4?s=50" width="50px;" alt="Shubham Lad"/><br /><sub><b>Shubham Lad</b></sub></a><br /><a href="#bug-ShuLaPy" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/hanrongliao"><img src="https://avatars.githubusercontent.com/u/38458886?v=4?s=50" width="50px;" alt="hanrong"/><br /><sub><b>hanrong</b></sub></a><br /><a href="#bug-hanrongliao" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://koeni.dev"><img src="https://avatars.githubusercontent.com/u/32238636?v=4?s=50" width="50px;" alt="Florian König"/><br /><sub><b>Florian König</b></sub></a><br /><a href="#question-koenidv" title="Answering Questions">💬</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/TP-O"><img src="https://avatars.githubusercontent.com/u/53143403?v=4?s=50" width="50px;" alt="Tran Phong"/><br /><sub><b>Tran Phong</b></sub></a><br /><a href="#bug-TP-O" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tonychandesign"><img src="https://avatars.githubusercontent.com/u/22465526?v=4?s=50" width="50px;" alt="tonychandesign"/><br /><sub><b>tonychandesign</b></sub></a><br /><a href="#bug-tonychandesign" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dellyn"><img src="https://avatars.githubusercontent.com/u/54443742?v=4?s=50" width="50px;" alt="Ihor Makarchuk"/><br /><sub><b>Ihor Makarchuk</b></sub></a><br /><a href="#bug-dellyn" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/hugoobauer"><img src="https://avatars.githubusercontent.com/u/46481101?v=4?s=50" width="50px;" alt="hugoobauer"/><br /><sub><b>hugoobauer</b></sub></a><br /><a href="#bug-hugoobauer" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://itskaransingh.vercel.app"><img src="https://avatars.githubusercontent.com/u/112791089?v=4?s=50" width="50px;" alt="Karan Singh"/><br /><sub><b>Karan Singh</b></sub></a><br /><a href="#ideas-itskaransingh" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/remusris"><img src="https://avatars.githubusercontent.com/u/91991249?v=4?s=50" width="50px;" alt="remusris"/><br /><sub><b>remusris</b></sub></a><br /><a href="#ideas-remusris" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/hegelwatch"><img src="https://avatars.githubusercontent.com/u/11195987?v=4?s=50" width="50px;" alt="hegel_dark"/><br /><sub><b>hegel_dark</b></sub></a><br /><a href="#ideas-hegelwatch" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/lookis"><img src="https://avatars.githubusercontent.com/u/445022?v=4?s=50" width="50px;" alt="Jingsi"/><br /><sub><b>Jingsi</b></sub></a><br /><a href="#bug-lookis" title="Bug reports">🐛</a> <a href="#code-lookis" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/chrisozgo99"><img src="https://avatars.githubusercontent.com/u/46030410?v=4?s=50" width="50px;" alt="Chris Ozgo"/><br /><sub><b>Chris Ozgo</b></sub></a><br /><a href="#bug-chrisozgo99" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ssikyou"><img src="https://avatars.githubusercontent.com/u/5118469?v=4?s=50" width="50px;" alt="Cong"/><br /><sub><b>Cong</b></sub></a><br /><a href="#bug-ssikyou" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/PatrykKuniczak"><img src="https://avatars.githubusercontent.com/u/64608510?v=4?s=50" width="50px;" alt="PatrykKuniczak"/><br /><sub><b>PatrykKuniczak</b></sub></a><br /><a href="#ideas-PatrykKuniczak" title="Ideas, Planning, & Feedback">🤔</a> <a href="#code-PatrykKuniczak" title="Code">💻</a> <a href="#doc-PatrykKuniczak" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://hector.parra.cat"><img src="https://avatars.githubusercontent.com/u/34079?v=4?s=50" width="50px;" alt="Hector Parra"/><br /><sub><b>Hector Parra</b></sub></a><br /><a href="#bug-hector" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://blog.rhea-so.link"><img src="https://avatars.githubusercontent.com/u/25793226?v=4?s=50" width="50px;" alt="JeongHyeon Kim"/><br /><sub><b>JeongHyeon Kim</b></sub></a><br /><a href="#infra-rhea-so" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://terminels.com"><img src="https://avatars.githubusercontent.com/u/73331790?v=4?s=50" width="50px;" alt="Terminels"/><br /><sub><b>Terminels</b></sub></a><br /><a href="#code-PrinOrange" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://wonkydd.com/"><img src="https://avatars.githubusercontent.com/u/81248624?v=4?s=50" width="50px;" alt="WonkyDD"/><br /><sub><b>WonkyDD</b></sub></a><br /><a href="#code-wonkyDD" title="Code">💻</a> <a href="#bug-wonkyDD" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/wangxinyugithub"><img src="https://avatars.githubusercontent.com/u/39206932?v=4?s=50" width="50px;" alt="wangxy"/><br /><sub><b>wangxy</b></sub></a><br /><a href="#bug-wangxinyugithub" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/govza"><img src="https://avatars.githubusercontent.com/u/1425574?v=4?s=50" width="50px;" alt="Rasul"/><br /><sub><b>Rasul</b></sub></a><br /><a href="#doc-govza" title="Documentation">📖</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+---
+
+## Thanks To
+
+| [Jetbrains](https://jb.gg/OpenSourceSupport)                                                                                               | [Jackson Hong](https://www.linkedin.com/in/j-acks0n/)                                            |
+|--------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| <img width="100" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="JetBrains Logo (Main) logo."> | <img width="100" src='https://avatars.githubusercontent.com/u/23139754?v=4' alt='Jackson Hong'/> |
+
+---
+
+[Jonghakseo](https://nookpi.tistory.com/)

@@ -1,14 +1,14 @@
-import { TAXY_ELEMENT_SELECTOR } from '../constants';
-import { callRPCWithTab } from './pageRPC';
-import { scrollScriptString } from './runtimeFunctionStrings';
-import { sleep, waitFor, waitTillStable } from './utils';
+import { TAXY_ELEMENT_SELECTOR } from "../constants";
+import { callRPCWithTab } from "./pageRPC";
+import { scrollScriptString } from "./runtimeFunctionStrings";
+import { sleep, waitFor, waitTillStable } from "./utils";
 
 const DEFAULT_INTERVAL = 500;
 const DEFAULT_TIMEOUT = 0;
 
 export class DomActions {
-  static delayBetweenClicks = 1000; // Set this value to control the delay between clicks
-  static delayBetweenKeystrokes = 50; // Set this value to control typing speed
+  static delayBetweenClicks = 500; // Set this value to control the delay between clicks
+  static delayBetweenKeystrokes = 10; // Set this value to control typing speed
 
   tabId: number;
 
@@ -17,15 +17,16 @@ export class DomActions {
   }
 
   // TODO: investigate whether it's possible to type this
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async sendCommand(method: string, params?: any): Promise<any> {
     return chrome.debugger.sendCommand({ tabId: this.tabId }, method, params);
   }
 
   private async getObjectIdBySelector(
-    selector: string
+    selector: string,
   ): Promise<string | undefined> {
-    const document = await this.sendCommand('DOM.getDocument');
-    const { nodeId } = await this.sendCommand('DOM.querySelector', {
+    const document = await this.sendCommand("DOM.getDocument");
+    const { nodeId } = await this.sendCommand("DOM.querySelector", {
       nodeId: document.root.nodeId,
       selector,
     });
@@ -33,7 +34,7 @@ export class DomActions {
       return;
     }
     // get object id
-    const result = await this.sendCommand('DOM.resolveNode', {
+    const result = await this.sendCommand("DOM.resolveNode", {
       nodeId,
     });
     const objectId = result.object.objectId;
@@ -43,8 +44,8 @@ export class DomActions {
   private async getTaxySelector(originalId: number) {
     const uniqueId = await callRPCWithTab(
       this.tabId,
-      'getUniqueElementSelectorId',
-      [originalId]
+      "getUniqueElementSelectorId",
+      [originalId],
     );
     return `[${TAXY_ELEMENT_SELECTOR}="${uniqueId}"]`;
   }
@@ -54,7 +55,7 @@ export class DomActions {
   }
 
   private async scrollIntoView(objectId: string) {
-    await this.sendCommand('Runtime.callFunctionOn', {
+    await this.sendCommand("Runtime.callFunctionOn", {
       objectId,
       functionDeclaration: scrollScriptString,
     });
@@ -62,10 +63,11 @@ export class DomActions {
   }
 
   private async getCenterCoordinates(objectId: string) {
-    const { model } = await this.sendCommand('DOM.getBoxModel', {
+    const { model } = await this.sendCommand("DOM.getBoxModel", {
       objectId,
     });
-    const [x1, y1, x2, y2, x3, y3, x4, y4] = model.border;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [x1, y1, _x2, _y2, x3, y3] = model.border;
     const centerX = (x1 + x3) / 2;
     const centerY = (y1 + y3) / 2;
     return { x: centerX, y: centerY };
@@ -74,21 +76,21 @@ export class DomActions {
   private async clickAtPosition(
     x: number,
     y: number,
-    clickCount = 1
+    clickCount = 1,
   ): Promise<void> {
-    callRPCWithTab(this.tabId, 'ripple', [x, y]);
-    await this.sendCommand('Input.dispatchMouseEvent', {
-      type: 'mousePressed',
+    callRPCWithTab(this.tabId, "ripple", [x, y]);
+    await this.sendCommand("Input.dispatchMouseEvent", {
+      type: "mousePressed",
       x,
       y,
-      button: 'left',
+      button: "left",
       clickCount,
     });
-    await this.sendCommand('Input.dispatchMouseEvent', {
-      type: 'mouseReleased',
+    await this.sendCommand("Input.dispatchMouseEvent", {
+      type: "mouseReleased",
       x,
       y,
-      button: 'left',
+      button: "left",
       clickCount,
     });
     await sleep(DomActions.delayBetweenClicks);
@@ -98,11 +100,11 @@ export class DomActions {
     // TODO: on other OSes, use the appropriate modifier
     const metaModifier = 4;
     // send command to select all
-    await this.sendCommand('Input.dispatchKeyEvent', {
-      type: 'keyDown',
+    await this.sendCommand("Input.dispatchKeyEvent", {
+      type: "keyDown",
       modifiers: metaModifier,
-      text: 'A',
-      commands: ['selectAll'],
+      text: "A",
+      commands: ["selectAll"],
     });
     await sleep(200);
   }
@@ -111,37 +113,37 @@ export class DomActions {
     const enterModifier = shiftEnter ? 8 : 0;
     for (const char of text) {
       // handle enter
-      if (char === '\n') {
-        await this.sendCommand('Input.dispatchKeyEvent', {
-          type: 'rawKeyDown',
+      if (char === "\n") {
+        await this.sendCommand("Input.dispatchKeyEvent", {
+          type: "rawKeyDown",
           modifiers: enterModifier,
           windowsVirtualKeyCode: 13,
-          unmodifiedText: '\r',
-          text: '\r',
+          unmodifiedText: "\r",
+          text: "\r",
         });
-        await this.sendCommand('Input.dispatchKeyEvent', {
-          type: 'char',
+        await this.sendCommand("Input.dispatchKeyEvent", {
+          type: "char",
           modifiers: enterModifier,
           windowsVirtualKeyCode: 13,
-          unmodifiedText: '\r',
-          text: '\r',
+          unmodifiedText: "\r",
+          text: "\r",
         });
-        await this.sendCommand('Input.dispatchKeyEvent', {
-          type: 'keyUp',
+        await this.sendCommand("Input.dispatchKeyEvent", {
+          type: "keyUp",
           modifiers: enterModifier,
           windowsVirtualKeyCode: 13,
-          unmodifiedText: '\r',
-          text: '\r',
+          unmodifiedText: "\r",
+          text: "\r",
         });
         continue;
       }
-      await this.sendCommand('Input.dispatchKeyEvent', {
-        type: 'keyDown',
+      await this.sendCommand("Input.dispatchKeyEvent", {
+        type: "keyDown",
         text: char,
       });
       await sleep(DomActions.delayBetweenKeystrokes / 2);
-      await this.sendCommand('Input.dispatchKeyEvent', {
-        type: 'keyUp',
+      await this.sendCommand("Input.dispatchKeyEvent", {
+        type: "keyUp",
         text: char,
       });
       await sleep(DomActions.delayBetweenKeystrokes / 2);
@@ -154,7 +156,7 @@ export class DomActions {
         document.activeElement.blur();
       }
     `;
-    await this.sendCommand('Runtime.evaluate', {
+    await this.sendCommand("Runtime.evaluate", {
       expression: blurFocusedElementScript,
     });
   }
@@ -162,13 +164,13 @@ export class DomActions {
   public async waitForElement(
     selector: string,
     interval = DEFAULT_INTERVAL,
-    timeout = DEFAULT_TIMEOUT
+    timeout = DEFAULT_TIMEOUT,
   ): Promise<number | undefined> {
     let result: number | undefined;
     waitFor(
       async () => {
-        const document = await this.sendCommand('DOM.getDocument');
-        const { nodeId } = await this.sendCommand('DOM.querySelector', {
+        const document = await this.sendCommand("DOM.getDocument");
+        const { nodeId } = await this.sendCommand("DOM.querySelector", {
           nodeId: document.root.nodeId,
           selector,
         });
@@ -178,7 +180,7 @@ export class DomActions {
         return !!nodeId;
       },
       interval,
-      timeout / interval
+      timeout / interval,
     );
     return result;
   }
@@ -188,45 +190,45 @@ export class DomActions {
   public async waitTillElementRendered(
     selectorExpression: string,
     interval = DEFAULT_INTERVAL,
-    timeout = DEFAULT_TIMEOUT
+    timeout = DEFAULT_TIMEOUT,
   ): Promise<void> {
     return waitTillStable(
       async () => {
-        const { result } = await this.sendCommand('Runtime.evaluate', {
+        const { result } = await this.sendCommand("Runtime.evaluate", {
           expression: `${selectorExpression}?.innerHTML?.length`,
         });
         return result.value || 0;
       },
       interval,
-      timeout
+      timeout,
     );
   }
 
   public async waitTillHTMLRendered(
     interval = DEFAULT_INTERVAL,
-    timeout = DEFAULT_TIMEOUT
+    timeout = DEFAULT_TIMEOUT,
   ): Promise<void> {
     return waitTillStable(
       async () => {
-        const { result } = await this.sendCommand('Runtime.evaluate', {
-          expression: 'document.documentElement.innerHTML.length',
+        const { result } = await this.sendCommand("Runtime.evaluate", {
+          expression: "document.documentElement.innerHTML.length",
         });
         return result.value;
       },
       interval,
-      timeout
+      timeout,
     );
   }
 
   public async attachFile(payload: { data: string; selector?: string }) {
-    return callRPCWithTab(this.tabId, 'attachFile', [
+    return callRPCWithTab(this.tabId, "attachFile", [
       payload.data,
       payload.selector || 'input[type="file"]',
     ]);
   }
 
   public async scrollUp() {
-    await this.sendCommand('Runtime.evaluate', {
+    await this.sendCommand("Runtime.evaluate", {
       expression:
         'window.scrollBy({left: 0, top: -window.innerHeight/2, behavior: "smooth"})',
     });
@@ -234,7 +236,7 @@ export class DomActions {
   }
 
   public async scrollDown() {
-    await this.sendCommand('Runtime.evaluate', {
+    await this.sendCommand("Runtime.evaluate", {
       expression:
         'window.scrollBy({left: 0, top: window.innerHeight/2, behavior: "smooth"})',
     });
