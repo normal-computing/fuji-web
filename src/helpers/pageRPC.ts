@@ -1,12 +1,12 @@
-import { sleep } from './utils';
-import type { RPCMethods } from '../pages/Content';
+import { sleep } from "./utils";
+import type { RPCMethods } from "../pages/content/injected";
 
 // Call these functions to execute code in the content script
 
 function sendMessage<K extends keyof RPCMethods>(
   tabId: number,
   method: K,
-  payload: Parameters<RPCMethods[K]>
+  payload: Parameters<RPCMethods[K]>,
 ): Promise<ReturnType<RPCMethods[K]>> {
   // Send a message to the other world
   // Ensure that the method and arguments are correct according to RpcMethods
@@ -24,18 +24,18 @@ function sendMessage<K extends keyof RPCMethods>(
 export const callRPC = async <K extends keyof RPCMethods>(
   method: K,
   payload: Parameters<RPCMethods[K]>,
-  maxTries = 1
+  maxTries = 1,
 ): Promise<ReturnType<RPCMethods[K]>> => {
   let queryOptions = { active: true, currentWindow: true };
   let activeTab = (await chrome.tabs.query(queryOptions))[0];
 
   // If the active tab is a chrome-extension:// page, then we need to get some random other tab for testing
-  if (activeTab.url?.startsWith('chrome')) {
+  if (activeTab.url?.startsWith("chrome")) {
     queryOptions = { active: false, currentWindow: true };
     activeTab = (await chrome.tabs.query(queryOptions))[0];
   }
 
-  if (!activeTab?.id) throw new Error('No active tab found');
+  if (!activeTab?.id) throw new Error("No active tab found");
   return callRPCWithTab(activeTab.id, method, payload, maxTries);
 };
 
@@ -43,8 +43,9 @@ export const callRPCWithTab = async <K extends keyof RPCMethods>(
   tabId: number,
   method: K,
   payload: Parameters<RPCMethods[K]>,
-  maxTries = 1
+  maxTries = 1,
 ): Promise<ReturnType<RPCMethods[K]>> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let err: any;
   for (let i = 0; i < maxTries; i++) {
     try {

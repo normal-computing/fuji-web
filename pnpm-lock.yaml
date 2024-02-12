@@ -67,6 +67,9 @@ devDependencies:
   '@commitlint/config-conventional':
     specifier: 18.1.0
     version: 18.1.0
+  '@jest/globals':
+    specifier: ^29.7.0
+    version: 29.7.0
   '@rollup/plugin-typescript':
     specifier: 11.1.5
     version: 11.1.5(rollup@4.3.0)(tslib@2.6.2)(typescript@5.2.2)
@@ -79,6 +82,9 @@ devDependencies:
   '@types/jest':
     specifier: 29.5.7
     version: 29.5.7
+  '@types/lodash':
+    specifier: ^4.14.202
+    version: 4.14.202
   '@types/node':
     specifier: 20.8.10
     version: 20.8.10
@@ -2900,7 +2906,6 @@ packages:
 
   /@types/lodash@4.14.202:
     resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
-    dev: false
 
   /@types/minimist@1.2.5:
     resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}

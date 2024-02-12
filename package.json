@@ -46,10 +46,12 @@
   "devDependencies": {
     "@commitlint/cli": "18.2.0",
     "@commitlint/config-conventional": "18.1.0",
+    "@jest/globals": "^29.7.0",
     "@rollup/plugin-typescript": "11.1.5",
     "@testing-library/react": "14.0.0",
     "@types/chrome": "0.0.251",
     "@types/jest": "29.5.7",
+    "@types/lodash": "^4.14.202",
     "@types/node": "20.8.10",
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.14",
