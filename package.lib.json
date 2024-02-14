@@ -1,0 +1,9 @@
+{
+  "name": "web-wand-lib",
+  "version": "2.0.0-beta-1",
+  "description": "Helper library for Web Wand",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/normal-computing/web-wand"
+  }
+}

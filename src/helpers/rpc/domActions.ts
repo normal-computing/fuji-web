@@ -1,7 +1,7 @@
-import { TAXY_ELEMENT_SELECTOR } from "../constants";
+import { TAXY_ELEMENT_SELECTOR } from "../../constants";
 import { callRPCWithTab } from "./pageRPC";
 import { scrollScriptString } from "./runtimeFunctionStrings";
-import { sleep, waitFor, waitTillStable } from "./utils";
+import { sleep, waitFor, waitTillStable } from "../utils";
 
 const DEFAULT_INTERVAL = 500;
 const DEFAULT_TIMEOUT = 0;

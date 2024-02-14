@@ -1,11 +1,11 @@
-import { callRPC } from './pageRPC';
-import { truthyFilter } from './utils';
+import { callRPC } from "./rpc/pageRPC";
+import { truthyFilter } from "./utils";
 
 export async function getSimplifiedDom() {
-  const fullDom = await callRPC('getAnnotatedDOM', [], 3);
-  if (!fullDom || typeof fullDom !== 'string') return null;
+  const fullDom = await callRPC("getAnnotatedDOM", [], 3);
+  if (!fullDom || typeof fullDom !== "string") return null;
 
-  const dom = new DOMParser().parseFromString(fullDom, 'text/html');
+  const dom = new DOMParser().parseFromString(fullDom, "text/html");
 
   // Mount the DOM to the document in an iframe so we can use getComputedStyle
 
@@ -13,7 +13,7 @@ export async function getSimplifiedDom() {
 
   const simplifiedDom = generateSimplifiedDom(
     dom.documentElement,
-    interactiveElements
+    interactiveElements,
   ) as HTMLElement;
 
   return simplifiedDom;
@@ -21,16 +21,16 @@ export async function getSimplifiedDom() {
 
 export function generateSimplifiedDom(
   element: ChildNode,
-  interactiveElements: HTMLElement[]
+  interactiveElements: HTMLElement[],
 ): ChildNode | null {
   if (element.nodeType === Node.TEXT_NODE && element.textContent?.trim()) {
-    return document.createTextNode(element.textContent + ' ');
+    return document.createTextNode(element.textContent + " ");
   }
 
   if (!(element instanceof HTMLElement || element instanceof SVGElement))
     return null;
 
-  const isVisible = element.getAttribute('data-visible') === 'true';
+  const isVisible = element.getAttribute("data-visible") === "true";
   if (!isVisible) return null;
 
   let children = Array.from(element.childNodes)
@@ -38,14 +38,14 @@ export function generateSimplifiedDom(
     .filter(truthyFilter);
 
   // Don't bother with text that is the direct child of the body
-  if (element.tagName === 'BODY')
+  if (element.tagName === "BODY")
     children = children.filter((c) => c.nodeType !== Node.TEXT_NODE);
 
   const interactive =
-    element.getAttribute('data-interactive') === 'true' ||
-    element.hasAttribute('role');
+    element.getAttribute("data-interactive") === "true" ||
+    element.hasAttribute("role");
   const hasLabel =
-    element.hasAttribute('aria-label') || element.hasAttribute('name');
+    element.hasAttribute("aria-label") || element.hasAttribute("name");
   const includeNode = interactive || hasLabel;
 
   if (!includeNode && children.length === 0) return null;
@@ -56,14 +56,14 @@ export function generateSimplifiedDom(
   const container = document.createElement(element.tagName);
 
   const allowedAttributes = [
-    'aria-label',
-    'data-name',
-    'name',
-    'type',
-    'placeholder',
-    'value',
-    'role',
-    'title',
+    "aria-label",
+    "data-name",
+    "name",
+    "type",
+    "placeholder",
+    "value",
+    "role",
+    "title",
   ];
 
   for (const attr of allowedAttributes) {
@@ -73,7 +73,7 @@ export function generateSimplifiedDom(
   }
   if (interactive) {
     interactiveElements.push(element as HTMLElement);
-    container.setAttribute('id', element.getAttribute('data-id') as string);
+    container.setAttribute("id", element.getAttribute("data-id") as string);
   }
 
   children.forEach((child) => container.appendChild(child));
