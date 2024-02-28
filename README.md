@@ -18,21 +18,22 @@ Currently this extension is only available through this GitHub repo. To build an
 
 1. Ensure you have [Node.js](https://nodejs.org/). The developement was done on Node v20 but it should work with some lower versions.
 2. Clone this repository
-3. Run `yarn` to install the dependencies. If you haven't used yarn before, you'll need to install it first with `npm install -g yarn`
-4. Run `yarn start` to build the package
-5. Load your extension on Chrome by doing the following:
-   1. Navigate to `chrome://extensions/`
-   2. Toggle `Developer mode`
-   3. Click on `Load unpacked extension`
-   4. Select the `dist` folder that `yarn start` generated
+3. Install `pnpm` globally: `npm install -g pnpm` (check your node version >= 16.6, recommended >= 18)
+4. Run `pnpm install` 
 
 ### Running in your browser
 
-1. Once installed, the browser plugin will be available in two forms:
-   1. As a Popup. Activate by pressing `cmd+shift+y` on mac or `ctrl+shift+y` on windows/linux, or by clicking the extension logo in your browser.
-   2. As a devtools panel. Activate by first opening the browser's developer tools, then navigating to the `WebWand` panel.
-2. The next thing you need to do is create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) and paste it in the provided box. This key will be stored securely in your browser, and will not be uploaded to a third party.
-3. Finally, navigate to a webpage you want WebWand and type in the task you want it to perform. For example, if you want to search for a movie on Google, you can type `Search for the movie Oblivion`. Then press `Enter` or click `Run` to execute the task.
+1. Run on terminal:
+    - Dev: `pnpm dev` or `npm run dev`
+    - Prod: `pnpm build` or `npm run build`
+2. Load your extension on Chrome by doing the following:
+   1. Navigate to `chrome://extensions/`
+   2. Toggle `Developer mode`
+   3. Click on `Load unpacked extension`
+   4. Select the `dist` folder
+3. The browser plugin will be available as a side panel.
+4. The next thing you need to do is create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) and paste it in the provided box. This key will be stored securely in your browser, and will not be uploaded to a third party.
+5. Finally, navigate to a webpage you want WebWand and type in the task you want it to perform. For example, if you want to search for a movie on Google, you can type `Search for the movie Oblivion`. Then press `Enter` or click `Run` to execute the task.
 
 ## How it Works
 
