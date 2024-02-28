@@ -2,7 +2,7 @@ import { DomActions } from "./domActions";
 import {
   WEB_WAND_LABEL_ATTRIBUTE_NAME,
   VISIBLE_TEXT_ATTRIBUTE_NAME,
-} from "../constants";
+} from "../../constants";
 
 function getSelector(selectorName: string): string {
   return `[${WEB_WAND_LABEL_ATTRIBUTE_NAME}="${selectorName}"]`;

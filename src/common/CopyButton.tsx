@@ -1,7 +1,7 @@
 import React from "react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { useToast } from "@chakra-ui/react";
-import { callRPC } from "../helpers/pageRPC";
+import { callRPC } from "../helpers/rpc/pageRPC";
 
 export default function CopyButton(props: { text: string }) {
   const toast = useToast();

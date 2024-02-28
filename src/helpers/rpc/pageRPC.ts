@@ -1,5 +1,5 @@
-import { sleep } from "./utils";
-import type { RPCMethods } from "../pages/content/injected";
+import { sleep } from "../utils";
+import type { RPCMethods } from "../../pages/content/domOperations";
 
 // Call these functions to execute code in the content script
 
