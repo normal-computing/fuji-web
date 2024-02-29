@@ -25,7 +25,7 @@ export type Action = {
 async function clickWithSelector(
   domActions: DomActions,
   selectorName: string,
-  isVisionModel: boolean,
+  isVisionModel: boolean = true,
 ): Promise<boolean> {
   console.log("clickWithSelector", selectorName);
   let success = false;
@@ -57,7 +57,7 @@ async function setValueWithSelector(
   domActions: DomActions,
   selectorName: string,
   value: string,
-  isVisionModel: boolean,
+  isVisionModel: boolean = true,
 ): Promise<boolean> {
   console.log("setValueWithSelector", selectorName);
   let success = false;
@@ -88,11 +88,7 @@ async function setValueWithSelector(
   });
 }
 
-export default async function performAction(
-  tabId: number,
-  action: Action,
-  isVisionModel: boolean,
-) {
+export default async function performAction(tabId: number, action: Action) {
   console.log("performAction", tabId, action);
   const domActions = new DomActions(tabId);
   if (action.name === "click") {
@@ -100,27 +96,15 @@ export default async function performAction(
     let success = false;
     if (action.args.elementId) {
       selectorName = action.args.elementId;
-      success = await clickWithSelector(
-        domActions,
-        selectorName,
-        isVisionModel,
-      );
+      success = await clickWithSelector(domActions, selectorName, false);
     }
     if (action.args.label) {
       selectorName = action.args.label;
-      success = await clickWithSelector(
-        domActions,
-        selectorName,
-        isVisionModel,
-      );
+      success = await clickWithSelector(domActions, selectorName);
     }
     if (!success && action.args.text) {
       selectorName = action.args.text;
-      success = await clickWithSelector(
-        domActions,
-        selectorName,
-        isVisionModel,
-      );
+      success = await clickWithSelector(domActions, selectorName);
     }
     if (!success) {
       console.error("Unable to find element with selector: ", selectorName);
@@ -134,7 +118,7 @@ export default async function performAction(
         domActions,
         selectorName,
         action.args.value || "",
-        isVisionModel,
+        false,
       );
     }
     if (action.args.label) {
@@ -143,7 +127,6 @@ export default async function performAction(
         domActions,
         selectorName,
         action.args.value || "",
-        isVisionModel,
       );
     }
     if (!success && action.args.text) {
@@ -152,7 +135,6 @@ export default async function performAction(
         domActions,
         selectorName,
         action.args.value || "",
-        isVisionModel,
       );
     }
     if (!success) {
