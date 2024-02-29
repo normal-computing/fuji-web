@@ -124,10 +124,12 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           let query: NextAction | null = null;
 
+          let isVisionModel = true;
           if (
             useAppState.getState().settings.selectedModel ===
             "gpt-4-vision-preview"
           ) {
+            isVisionModel = true;
             await callRPCWithTab(tabId, "drawLabels", []);
             const imgData = await chrome.tabs.captureVisibleTab({
               format: "jpeg",
@@ -145,6 +147,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               onError,
             );
           } else {
+            isVisionModel = false;
             setActionStatus("pulling-dom");
             const pageDOM = await getSimplifiedDom();
             if (!pageDOM) {
@@ -164,6 +167,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               3,
               onError,
             );
+            console.log("query: ", query);
           }
 
           if (query == null) {
@@ -198,7 +202,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           ) {
             break;
           }
-          await performAction(tabId, action.parsedAction);
+          await performAction(tabId, action.parsedAction, isVisionModel);
 
           // if (action.parsedAction.name === 'click') {
           //   await domActions.clickWithElementId(action.parsedAction.args);
@@ -268,7 +272,12 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       ) {
         return;
       }
-      await performAction(get().currentTask.tabId, action.parsedAction);
+      await performAction(
+        get().currentTask.tabId,
+        action.parsedAction,
+        useAppState.getState().settings.selectedModel ===
+          "gpt-4-vision-preview",
+      );
     },
   },
 });

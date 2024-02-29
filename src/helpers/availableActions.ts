@@ -1,60 +1,109 @@
-// TODO: support the old Taxy actions
-export const availableActions = [
+// TODO: refactor such that it only has one "availableActions"
+// which dynamically decides whether it's "label" or "elementId" based on the model type
+export const availableActionsVision = [
   {
-    name: 'click',
+    name: "click",
     description:
-      'Clicks on an element with the text label appears on or associated with it.',
+      "Clicks on an element with the text label appears on or associated with it.",
     args: [
       {
-        name: 'label',
-        type: 'string',
+        name: "label",
+        type: "string",
       },
     ],
   },
   {
-    name: 'setValue',
+    name: "setValue",
     description:
-      'Focuses on and sets the value of an input element. Label can be the text label appears on or associated with it, or the value in it',
+      "Focuses on and sets the value of an input element. Label can be the text label appears on or associated with it, or the value in it",
     args: [
       {
-        name: 'label',
-        type: 'string',
+        name: "label",
+        type: "string",
       },
       {
-        name: 'value',
-        type: 'string',
+        name: "value",
+        type: "string",
       },
     ],
   },
   {
-    name: 'scroll',
+    name: "scroll",
     description: 'Scroll the page up or down. Value can be "up" or "down"',
     args: [
       {
-        name: 'value',
-        type: 'string',
+        name: "value",
+        type: "string",
       },
     ],
   },
   {
-    name: 'finish',
-    description: 'Indicates the task is finished',
+    name: "finish",
+    description: "Indicates the task is finished",
     args: [],
   },
   {
-    name: 'fail',
-    description: 'Indicates that you are unable to complete the task',
+    name: "fail",
+    description: "Indicates that you are unable to complete the task",
     args: [],
   },
 ] as const;
 
+export const availableActions = [
+  {
+    name: "click",
+    description: "Clicks on an element",
+    args: [
+      {
+        name: "elementId",
+        type: "string",
+      },
+    ],
+  },
+  {
+    name: "setValue",
+    description: "Focuses on and sets the value of an input element",
+    args: [
+      {
+        name: "elementId",
+        type: "string",
+      },
+      {
+        name: "value",
+        type: "string",
+      },
+    ],
+  },
+  {
+    name: "scroll",
+    description: 'Scroll the page up or down. Value can be "up" or "down"',
+    args: [
+      {
+        name: "value",
+        type: "string",
+      },
+    ],
+  },
+  {
+    name: "finish",
+    description: "Indicates the task is finished",
+    args: [],
+  },
+  {
+    name: "fail",
+    description: "Indicates that you are unable to complete the task",
+    args: [],
+  },
+] as const;
+
+type AvailableActionVision = (typeof availableActionsVision)[number];
 type AvailableAction = (typeof availableActions)[number];
 
 type ArgsToObject<T extends ReadonlyArray<{ name: string; type: string }>> = {
-  [K in T[number]['name']]: Extract<
+  [K in T[number]["name"]]: Extract<
     T[number],
     { name: K }
-  >['type'] extends 'number'
+  >["type"] extends "number"
     ? number
     : string;
 };
@@ -63,14 +112,20 @@ export type ActionShape<
   T extends {
     name: string;
     args: ReadonlyArray<{ name: string; type: string }>;
-  }
+  },
 > = {
-  name: T['name'];
-  args: ArgsToObject<T['args']>;
+  name: T["name"];
+  args: ArgsToObject<T["args"]>;
 };
 
-export type ActionPayload = {
-  [K in AvailableAction['name']]: ActionShape<
+export type ActionPayloadVision = {
+  [K in AvailableAction["name"]]: ActionShape<
     Extract<AvailableAction, { name: K }>
   >;
-}[AvailableAction['name']];
+}[AvailableActionVision["name"]];
+
+export type ActionPayload = {
+  [K in AvailableAction["name"]]: ActionShape<
+    Extract<AvailableAction, { name: K }>
+  >;
+}[AvailableAction["name"]];

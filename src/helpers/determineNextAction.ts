@@ -1,16 +1,26 @@
-import OpenAI from 'openai';
-import { useAppState } from '../state/store';
-import { availableActions } from './availableActions';
-import { ParsedResponseSuccess } from './parseResponse';
+import OpenAI from "openai";
+import { useAppState } from "../state/store";
+import { availableActions, availableActionsVision } from "./availableActions";
+import { ParsedResponseSuccess } from "./parseResponse";
 
 const formattedActions = availableActions
   .map((action, i) => {
     const args = action.args
       .map((arg) => `${arg.name}: ${arg.type}`)
-      .join(', ');
+      .join(", ");
     return `${i + 1}. ${action.name}(${args}): ${action.description}`;
   })
-  .join('\n');
+  .join("\n");
+
+// TODO: remove this after refactoring availableActions file.
+const formattedActionsVision = availableActionsVision
+  .map((action, i) => {
+    const args = action.args
+      .map((arg) => `${arg.name}: ${arg.type}`)
+      .join(", ");
+    return `${i + 1}. ${action.name}(${args}): ${action.description}`;
+  })
+  .join("\n");
 
 const systemMessage = `
 You are a browser automation assistant.
@@ -21,21 +31,30 @@ ${formattedActions}
 
 You will be be given a task to perform and the current state of the DOM. You will also be given previous actions that you have taken. You may retry a failed action up to one time.
 
-This is an example of an action:
+There are two examples of actions:
 
+Example 1:
 {
   thought: "I should click the add to cart button",
   action: "click(223)"
 }
 
-Your response must always be in JSON format and must include "thought" and "action"`;
+Example 2:
+{
+  thought: "I should continue to scroll down to find the section",
+  action: "scroll("down")"
+}
+
+Your response must always be in JSON format and must include "thought" and "action".
+When finish, use "finish()" in "action" and include a brief summary of the task in "thought".
+`;
 
 const visionSystemMessage = `
 You are a browser automation assistant.
 
 You can use the following tools:
 
-${formattedActions}
+${formattedActionsVision}
 
 Pleaes note for setValue, you can press "enter" by including a line break (\`\\n\`) in the parameter to trigger form submitting.
 
@@ -63,11 +82,11 @@ export async function determineNextActionWithVision(
   previousActions: ParsedResponseSuccess[],
   screenshotData: string,
   maxAttempts = 3,
-  notifyError?: (error: string) => void
+  notifyError?: (error: string) => void,
 ): Promise<NextAction> {
   const key = useAppState.getState().settings.openAIKey;
   if (!key) {
-    notifyError?.('No OpenAI key found');
+    notifyError?.("No OpenAI key found");
     return null;
   }
   const model = useAppState.getState().settings.selectedModel;
@@ -87,18 +106,18 @@ export async function determineNextActionWithVision(
         // },
         messages: [
           {
-            role: 'system',
+            role: "system",
             content: visionSystemMessage,
           },
           {
-            role: 'user',
+            role: "user",
             content: [
               {
-                type: 'text',
+                type: "text",
                 text: prompt,
               },
               {
-                type: 'image_url',
+                type: "image_url",
                 image_url: {
                   // detail: 'low',
                   url: screenshotData, // this is already base64 encoded
@@ -111,16 +130,18 @@ export async function determineNextActionWithVision(
         temperature: 0,
       });
 
+      console.log("remove");
       return {
         usage: completion.usage,
         prompt,
-        response: completion.choices[0].message?.content?.trim() || '',
+        response: completion.choices[0].message?.content?.trim() || "",
       };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // TODO: need to verify the new API error format
-      console.error('determineNextAction error:');
+      console.error("determineNextAction error:");
       console.error(error);
-      if (error.includes('server error')) {
+      if (error.includes("server error")) {
         // Problem with the OpenAI API, try again
         if (notifyError) {
           notifyError(error);
@@ -132,7 +153,7 @@ export async function determineNextActionWithVision(
     }
   }
   throw new Error(
-    `Failed to complete query after ${maxAttempts} attempts. Please try again later.`
+    `Failed to complete query after ${maxAttempts} attempts. Please try again later.`,
   );
 }
 
@@ -141,11 +162,11 @@ export async function determineNextAction(
   previousActions: ParsedResponseSuccess[],
   simplifiedDOM: string,
   maxAttempts = 3,
-  notifyError?: (error: string) => void
+  notifyError?: (error: string) => void,
 ): Promise<NextAction> {
   const key = useAppState.getState().settings.openAIKey;
   if (!key) {
-    notifyError?.('No OpenAI key found');
+    notifyError?.("No OpenAI key found");
     return null;
   }
   const model = useAppState.getState().settings.selectedModel;
@@ -165,10 +186,10 @@ export async function determineNextAction(
         // },
         messages: [
           {
-            role: 'system',
+            role: "system",
             content: systemMessage,
           },
-          { role: 'user', content: prompt },
+          { role: "user", content: prompt },
         ],
         max_tokens: 1000,
         temperature: 0,
@@ -177,13 +198,14 @@ export async function determineNextAction(
       return {
         usage: completion.usage,
         prompt,
-        response: completion.choices[0].message?.content?.trim() || '',
+        response: completion.choices[0].message?.content?.trim() || "",
       };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // TODO: need to verify the new API error format
-      console.error('determineNextAction error:');
+      console.error("determineNextAction error:");
       console.error(error);
-      if (error.includes('server error')) {
+      if (error.includes("server error")) {
         // Problem with the OpenAI API, try again
         if (notifyError) {
           notifyError(error);
@@ -195,21 +217,21 @@ export async function determineNextAction(
     }
   }
   throw new Error(
-    `Failed to complete query after ${maxAttempts} attempts. Please try again later.`
+    `Failed to complete query after ${maxAttempts} attempts. Please try again later.`,
   );
 }
 
 export function formatPrompt(
   taskInstructions: string,
   previousActions: ParsedResponseSuccess[],
-  pageContents?: string
+  pageContents?: string,
 ) {
-  let previousActionsString = '';
+  let previousActionsString = "";
 
   if (previousActions.length > 0) {
     const serializedActions = previousActions
       .map((action) => `Thought: ${action.thought}\nAction:${action.action}`)
-      .join('\n\n');
+      .join("\n\n");
     previousActionsString = `You have already taken the following actions: \n${serializedActions}\n\n`;
   }
 

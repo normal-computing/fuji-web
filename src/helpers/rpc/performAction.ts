@@ -18,20 +18,28 @@ export type Action = {
     text?: string;
     label?: string;
     value?: string;
+    elementId?: string;
   };
 };
 
 async function clickWithSelector(
   domActions: DomActions,
   selectorName: string,
+  isVisionModel: boolean,
 ): Promise<boolean> {
   console.log("clickWithSelector", selectorName);
-  // start with ID
   let success = false;
   try {
-    success = await domActions.clickWithSelector({
-      selector: `#${selectorName}`,
-    });
+    // start with ID
+    if (isVisionModel) {
+      success = await domActions.clickWithSelector({
+        selector: `#${selectorName}`,
+      });
+    } else {
+      success = await domActions.clickWithElementId({
+        elementId: parseInt(selectorName),
+      });
+    }
   } catch (e) {
     // `#${selectorName}` might not be valid
   }
@@ -49,14 +57,22 @@ async function setValueWithSelector(
   domActions: DomActions,
   selectorName: string,
   value: string,
+  isVisionModel: boolean,
 ): Promise<boolean> {
   console.log("setValueWithSelector", selectorName);
   let success = false;
   try {
-    success = await domActions.setValueWithSelector({
-      selector: `#${selectorName}`,
-      value,
-    });
+    if (isVisionModel) {
+      success = await domActions.setValueWithSelector({
+        selector: `#${selectorName}`,
+        value,
+      });
+    } else {
+      success = await domActions.setValueWithElementId({
+        elementId: parseInt(selectorName),
+        value,
+      });
+    }
   } catch (e) {
     // `#${selectorName}` might not be valid
   }
@@ -72,19 +88,39 @@ async function setValueWithSelector(
   });
 }
 
-export default async function performAction(tabId: number, action: Action) {
+export default async function performAction(
+  tabId: number,
+  action: Action,
+  isVisionModel: boolean,
+) {
   console.log("performAction", tabId, action);
   const domActions = new DomActions(tabId);
   if (action.name === "click") {
     let selectorName = "";
     let success = false;
+    if (action.args.elementId) {
+      selectorName = action.args.elementId;
+      success = await clickWithSelector(
+        domActions,
+        selectorName,
+        isVisionModel,
+      );
+    }
     if (action.args.label) {
       selectorName = action.args.label;
-      success = await clickWithSelector(domActions, selectorName);
+      success = await clickWithSelector(
+        domActions,
+        selectorName,
+        isVisionModel,
+      );
     }
     if (!success && action.args.text) {
       selectorName = action.args.text;
-      success = await clickWithSelector(domActions, selectorName);
+      success = await clickWithSelector(
+        domActions,
+        selectorName,
+        isVisionModel,
+      );
     }
     if (!success) {
       console.error("Unable to find element with selector: ", selectorName);
@@ -92,12 +128,22 @@ export default async function performAction(tabId: number, action: Action) {
   } else if (action.name === "setValue") {
     let selectorName = "";
     let success = false;
+    if (action.args.elementId) {
+      selectorName = action.args.elementId;
+      success = await setValueWithSelector(
+        domActions,
+        selectorName,
+        action.args.value || "",
+        isVisionModel,
+      );
+    }
     if (action.args.label) {
       selectorName = action.args.label;
       success = await setValueWithSelector(
         domActions,
         selectorName,
         action.args.value || "",
+        isVisionModel,
       );
     }
     if (!success && action.args.text) {
@@ -106,6 +152,7 @@ export default async function performAction(tabId: number, action: Action) {
         domActions,
         selectorName,
         action.args.value || "",
+        isVisionModel,
       );
     }
     if (!success) {
