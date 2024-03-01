@@ -130,7 +130,6 @@ export async function determineNextActionWithVision(
         temperature: 0,
       });
 
-      console.log("remove");
       return {
         usage: completion.usage,
         prompt,

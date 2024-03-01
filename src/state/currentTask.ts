@@ -164,7 +164,6 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               3,
               onError,
             );
-            console.log("query: ", query);
           }
 
           if (query == null) {
