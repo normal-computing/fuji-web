@@ -104,7 +104,7 @@ export default async function performAction(tabId: number, action: Action) {
       selectorName = action.args.elementId;
       success = await clickWithElementId(domActions, selectorName);
     }
-    if (action.args.label) {
+    if (!success && action.args.label) {
       selectorName = action.args.label;
       success = await clickWithSelector(domActions, selectorName);
     }
