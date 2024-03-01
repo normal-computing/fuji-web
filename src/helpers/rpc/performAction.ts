@@ -18,15 +18,25 @@ export type Action = {
     text?: string;
     label?: string;
     value?: string;
+    elementId?: string;
   };
 };
+
+async function clickWithElementId(
+  domActions: DomActions,
+  selectorName: string,
+): Promise<boolean> {
+  console.log("clickWithElementId", selectorName);
+  return await domActions.clickWithElementId({
+    elementId: parseInt(selectorName),
+  });
+}
 
 async function clickWithSelector(
   domActions: DomActions,
   selectorName: string,
 ): Promise<boolean> {
   console.log("clickWithSelector", selectorName);
-  // start with ID
   let success = false;
   try {
     success = await domActions.clickWithSelector({
@@ -42,6 +52,18 @@ async function clickWithSelector(
   if (success) return true;
   return await domActions.clickWithSelector({
     selector: getFallbackSelector(selectorName),
+  });
+}
+
+async function setValueWithElementId(
+  domActions: DomActions,
+  selectorName: string,
+  value: string,
+): Promise<boolean> {
+  console.log("setValueWithElementId", selectorName);
+  return await domActions.setValueWithElementId({
+    elementId: parseInt(selectorName),
+    value,
   });
 }
 
@@ -78,7 +100,11 @@ export default async function performAction(tabId: number, action: Action) {
   if (action.name === "click") {
     let selectorName = "";
     let success = false;
-    if (action.args.label) {
+    if (action.args.elementId) {
+      selectorName = action.args.elementId;
+      success = await clickWithElementId(domActions, selectorName);
+    }
+    if (!success && action.args.label) {
       selectorName = action.args.label;
       success = await clickWithSelector(domActions, selectorName);
     }
@@ -92,7 +118,15 @@ export default async function performAction(tabId: number, action: Action) {
   } else if (action.name === "setValue") {
     let selectorName = "";
     let success = false;
-    if (action.args.label) {
+    if (action.args.elementId) {
+      selectorName = action.args.elementId;
+      success = await setValueWithElementId(
+        domActions,
+        selectorName,
+        action.args.value || "",
+      );
+    }
+    if (!success && action.args.label) {
       selectorName = action.args.label;
       success = await setValueWithSelector(
         domActions,
