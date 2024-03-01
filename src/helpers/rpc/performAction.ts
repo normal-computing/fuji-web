@@ -126,7 +126,7 @@ export default async function performAction(tabId: number, action: Action) {
         action.args.value || "",
       );
     }
-    if (action.args.label) {
+    if (!success && action.args.label) {
       selectorName = action.args.label;
       success = await setValueWithSelector(
         domActions,
