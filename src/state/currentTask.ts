@@ -4,7 +4,6 @@ import {
   disableIncompatibleExtensions,
   reenableExtensions,
 } from "../helpers/disableExtensions";
-// import { DomActions } from '../helpers/rpc/domActions';
 import {
   ParsedResponse,
   ParsedResponseSuccess,
@@ -18,7 +17,7 @@ import {
 import { callRPCWithTab } from "../helpers/rpc/pageRPC";
 import { getSimplifiedDom } from "../helpers/simplifyDom";
 import { sleep, truthyFilter } from "../helpers/utils";
-import performAction from "../helpers/rpc/performAction";
+import performAction, { Action } from "../helpers/rpc/performAction";
 import { MyStateCreator, useAppState } from "./store";
 
 async function findActiveTab() {
@@ -198,13 +197,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           ) {
             break;
           }
-          await performAction(tabId, action.parsedAction);
-
-          // if (action.parsedAction.name === 'click') {
-          //   await domActions.clickWithElementId(action.parsedAction.args);
-          // } else if (action.parsedAction.name === 'setValue') {
-          //   await domActions.setValueWithElementId(action.parsedAction.args);
-          // }
+          await performAction(tabId, action.parsedAction as Action);
 
           if (wasStopped()) break;
 
@@ -268,7 +261,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       ) {
         return;
       }
-      await performAction(get().currentTask.tabId, action.parsedAction);
+      await performAction(
+        get().currentTask.tabId,
+        action.parsedAction as Action,
+      );
     },
   },
 });

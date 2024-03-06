@@ -1,4 +1,9 @@
-import { ActionPayload, availableActions } from './availableActions';
+import { useAppState } from "../state/store";
+import {
+  ActionPayload,
+  availableActions,
+  availableActionsVision,
+} from "./availableActions";
 
 export type ParsedResponseSuccess = {
   thought: string;
@@ -21,9 +26,9 @@ export function extractJsonFromMarkdown(input: string): string[] {
   let match;
   while ((match = regex.exec(input)) !== null) {
     // If 'json' is specified, add the content to the results array
-    if (match[1] === 'json') {
+    if (match[1] === "json") {
       results.push(match[2]);
-    } else if (match[2].startsWith('{')) {
+    } else if (match[2].startsWith("{")) {
       results.push(match[2]);
     }
   }
@@ -36,8 +41,8 @@ function parseFunctionCall(callString: string) {
   const matches = callString.match(functionPattern);
 
   if (!matches) {
-    console.error('Input does not match a function call pattern.', callString);
-    throw new Error('Input does not match a function call pattern.');
+    console.error("Input does not match a function call pattern.", callString);
+    throw new Error("Input does not match a function call pattern.");
   }
 
   const [, name, argsPart] = matches;
@@ -70,6 +75,8 @@ function parseFunctionCall(callString: string) {
 }
 
 export function parseResponse(text: string): ParsedResponse {
+  const isVisionModel =
+    useAppState.getState().settings.selectedModel === "gpt-4-vision-preview";
   let action;
   try {
     action = JSON.parse(text);
@@ -77,19 +84,19 @@ export function parseResponse(text: string): ParsedResponse {
     try {
       action = JSON.parse(extractJsonFromMarkdown(text)[0]);
     } catch (_e) {
-      throw new Error('Response does not contain valid JSON.');
+      throw new Error("Response does not contain valid JSON.");
     }
   }
 
   if (!action.thought) {
     return {
-      error: 'Invalid response: Thought not found in the model response.',
+      error: "Invalid response: Thought not found in the model response.",
     };
   }
 
   if (!action.action) {
     return {
-      error: 'Invalid response: Action not found in the model response.',
+      error: "Invalid response: Action not found in the model response.",
     };
   }
 
@@ -99,9 +106,16 @@ export function parseResponse(text: string): ParsedResponse {
   const { name: actionName, args: argsArray } = parseFunctionCall(actionString);
   console.log(actionName, argsArray);
 
-  const availableAction = availableActions.find(
-    (action) => action.name === actionName
-  );
+  let availableAction = null;
+  if (isVisionModel) {
+    availableAction = availableActionsVision.find(
+      (action) => action.name === actionName,
+    );
+  } else {
+    availableAction = availableActions.find(
+      (action) => action.name === actionName,
+    );
+  }
 
   if (!availableAction) {
     return {
