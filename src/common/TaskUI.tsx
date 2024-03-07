@@ -12,7 +12,7 @@ function ActionExecutor() {
     detachDegugger: state.currentTask.actions.detachDebugger,
     performActionString: state.currentTask.actions.performActionString,
     prepareLabels: state.currentTask.actions.prepareLabels,
-    drawLabels: state.currentTask.actions.drawLabels,
+    showImagePrompt: state.currentTask.actions.showImagePrompt,
   }));
   const [action, setAction] = useState<string>(`{
   "thought": "try searching",
@@ -29,7 +29,7 @@ function ActionExecutor() {
       <HStack>
         <Button onClick={state.attachDebugger}>Attach</Button>
         <Button onClick={state.prepareLabels}>Prepare</Button>
-        <Button onClick={state.drawLabels}>Draw Label</Button>
+        <Button onClick={state.showImagePrompt}>Show Image</Button>
         <Button
           onClick={() => {
             state.performActionString(action);

@@ -46,7 +46,7 @@ export type CurrentTaskSlice = {
     interrupt: () => void;
     attachDebugger: () => Promise<void>;
     detachDebugger: () => Promise<void>;
-    drawLabels: () => Promise<void>;
+    showImagePrompt: () => Promise<void>;
     prepareLabels: () => Promise<void>;
     performActionString: (actionString: string) => Promise<void>;
   };
@@ -225,9 +225,16 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
     detachDebugger: async () => {
       await detachDebugger(get().currentTask.tabId);
     },
-    drawLabels: async () => {
+    showImagePrompt: async () => {
       const tabId = get().currentTask.tabId;
       await callRPCWithTab(tabId, "drawLabels", []);
+      await sleep(300);
+      const imgData = await chrome.tabs.captureVisibleTab({
+        format: "png",
+      });
+      openBase64InNewTab(imgData, "image/png");
+      await sleep(300);
+      await callRPCWithTab(tabId, "removeLabels", []);
     },
     prepareLabels: async () => {
       const tabId = get().currentTask.tabId;
@@ -258,3 +265,25 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
     },
   },
 });
+
+function openBase64InNewTab(base64Data: string, contentType: string) {
+  // Remove the prefix (e.g., "data:image/png;base64,") from the base64 data
+  const base64 = base64Data.split(";base64,").pop();
+  if (!base64) {
+    console.error("Invalid base64 data");
+    return;
+  }
+
+  // Convert base64 to a Blob
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: contentType });
+
+  // Create a URL for the Blob and open it in a new tab
+  const blobUrl = URL.createObjectURL(blob);
+  window.open(blobUrl, "_blank");
+}
