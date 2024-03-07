@@ -46,10 +46,13 @@ export default defineConfig({
       input: {
         devtools: resolve(pagesDir, "devtools", "index.html"),
         panel: resolve(pagesDir, "panel", "index.html"),
-        content: resolve(pagesDir, "content", "index.ts"),
         background: resolve(pagesDir, "background", "index.ts"),
-        contentStyle: resolve(pagesDir, "content", "style.scss"),
+        content: resolve(pagesDir, "content", "index.ts"),
         contentStyleGlobal: resolve(pagesDir, "content", "style.global.scss"),
+        contentStyle: resolve(pagesDir, "content", "style.scss"),
+        // TODO: current cannot support multiple content script entry files
+        // https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/issues/306#issuecomment-1981885190
+        // mainWorld: resolve(pagesDir, "content/mainWorld", "index.ts"),
         popup: resolve(pagesDir, "popup", "index.html"),
         newtab: resolve(pagesDir, "newtab", "index.html"),
         options: resolve(pagesDir, "options", "index.html"),

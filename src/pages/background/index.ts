@@ -16,14 +16,17 @@ chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "openNewTab") {
-    chrome.tabs.create({ url: message.url }, (tab) => {
-      // You can send back a response if needed
-      sendResponse({ status: "Tab opened", tabId: tab.id });
-    });
-
-    // Return true to indicate you wish to send a response asynchronously
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === "injectFunctions") {
+    if (message.tabId == null) {
+      console.log("no active tab found");
+    } else {
+      chrome.scripting.executeScript({
+        target: { tabId: message.tabId },
+        files: ["assets/js/mainWorld.js"],
+        world: "MAIN",
+      });
+    }
     return true;
   }
 });

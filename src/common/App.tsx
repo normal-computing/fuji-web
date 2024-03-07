@@ -1,11 +1,10 @@
-import { Box, ChakraProvider, Heading, HStack } from '@chakra-ui/react';
-import React from 'react';
-import { useAppState } from '../state/store';
-import ModelDropdown from './ModelDropdown';
-import SetAPIKey from './SetAPIKey';
-import TaskUI from './TaskUI';
-import OptionsDropdown from './OptionsDropdown';
-import logo from '../assets/img/icon-128.png';
+import { Box, ChakraProvider, Heading, HStack } from "@chakra-ui/react";
+import React from "react";
+import { useAppState } from "../state/store";
+import ModelDropdown from "./ModelDropdown";
+import SetAPIKey from "./SetAPIKey";
+import TaskUI from "./TaskUI";
+import OptionsDropdown from "./OptionsDropdown";
 
 const App = () => {
   const openAIKey = useAppState((state) => state.settings.openAIKey);
