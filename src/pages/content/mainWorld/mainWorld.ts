@@ -1,10 +1,10 @@
 // This file will be inject dynamically into the page as a content script running in the context of the page
 // see Background/index.ts for how this is done
 
-import { debugMode } from "../../constants";
-import { generateSimplifiedDom } from "../../helpers/simplifyDom";
-import getAnnotatedDOM from "./getAnnotatedDOM";
-import { rpcMethods } from "./domOperations";
+import { debugMode } from "@src/constants";
+import { generateSimplifiedDom } from "@src/helpers/simplifyDom";
+import getAnnotatedDOM from "../getAnnotatedDOM";
+import { rpcMethods } from "../domOperations";
 
 async function getSimplifiedDomFromPage() {
   const fullDom = getAnnotatedDOM();

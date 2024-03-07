@@ -34,6 +34,7 @@ export const initializeRPC = () => {
   chrome.runtime.onMessage.addListener(
     (message: RPCMessage, sender, sendResponse): true | undefined => {
       const { method, payload } = message;
+      console.log("RPC listener", method);
       if (method in rpcMethods) {
         // @ts-expect-error - we know this is valid (see pageRPC)
         const resp = rpcMethods[method as keyof RPCMethods](...payload);

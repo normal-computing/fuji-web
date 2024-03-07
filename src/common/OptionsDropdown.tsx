@@ -1,14 +1,15 @@
-import { RepeatIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/icons';
+import { RepeatIcon, SettingsIcon, UnlockIcon } from "@chakra-ui/icons";
 import {
   IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-} from '@chakra-ui/react';
-import React from 'react';
-import { useAppState } from '../state/store';
-import { debugMode } from '../constants';
+} from "@chakra-ui/react";
+import React from "react";
+import { useAppState } from "../state/store";
+import { debugMode } from "../constants";
+import { findActiveTab } from "../helpers/browserUtils";
 
 const OptionsDropdown = () => {
   const { openAIKey, updateSettings } = useAppState((state) => ({
@@ -19,8 +20,15 @@ const OptionsDropdown = () => {
   if (!openAIKey) return null;
 
   const injectFunctions = async () => {
+    console.log("injecting functions");
+    const tab = await findActiveTab();
+    if (!tab) {
+      console.log("no active tab found");
+      return;
+    }
     chrome.runtime.sendMessage({
-      action: 'injectFunctions',
+      action: "injectFunctions",
+      tabId: tab.id,
     });
   };
 
@@ -36,7 +44,7 @@ const OptionsDropdown = () => {
         <MenuItem
           icon={<RepeatIcon />}
           onClick={() => {
-            updateSettings({ openAIKey: '' });
+            updateSettings({ openAIKey: "" });
           }}
         >
           Reset API Key

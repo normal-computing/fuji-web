@@ -18,27 +18,8 @@ import { callRPCWithTab } from "../helpers/rpc/pageRPC";
 import { getSimplifiedDom } from "../helpers/simplifyDom";
 import { sleep, truthyFilter } from "../helpers/utils";
 import performAction, { Action } from "../helpers/rpc/performAction";
+import { findActiveTab } from "../helpers/browserUtils";
 import { MyStateCreator, useAppState } from "./store";
-
-async function findActiveTab() {
-  const inspectedTabId = chrome?.devtools?.inspectedWindow?.tabId;
-  if (inspectedTabId) {
-    return await chrome.tabs.get(inspectedTabId);
-  }
-  const currentWindow = await chrome.windows.getCurrent();
-  if (!currentWindow || !currentWindow.id) {
-    throw new Error("Could not find window");
-  }
-  const tabs = await chrome.tabs.query({
-    active: true,
-    windowId: currentWindow.id,
-  });
-  const tab = tabs[0];
-  if (tab && tab.id != null) {
-    return tab;
-  }
-  return null;
-}
 
 export type TaskHistoryEntry = {
   prompt: string;
@@ -65,6 +46,7 @@ export type CurrentTaskSlice = {
     interrupt: () => void;
     attachDebugger: () => Promise<void>;
     detachDebugger: () => Promise<void>;
+    drawLabels: () => Promise<void>;
     prepareLabels: () => Promise<void>;
     performActionString: (actionString: string) => Promise<void>;
   };
@@ -242,6 +224,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
     },
     detachDebugger: async () => {
       await detachDebugger(get().currentTask.tabId);
+    },
+    drawLabels: async () => {
+      const tabId = get().currentTask.tabId;
+      await callRPCWithTab(tabId, "drawLabels", []);
     },
     prepareLabels: async () => {
       const tabId = get().currentTask.tabId;
