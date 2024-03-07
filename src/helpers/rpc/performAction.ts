@@ -174,8 +174,6 @@ export async function performActionWithSelector(
     if (!success) {
       console.error("Unable to find element with selector: ", selectorName);
     }
-  } else if (action.name === "scroll") {
-    scroll(domActions, action);
   } else {
     console.log("other actions");
   }
@@ -200,8 +198,6 @@ export async function performActionWithElementId(
     if (!success) {
       console.error("Unable to find element with elementId: ", elementId);
     }
-  } else if (action.name === "scroll") {
-    scroll(domActions, action);
   } else {
     console.log("other actions");
   }
@@ -226,8 +222,6 @@ export async function performActionWithLabel(
     if (!success) {
       console.error("Unable to find element with label: ", label);
     }
-  } else if (action.name === "scroll") {
-    scroll(domActions, action);
   } else {
     console.log("other actions");
   }
@@ -236,7 +230,14 @@ export async function performActionWithLabel(
 export default async function performAction(tabId: number, action: Action) {
   console.log("performAction", tabId, action);
   const domActions = new DomActions(tabId);
-  if (isActionWithSelector(action)) {
+
+  // Handle general actions directly.
+  // Actions tied to specific elements are delegated based on their arg type.
+  if (action.name === "scroll") {
+    scroll(domActions, action);
+  } else if (action.name === "finish") {
+    console.log("Action finished successfully.");
+  } else if (isActionWithSelector(action)) {
     await performActionWithSelector(domActions, action);
   } else if (isActionWithElementId(action)) {
     await performActionWithElementId(domActions, action);
