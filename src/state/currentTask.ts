@@ -4,7 +4,6 @@ import {
   disableIncompatibleExtensions,
   reenableExtensions,
 } from "../helpers/disableExtensions";
-// import { DomActions } from '../helpers/rpc/domActions';
 import {
   ParsedResponse,
   ParsedResponseSuccess,
@@ -18,7 +17,7 @@ import {
 import { callRPCWithTab } from "../helpers/rpc/pageRPC";
 import { getSimplifiedDom } from "../helpers/simplifyDom";
 import { sleep, truthyFilter } from "../helpers/utils";
-import performAction from "../helpers/rpc/performAction";
+import performAction, { Action } from "../helpers/rpc/performAction";
 import { MyStateCreator, useAppState } from "./store";
 
 async function findActiveTab() {
@@ -124,10 +123,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           let query: NextAction | null = null;
 
-          if (
+          const isVisionModel =
             useAppState.getState().settings.selectedModel ===
-            "gpt-4-vision-preview"
-          ) {
+            "gpt-4-vision-preview";
+          if (isVisionModel) {
             await callRPCWithTab(tabId, "drawLabels", []);
             const imgData = await chrome.tabs.captureVisibleTab({
               format: "jpeg",
@@ -176,7 +175,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           if (wasStopped()) break;
 
           setActionStatus("performing-action");
-          const action = parseResponse(query.response);
+          const action = parseResponse(query.response, isVisionModel);
 
           set((state) => {
             query &&
@@ -198,13 +197,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           ) {
             break;
           }
-          await performAction(tabId, action.parsedAction);
-
-          // if (action.parsedAction.name === 'click') {
-          //   await domActions.clickWithElementId(action.parsedAction.args);
-          // } else if (action.parsedAction.name === 'setValue') {
-          //   await domActions.setValueWithElementId(action.parsedAction.args);
-          // }
+          await performAction(tabId, action.parsedAction as Action);
 
           if (wasStopped()) break;
 
@@ -257,7 +250,11 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       await callRPCWithTab(tabId, "removeLabels", []);
     },
     performActionString: async (actionString: string) => {
-      const action = parseResponse(actionString);
+      const action = parseResponse(
+        actionString,
+        useAppState.getState().settings.selectedModel ===
+          "gpt-4-vision-preview",
+      );
       if ("error" in action) {
         throw action.error;
       }
@@ -268,7 +265,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       ) {
         return;
       }
-      await performAction(get().currentTask.tabId, action.parsedAction);
+      await performAction(
+        get().currentTask.tabId,
+        action.parsedAction as Action,
+      );
     },
   },
 });

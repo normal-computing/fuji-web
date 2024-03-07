@@ -4,79 +4,132 @@ import {
   VISIBLE_TEXT_ATTRIBUTE_NAME,
 } from "../../constants";
 
-function getSelector(selectorName: string): string {
-  return `[${WEB_WAND_LABEL_ATTRIBUTE_NAME}="${selectorName}"]`;
+function getSelector(label: string): string {
+  return `[${WEB_WAND_LABEL_ATTRIBUTE_NAME}="${label}"]`;
 }
 
 function getFallbackSelector(selectorName: string): string {
   return `[${VISIBLE_TEXT_ATTRIBUTE_NAME}="${selectorName}"]`;
 }
 
-export type Action = {
-  name: "click" | "setValue" | "scroll" | "finish";
+export type ActionName = "click" | "setValue" | "scroll" | "finish";
+
+export type ActionWithLabel = {
+  name: ActionName;
   args: {
-    text?: string;
-    label?: string;
+    label: string;
     value?: string;
-    elementId?: string;
   };
 };
 
-async function clickWithElementId(
-  domActions: DomActions,
-  selectorName: string,
-): Promise<boolean> {
-  console.log("clickWithElementId", selectorName);
-  return await domActions.clickWithElementId({
-    elementId: parseInt(selectorName),
-  });
+export type ActionWithElementId = {
+  name: ActionName;
+  args: {
+    elementId: string;
+    value?: string;
+  };
+};
+
+export type ActionWithSelector = {
+  name: ActionName;
+  args: {
+    selector: string;
+    value?: string;
+  };
+};
+
+export type Action = ActionWithLabel | ActionWithElementId | ActionWithSelector;
+
+// Type guards
+function isActionWithLabel(action: Action): action is ActionWithLabel {
+  return "label" in action.args;
+}
+
+function isActionWithElementId(action: Action): action is ActionWithElementId {
+  return "elementId" in action.args;
+}
+
+function isActionWithSelector(action: Action): action is ActionWithSelector {
+  return "selector" in action.args;
 }
 
 async function clickWithSelector(
   domActions: DomActions,
-  selectorName: string,
+  selector: string,
 ): Promise<boolean> {
-  console.log("clickWithSelector", selectorName);
+  console.log("clickWithSelector", selector);
+  return await domActions.clickWithSelector({
+    selector,
+  });
+}
+
+async function clickWithElementId(
+  domActions: DomActions,
+  elementId: string,
+): Promise<boolean> {
+  console.log("clickWithElementId", elementId);
+  return await domActions.clickWithElementId({
+    elementId: parseInt(elementId),
+  });
+}
+
+async function clickWithLabel(
+  domActions: DomActions,
+  label: string,
+): Promise<boolean> {
+  console.log("clickWithLabel", label);
   let success = false;
   try {
     success = await domActions.clickWithSelector({
-      selector: `#${selectorName}`,
+      selector: `#${label}`,
     });
   } catch (e) {
     // `#${selectorName}` might not be valid
   }
   if (success) return true;
   success = await domActions.clickWithSelector({
-    selector: getSelector(selectorName),
+    selector: getSelector(label),
   });
   if (success) return true;
   return await domActions.clickWithSelector({
-    selector: getFallbackSelector(selectorName),
-  });
-}
-
-async function setValueWithElementId(
-  domActions: DomActions,
-  selectorName: string,
-  value: string,
-): Promise<boolean> {
-  console.log("setValueWithElementId", selectorName);
-  return await domActions.setValueWithElementId({
-    elementId: parseInt(selectorName),
-    value,
+    selector: getFallbackSelector(label),
   });
 }
 
 async function setValueWithSelector(
   domActions: DomActions,
-  selectorName: string,
+  selector: string,
   value: string,
 ): Promise<boolean> {
-  console.log("setValueWithSelector", selectorName);
+  console.log("setValueWithSelector", selector);
+  return await domActions.setValueWithSelector({
+    selector,
+    value,
+  });
+}
+
+async function setValueWithElementId(
+  domActions: DomActions,
+  elementId: string,
+  value: string,
+): Promise<boolean> {
+  console.log("setValueWithElementId", elementId);
+  return await domActions.setValueWithElementId({
+    elementId: parseInt(elementId),
+    value,
+  });
+}
+
+async function setValueWithLabel(
+  domActions: DomActions,
+  label: string,
+  value: string,
+): Promise<boolean> {
+  console.log("setValueWithLabel", label);
   let success = false;
   try {
     success = await domActions.setValueWithSelector({
-      selector: `#${selectorName}`,
+      selector: `#${label}`,
       value,
     });
   } catch (e) {
@@ -84,72 +137,112 @@ async function setValueWithSelector(
   }
   if (success) return true;
   success = await domActions.setValueWithSelector({
-    selector: getSelector(selectorName),
+    selector: getSelector(label),
     value,
   });
   if (success) return true;
   return await domActions.setValueWithSelector({
-    selector: getFallbackSelector(selectorName),
+    selector: getFallbackSelector(label),
     value,
   });
+}
+
+async function scroll(domActions: DomActions, action: Action) {
+  if (action.args.value === "up") {
+    await domActions.scrollUp();
+  } else {
+    await domActions.scrollDown();
+  }
+}
+
+export async function performActionWithSelector(
+  domActions: DomActions,
+  action: ActionWithSelector,
+) {
+  const selectorName = action.args.selector;
+  if (action.name === "click") {
+    const success = await clickWithSelector(domActions, selectorName);
+    if (!success) {
+      console.error("Unable to find element with selector: ", selectorName);
+    }
+  } else if (action.name === "setValue") {
+    const success = await setValueWithSelector(
+      domActions,
+      selectorName,
+      action.args.value || "",
+    );
+    if (!success) {
+      console.error("Unable to find element with selector: ", selectorName);
+    }
+  } else if (action.name === "scroll") {
+    scroll(domActions, action);
+  } else {
+    console.log("other actions");
+  }
+}
+
+export async function performActionWithElementId(
+  domActions: DomActions,
+  action: ActionWithElementId,
+) {
+  const elementId = action.args.elementId;
+  if (action.name === "click") {
+    const success = await clickWithElementId(domActions, elementId);
+    if (!success) {
+      console.error("Unable to find element with elementId: ", elementId);
+    }
+  } else if (action.name === "setValue") {
+    const success = await setValueWithElementId(
+      domActions,
+      elementId,
+      action.args.value || "",
+    );
+    if (!success) {
+      console.error("Unable to find element with elementId: ", elementId);
+    }
+  } else if (action.name === "scroll") {
+    scroll(domActions, action);
+  } else {
+    console.log("other actions");
+  }
+}
+
+export async function performActionWithLabel(
+  domActions: DomActions,
+  action: ActionWithLabel,
+) {
+  const label = action.args.label;
+  if (action.name === "click") {
+    const success = await clickWithLabel(domActions, label);
+    if (!success) {
+      console.error("Unable to find element with label: ", label);
+    }
+  } else if (action.name === "setValue") {
+    const success = await setValueWithLabel(
+      domActions,
+      label,
+      action.args.value || "",
+    );
+    if (!success) {
+      console.error("Unable to find element with label: ", label);
+    }
+  } else if (action.name === "scroll") {
+    scroll(domActions, action);
+  } else {
+    console.log("other actions");
+  }
 }
 
 export default async function performAction(tabId: number, action: Action) {
   console.log("performAction", tabId, action);
   const domActions = new DomActions(tabId);
-  if (action.name === "click") {
-    let selectorName = "";
-    let success = false;
-    if (action.args.elementId) {
-      selectorName = action.args.elementId;
-      success = await clickWithElementId(domActions, selectorName);
-    }
-    if (!success && action.args.label) {
-      selectorName = action.args.label;
-      success = await clickWithSelector(domActions, selectorName);
-    }
-    if (!success && action.args.text) {
-      selectorName = action.args.text;
-      success = await clickWithSelector(domActions, selectorName);
-    }
-    if (!success) {
-      console.error("Unable to find element with selector: ", selectorName);
-    }
-  } else if (action.name === "setValue") {
-    let selectorName = "";
-    let success = false;
-    if (action.args.elementId) {
-      selectorName = action.args.elementId;
-      success = await setValueWithElementId(
-        domActions,
-        selectorName,
-        action.args.value || "",
-      );
-    }
-    if (!success && action.args.label) {
-      selectorName = action.args.label;
-      success = await setValueWithSelector(
-        domActions,
-        selectorName,
-        action.args.value || "",
-      );
-    }
-    if (!success && action.args.text) {
-      selectorName = action.args.text;
-      success = await setValueWithSelector(
-        domActions,
-        selectorName,
-        action.args.value || "",
-      );
-    }
-    if (!success) {
-      console.error("Unable to find element with selector: ", selectorName);
-    }
-  } else if (action.name === "scroll") {
-    if (action.args.value === "up") {
-      await domActions.scrollUp();
-    } else {
-      await domActions.scrollDown();
-    }
+  if (isActionWithSelector(action)) {
+    await performActionWithSelector(domActions, action);
+  } else if (isActionWithElementId(action)) {
+    await performActionWithElementId(domActions, action);
+  } else if (isActionWithLabel(action)) {
+    await performActionWithLabel(domActions, action);
+  } else {
+    console.error("Invalid action arguments", action);
   }
 }
