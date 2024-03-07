@@ -4,8 +4,8 @@ import {
   VISIBLE_TEXT_ATTRIBUTE_NAME,
 } from "../../constants";
 
-function getLabel(selectorName: string): string {
-  return `[${WEB_WAND_LABEL_ATTRIBUTE_NAME}="${selectorName}"]`;
+function getSelector(label: string): string {
+  return `[${WEB_WAND_LABEL_ATTRIBUTE_NAME}="${label}"]`;
 }
 
 function getFallbackSelector(selectorName: string): string {
@@ -40,6 +40,19 @@ export type ActionWithSelector = {
 
 export type Action = ActionWithLabel | ActionWithElementId | ActionWithSelector;
 
+// Type guards
+function isActionWithLabel(action: Action): action is ActionWithLabel {
+  return "label" in action.args;
+}
+
+function isActionWithElementId(action: Action): action is ActionWithElementId {
+  return "elementId" in action.args;
+}
+
+function isActionWithSelector(action: Action): action is ActionWithSelector {
+  return "selector" in action.args;
+}
+
 async function clickWithSelector(
   domActions: DomActions,
   selector: string,
@@ -52,34 +65,34 @@ async function clickWithSelector(
 
 async function clickWithElementId(
   domActions: DomActions,
-  selectorName: string,
+  elementId: string,
 ): Promise<boolean> {
-  console.log("clickWithElementId", selectorName);
+  console.log("clickWithElementId", elementId);
   return await domActions.clickWithElementId({
-    elementId: parseInt(selectorName),
+    elementId: parseInt(elementId),
   });
 }
 
 async function clickWithLabel(
   domActions: DomActions,
-  selectorName: string,
+  label: string,
 ): Promise<boolean> {
-  console.log("clickWithLabel", selectorName);
+  console.log("clickWithLabel", label);
   let success = false;
   try {
     success = await domActions.clickWithSelector({
-      selector: `#${selectorName}`,
+      selector: `#${label}`,
     });
   } catch (e) {
     // `#${selectorName}` might not be valid
   }
   if (success) return true;
   success = await domActions.clickWithSelector({
-    selector: getLabel(selectorName),
+    selector: getSelector(label),
   });
   if (success) return true;
   return await domActions.clickWithSelector({
-    selector: getFallbackSelector(selectorName),
+    selector: getFallbackSelector(label),
   });
 }
 
@@ -97,26 +110,26 @@ async function setValueWithSelector(
 
 async function setValueWithElementId(
   domActions: DomActions,
-  selectorName: string,
+  elementId: string,
   value: string,
 ): Promise<boolean> {
-  console.log("setValueWithElementId", selectorName);
+  console.log("setValueWithElementId", elementId);
   return await domActions.setValueWithElementId({
-    elementId: parseInt(selectorName),
+    elementId: parseInt(elementId),
     value,
   });
 }
 
 async function setValueWithLabel(
   domActions: DomActions,
-  selectorName: string,
+  label: string,
   value: string,
 ): Promise<boolean> {
-  console.log("setValueWithLabel", selectorName);
+  console.log("setValueWithLabel", label);
   let success = false;
   try {
     success = await domActions.setValueWithSelector({
-      selector: `#${selectorName}`,
+      selector: `#${label}`,
       value,
     });
   } catch (e) {
@@ -124,12 +137,12 @@ async function setValueWithLabel(
   }
   if (success) return true;
   success = await domActions.setValueWithSelector({
-    selector: getLabel(selectorName),
+    selector: getSelector(label),
     value,
   });
   if (success) return true;
   return await domActions.setValueWithSelector({
-    selector: getFallbackSelector(selectorName),
+    selector: getFallbackSelector(label),
     value,
   });
 }
@@ -172,20 +185,20 @@ export async function performActionWithElementId(
   domActions: DomActions,
   action: ActionWithElementId,
 ) {
-  const selectorName = action.args.elementId;
+  const elementId = action.args.elementId;
   if (action.name === "click") {
-    const success = await clickWithElementId(domActions, selectorName);
+    const success = await clickWithElementId(domActions, elementId);
     if (!success) {
-      console.error("Unable to find element with selector: ", selectorName);
+      console.error("Unable to find element with elementId: ", elementId);
     }
   } else if (action.name === "setValue") {
     const success = await setValueWithElementId(
       domActions,
-      selectorName,
+      elementId,
       action.args.value || "",
     );
     if (!success) {
-      console.error("Unable to find element with selector: ", selectorName);
+      console.error("Unable to find element with elementId: ", elementId);
     }
   } else if (action.name === "scroll") {
     scroll(domActions, action);
@@ -198,20 +211,20 @@ export async function performActionWithLabel(
   domActions: DomActions,
   action: ActionWithLabel,
 ) {
-  const selectorName = action.args.label;
+  const label = action.args.label;
   if (action.name === "click") {
-    const success = await clickWithLabel(domActions, selectorName);
+    const success = await clickWithLabel(domActions, label);
     if (!success) {
-      console.error("Unable to find element with selector: ", selectorName);
+      console.error("Unable to find element with label: ", label);
     }
   } else if (action.name === "setValue") {
     const success = await setValueWithLabel(
       domActions,
-      selectorName,
+      label,
       action.args.value || "",
     );
     if (!success) {
-      console.error("Unable to find element with selector: ", selectorName);
+      console.error("Unable to find element with label: ", label);
     }
   } else if (action.name === "scroll") {
     scroll(domActions, action);
@@ -223,12 +236,12 @@ export async function performActionWithLabel(
 export default async function performAction(tabId: number, action: Action) {
   console.log("performAction", tabId, action);
   const domActions = new DomActions(tabId);
-  if ("selector" in action.args) {
-    await performActionWithSelector(domActions, action as ActionWithSelector);
-  } else if ("elementId" in action.args) {
-    await performActionWithElementId(domActions, action as ActionWithElementId);
-  } else if ("label" in action.args) {
-    await performActionWithLabel(domActions, action as ActionWithLabel);
+  if (isActionWithSelector(action)) {
+    await performActionWithSelector(domActions, action);
+  } else if (isActionWithElementId(action)) {
+    await performActionWithElementId(domActions, action);
+  } else if (isActionWithLabel(action)) {
+    await performActionWithLabel(domActions, action);
   } else {
     console.error("Invalid action arguments", action);
   }

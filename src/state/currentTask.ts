@@ -123,10 +123,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           let query: NextAction | null = null;
 
-          if (
+          const isVisionModel =
             useAppState.getState().settings.selectedModel ===
-            "gpt-4-vision-preview"
-          ) {
+            "gpt-4-vision-preview";
+          if (isVisionModel) {
             await callRPCWithTab(tabId, "drawLabels", []);
             const imgData = await chrome.tabs.captureVisibleTab({
               format: "jpeg",
@@ -175,7 +175,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           if (wasStopped()) break;
 
           setActionStatus("performing-action");
-          const action = parseResponse(query.response);
+          const action = parseResponse(query.response, isVisionModel);
 
           set((state) => {
             query &&
@@ -250,7 +250,11 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       await callRPCWithTab(tabId, "removeLabels", []);
     },
     performActionString: async (actionString: string) => {
-      const action = parseResponse(actionString);
+      const action = parseResponse(
+        actionString,
+        useAppState.getState().settings.selectedModel ===
+          "gpt-4-vision-preview",
+      );
       if ("error" in action) {
         throw action.error;
       }

@@ -1,4 +1,3 @@
-import { useAppState } from "../state/store";
 import {
   ActionPayload,
   availableActions,
@@ -74,9 +73,10 @@ function parseFunctionCall(callString: string) {
   return { name, args };
 }
 
-export function parseResponse(text: string): ParsedResponse {
-  const isVisionModel =
-    useAppState.getState().settings.selectedModel === "gpt-4-vision-preview";
+export function parseResponse(
+  text: string,
+  isVisionModel: boolean,
+): ParsedResponse {
   let action;
   try {
     action = JSON.parse(text);
