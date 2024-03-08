@@ -15,8 +15,6 @@ type ExtendedImageData = ImageSourceAttrs & {
 export type MergeImageOptionsInput = {
   format?: string;
   quality?: number;
-  width?: number;
-  height?: number;
   padding?: number;
 };
 
@@ -33,12 +31,11 @@ export type GetCanvasSize = (
   height: number;
 };
 
-// if not specified, use horizontal layout
 const getHorizontalLayoutCanvasSize: GetCanvasSize = (images, options) => {
   let width = 0;
   let height = 0;
   images.forEach((image) => {
-    const padding = options.padding || 0;
+    const padding = options.padding;
     width += image.img.width + padding * 2;
     height = Math.max(height, image.img.height + padding * 2);
   });
@@ -59,11 +56,10 @@ const mergeImages = async (
   sources: ImageSourceAttrs[] = [],
   optionsInput: MergeImageOptionsInput = {},
 ) => {
-  const options: MergeImageOptions = Object.assign(
-    {},
-    defaultOptions,
-    optionsInput,
-  );
+  const options: MergeImageOptions = {
+    ...defaultOptions,
+    ...optionsInput,
+  };
 
   // Setup browser/Node.js specific variables
   const canvas = window.document.createElement("canvas");
@@ -103,7 +99,7 @@ const mergeImages = async (
     ctx.textAlign = "center";
     ctx.font = DEFAULT_FONT_STYLE;
     images.forEach((image) => {
-      ctx.globalAlpha = image.opacity ? image.opacity : 1;
+      ctx.globalAlpha = image.opacity ?? 1;
       ctx.drawImage(image.img, x, y);
       if (image.caption != null) {
         ctx.fillText(
