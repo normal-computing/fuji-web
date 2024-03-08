@@ -102,9 +102,12 @@ const mergeImages = async (
     ctx.textAlign = "center";
     ctx.font = DEFAULT_FONT_STYLE;
     ctx.fillStyle = "black";
+    ctx.strokeStyle = "black";
     images.forEach((image) => {
       ctx.globalAlpha = image.opacity ?? 1;
       ctx.drawImage(image.img, x, y);
+      // border around image
+      ctx.strokeRect(x, y, image.img.width, image.img.height);
       if (image.caption != null) {
         ctx.fillText(
           image.caption,
