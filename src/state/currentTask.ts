@@ -20,6 +20,7 @@ import { sleep, truthyFilter } from "../helpers/utils";
 import performAction, { Action } from "../helpers/rpc/performAction";
 import { findActiveTab } from "../helpers/browserUtils";
 import { MyStateCreator, useAppState } from "./store";
+import mergeImages from "@src/shared/images/mergeScreenshots";
 
 export type TaskHistoryEntry = {
   prompt: string;
@@ -227,11 +228,18 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
     },
     showImagePrompt: async () => {
       const tabId = get().currentTask.tabId;
-      await callRPCWithTab(tabId, "drawLabels", []);
-      await sleep(300);
-      const imgData = await chrome.tabs.captureVisibleTab({
+      const imgDataRaw = await chrome.tabs.captureVisibleTab({
         format: "png",
       });
+      await callRPCWithTab(tabId, "drawLabels", []);
+      await sleep(300);
+      const imgDataLabeled = await chrome.tabs.captureVisibleTab({
+        format: "png",
+      });
+      const imgData = await mergeImages([
+        { src: imgDataRaw, caption: "Raw Screenshot" },
+        { src: imgDataLabeled, caption: "Labeled Screenshot" },
+      ]);
       openBase64InNewTab(imgData, "image/png");
       await sleep(300);
       await callRPCWithTab(tabId, "removeLabels", []);
