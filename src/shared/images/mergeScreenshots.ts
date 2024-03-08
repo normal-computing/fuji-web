@@ -1,5 +1,5 @@
 // TODO: make it configurable?
-const DEFAULT_FONT_SIZE = 30;
+const DEFAULT_FONT_SIZE = 40;
 const DEFAULT_FONT_STYLE = `${DEFAULT_FONT_SIZE}px serif`;
 
 export type ImageSourceAttrs = {
@@ -49,7 +49,7 @@ const getHorizontalLayoutCanvasSize: GetCanvasSize = (images, options) => {
 const defaultOptions: MergeImageOptions = {
   format: "image/png",
   quality: 0.92,
-  padding: 10,
+  padding: 40,
 };
 
 const mergeImages = async (
@@ -92,12 +92,16 @@ const mergeImages = async (
     const canvasSize = getHorizontalLayoutCanvasSize(images, options);
     canvas.width = canvasSize.width;
     canvas.height = canvasSize.height;
+    // fill canvas with gray background
+    ctx.fillStyle = "#f0f0f0";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw images and captions to canvas (horizontally)
     let x = options.padding;
     const y = options.padding;
     ctx.textAlign = "center";
     ctx.font = DEFAULT_FONT_STYLE;
+    ctx.fillStyle = "black";
     images.forEach((image) => {
       ctx.globalAlpha = image.opacity ?? 1;
       ctx.drawImage(image.img, x, y);
