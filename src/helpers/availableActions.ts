@@ -3,8 +3,7 @@
 export const availableActionsVision = [
   {
     name: "click",
-    description:
-      "Clicks on an element with the text label appears on or associated with it.",
+    description: "Click on an element with the label on the annotation.",
     args: [
       {
         name: "label",
@@ -15,7 +14,7 @@ export const availableActionsVision = [
   {
     name: "setValue",
     description:
-      "Focuses on and sets the value of an input element. Label can be the text label appears on or associated with it, or the value in it",
+      "Focus on and set the value of an input element with the label on the annotation.",
     args: [
       {
         name: "label",

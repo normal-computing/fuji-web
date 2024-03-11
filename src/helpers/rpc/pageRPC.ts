@@ -50,6 +50,7 @@ export const callRPCWithTab = async <K extends keyof RPCMethods>(
   for (let i = 0; i < maxTries; i++) {
     try {
       const response = await sendMessage(tabId, method, payload);
+      console.log("callRPCWithTab", response);
       return response;
     } catch (e) {
       if (i === maxTries - 1) {

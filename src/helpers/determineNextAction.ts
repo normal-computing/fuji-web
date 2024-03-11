@@ -1,3 +1,4 @@
+import { LabelData } from "./../pages/content/drawLabels";
 import OpenAI from "openai";
 import { useAppState } from "../state/store";
 import { availableActions, availableActionsVision } from "./availableActions";
@@ -56,19 +57,19 @@ You can use the following tools:
 
 ${formattedActionsVision}
 
-Pleaes note for setValue, you can press "enter" by including a line break (\`\\n\`) in the parameter to trigger form submitting.
-
-You will be be given a task to perform and a screenshot of the webpage. You will also be given previous actions that you have taken. You may retry a failed action up to one time.
+You will be be given a task to perform, and an image. The image will contain two parts: on the left is a clean screenshot of the current page, and on the right is the same screenshot with interactive elements annotated with corresponding label.
+You will be given a JSON-format data that contains information of annotations.
+You will also be given previous actions that you have taken. You may retry a failed action up to one time.
 
 This is an example of an action:
 
 {
   thought: "I should click the add to cart button",
-  action: "click('add to cart')"
+  action: "click('12')"
 }
 
 Your response must always be in JSON format and must include "thought" and "action".
-When finish, use "finish()" in "action" and include a brief summary of the task in "thought"; if user is seeking an anwser, also include the answer in "thought".
+When finish, use "finish()" in "action" and include a brief summary of the task in "thought"; if user is seeking an answer, also include the answer in "thought".
 `;
 
 export type NextAction = {
@@ -81,6 +82,7 @@ export async function determineNextActionWithVision(
   taskInstructions: string,
   previousActions: ParsedResponseSuccess[],
   screenshotData: string,
+  labelData: LabelData,
   maxAttempts = 3,
   notifyError?: (error: string) => void,
 ): Promise<NextAction> {
@@ -90,7 +92,11 @@ export async function determineNextActionWithVision(
     return null;
   }
   const model = useAppState.getState().settings.selectedModel;
-  const prompt = formatPrompt(taskInstructions, previousActions);
+  const prompt =
+    formatPrompt(taskInstructions, previousActions) +
+    "\nUse the following data as a reference of all the labeled elements:\n" +
+    JSON.stringify(labelData, null, 2);
+  console.log("prompt", prompt);
 
   const openai = new OpenAI({
     apiKey: key,
