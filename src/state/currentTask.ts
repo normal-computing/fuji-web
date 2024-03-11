@@ -110,11 +110,19 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             useAppState.getState().settings.selectedModel ===
             "gpt-4-vision-preview";
           if (isVisionModel) {
-            await callRPCWithTab(tabId, "drawLabels", []);
-            const imgData = await chrome.tabs.captureVisibleTab({
-              format: "jpeg",
-              quality: 85,
+            const imgDataRaw = await chrome.tabs.captureVisibleTab({
+              format: "png",
             });
+            const labelData = await callRPCWithTab(tabId, "drawLabels", []);
+            await sleep(300);
+            const imgDataAnnotated = await chrome.tabs.captureVisibleTab({
+              format: "png",
+            });
+            const imgData = await mergeImages([
+              { src: imgDataRaw, caption: "Clean Screenshot" },
+              { src: imgDataAnnotated, caption: "Annotated Screenshot" },
+            ]);
+            await sleep(300);
             if (wasStopped()) break;
             await callRPCWithTab(tabId, "removeLabels", []);
             query = await determineNextActionWithVision(
@@ -123,6 +131,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
                 (pa) => !("error" in pa),
               ) as ParsedResponseSuccess[],
               imgData,
+              labelData,
               3,
               onError,
             );
@@ -199,6 +208,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
+        console.error(e);
         onError(e.message);
         set((state) => {
           state.currentTask.status = "error";
@@ -233,12 +243,12 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       });
       await callRPCWithTab(tabId, "drawLabels", []);
       await sleep(300);
-      const imgDataLabeled = await chrome.tabs.captureVisibleTab({
+      const imgDataAnnotated = await chrome.tabs.captureVisibleTab({
         format: "png",
       });
       const imgData = await mergeImages([
         { src: imgDataRaw, caption: "Raw Screenshot" },
-        { src: imgDataLabeled, caption: "Labeled Screenshot" },
+        { src: imgDataAnnotated, caption: "Annotated Screenshot" },
       ]);
       openBase64InNewTab(imgData, "image/png");
       await sleep(300);
