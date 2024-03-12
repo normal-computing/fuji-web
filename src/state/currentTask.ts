@@ -109,6 +109,12 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           const isVisionModel =
             useAppState.getState().settings.selectedModel ===
             "gpt-4-vision-preview";
+          const viewportPercentage = await callRPCWithTab(
+            tabId,
+            "getViewportPercentage",
+            [],
+          );
+
           if (isVisionModel) {
             const imgDataRaw = await chrome.tabs.captureVisibleTab({
               format: "png",
@@ -132,6 +138,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               ) as ParsedResponseSuccess[],
               imgData,
               labelData,
+              viewportPercentage,
               3,
               onError,
             );

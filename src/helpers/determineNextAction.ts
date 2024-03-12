@@ -82,7 +82,8 @@ export async function determineNextActionWithVision(
   taskInstructions: string,
   previousActions: ParsedResponseSuccess[],
   screenshotData: string,
-  labelData: LabelData,
+  labelData: LabelData[],
+  viewportPercentage: number,
   maxAttempts = 3,
   notifyError?: (error: string) => void,
 ): Promise<NextAction> {
@@ -94,8 +95,11 @@ export async function determineNextActionWithVision(
   const model = useAppState.getState().settings.selectedModel;
   const prompt =
     formatPrompt(taskInstructions, previousActions) +
-    "\nUse the following data as a reference of all the labeled elements:\n" +
-    JSON.stringify(labelData, null, 2);
+    `Current page progress: ${viewportPercentage.toFixed(1)}%
+
+Use the following data as a reference of all the labeled elements:
+${JSON.stringify(labelData, null, 2)}`;
+
   console.log("prompt", prompt);
 
   const openai = new OpenAI({
