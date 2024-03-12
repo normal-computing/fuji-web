@@ -7,6 +7,7 @@ import attachFile from "./attachFile";
 import { drawLabels, removeLabels } from "./drawLabels";
 import ripple from "./ripple";
 import { getDataFromRenderedMarkdown } from "./reverseMarkdown";
+import getViewportPercentage from "./getViewportPercentage";
 
 export const rpcMethods = {
   getAnnotatedDOM,
@@ -17,6 +18,7 @@ export const rpcMethods = {
   drawLabels,
   removeLabels,
   getDataFromRenderedMarkdown,
+  getViewportPercentage,
 } as const;
 
 export type RPCMethods = typeof rpcMethods;
