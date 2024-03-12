@@ -1,0 +1,22 @@
+{
+  "x.com": {
+    "rules": [
+      {
+        "regexes": [".*"],
+        "knowledge": [
+          "The website X (formerly Twitter) is a social media platform. Many people still call it Twitter and use the term \"tweet\" to refer to a post.",
+          "Do not confuse \"post\" with \"message\". A post is a public message that can be seen by anyone, while a message is a private message that can only be seen by the recipient."
+        ]
+      },
+      {
+        "regexes": ["/compose/post/?$"],
+        "knowledge": [
+          "The \"Add post\" button is used to compose a thread. Do not confuse with the \"Post\" button that sends the composed tweet."
+        ]
+      }
+    ]
+  },
+  "twitter.com": {
+    "redirect": "x.com"
+  }
+}
