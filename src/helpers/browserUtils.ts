@@ -1,4 +1,4 @@
-export async function findActiveTab() {
+export async function findActiveTab(): Promise<chrome.tabs.Tab | null> {
   const currentWindow = await chrome.windows.getCurrent();
   if (!currentWindow || !currentWindow.id) {
     throw new Error("Could not find window");

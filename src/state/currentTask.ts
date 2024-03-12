@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { attachDebugger, detachDebugger } from "../helpers/chromeDebugger";
+import { attachDebugger, detachAllDebuggers } from "../helpers/chromeDebugger";
 import {
   disableIncompatibleExtensions,
   reenableExtensions,
@@ -82,20 +82,20 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       });
 
       try {
-        const activeTab = await findActiveTab();
-
-        if (!activeTab?.id) throw new Error("No active tab found");
-        const tabId = activeTab.id;
-        set((state) => {
-          state.currentTask.tabId = tabId;
-        });
-
-        await attachDebugger(tabId);
         await disableIncompatibleExtensions();
-        // const domActions = new DomActions(tabId);
 
         // eslint-disable-next-line no-constant-condition
         while (true) {
+          // get latest tab info, since button clicking might have changed it
+          const activeTab = await findActiveTab();
+          const tabId = activeTab?.id || -1;
+          if (!activeTab || !tabId) {
+            throw new Error("No active tab found");
+          }
+          await attachDebugger(tabId);
+          set((state) => {
+            state.currentTask.tabId = tabId;
+          });
           if (wasStopped()) break;
 
           const previousActions = get()
@@ -120,6 +120,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             if (wasStopped()) break;
             query = await determineNextActionWithVision(
               instructions,
+              activeTab.url,
               previousActions.filter(
                 (pa) => !("error" in pa),
               ) as ParsedResponseSuccess[],
@@ -208,7 +209,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           state.currentTask.status = "error";
         });
       } finally {
-        await detachDebugger(get().currentTask.tabId);
+        await detachAllDebuggers();
         await reenableExtensions();
       }
     },
@@ -228,7 +229,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       await attachDebugger(tabId);
     },
     detachDebugger: async () => {
-      await detachDebugger(get().currentTask.tabId);
+      await detachAllDebuggers();
     },
     showImagePrompt: async () => {
       const tabId = get().currentTask.tabId;

@@ -6,31 +6,36 @@
 //   return targets.some((target) => target.tabId === tabId && target.attached);
 // }
 
+// maintain a set of attached tabs
+const attachedTabs = new Set<number>();
+
 export async function attachDebugger(tabId: number) {
-  console.log('start attachDebugger');
+  console.log("start attachDebugger");
   // const isAttached = await isDebuggerAttached(tabId);
-  // if (isAttached) {
-  //   console.log('already attached to debugger', tabId);
-  //   return;
-  // }
+  const isAttached = attachedTabs.has(tabId);
+  if (isAttached) {
+    console.log("already attached to debugger", tabId);
+    return;
+  }
   return new Promise<void>((resolve, reject) => {
-    return chrome.debugger.attach({ tabId }, '1.3', async () => {
+    return chrome.debugger.attach({ tabId }, "1.3", async () => {
       if (chrome.runtime.lastError) {
         console.error(
-          'Failed to attach debugger:',
-          chrome.runtime.lastError.message
+          "Failed to attach debugger:",
+          chrome.runtime.lastError.message,
         );
         reject(
           new Error(
-            `Failed to attach debugger: ${chrome.runtime.lastError.message}`
-          )
+            `Failed to attach debugger: ${chrome.runtime.lastError.message}`,
+          ),
         );
       } else {
-        console.log('attached to debugger');
-        await chrome.debugger.sendCommand({ tabId }, 'DOM.enable');
-        console.log('DOM enabled');
-        await chrome.debugger.sendCommand({ tabId }, 'Runtime.enable');
-        console.log('Runtime enabled');
+        console.log("attached to debugger");
+        await chrome.debugger.sendCommand({ tabId }, "DOM.enable");
+        console.log("DOM enabled");
+        await chrome.debugger.sendCommand({ tabId }, "Runtime.enable");
+        console.log("Runtime enabled");
+        attachedTabs.add(tabId);
         resolve();
       }
     });
@@ -38,8 +43,12 @@ export async function attachDebugger(tabId: number) {
 }
 
 export async function detachDebugger(tabId: number) {
-  // const isAttached = await isDebuggerAttached(tabId);
-  // if (isAttached) {
+  attachedTabs.delete(tabId);
   chrome.debugger.detach({ tabId: tabId });
-  // }
+}
+
+export async function detachAllDebuggers() {
+  for (const tabId of attachedTabs) {
+    await detachDebugger(tabId);
+  }
 }
