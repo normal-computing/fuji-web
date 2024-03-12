@@ -97,15 +97,19 @@ export async function determineNextActionWithVision(
   const model = useAppState.getState().settings.selectedModel;
   const location = new URL(url ?? "");
   const knowledge = fetchKnowledge(location);
-  const prompt =
+  let prompt =
     formatPrompt(taskInstructions, previousActions) +
-    `Current page progress: ${viewportPercentage.toFixed(1)}%
+    `Current page progress: ${viewportPercentage.toFixed(1)}%`;
+  if (knowledge.length > 0) {
+    prompt += `
+    Notes regarding the current website:
+    ${knowledge.map((k) => `  - ${k}`).join("\n")}`;
+  }
+  prompt += `
 
-Notes regarding the current website:
-${knowledge.map((k) => `  - ${k}`).join("\n")}
+Use the following data as a reference of the annotated elements (using \`===\` as a delimiter between each annotation):
 
-Use the following data as a reference of all the labeled elements:
-${JSON.stringify(labelData, null, 2)}`;
+${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
 
   const openai = new OpenAI({
     apiKey: key,
@@ -263,4 +267,10 @@ Current page contents:
 ${pageContents}`;
   }
   return result;
+}
+
+function tomlLikeStringifyObject(obj: Record<string, unknown>): string {
+  return Object.entries(obj)
+    .map(([key, value]) => `${key} = ${JSON.stringify(value)}`)
+    .join("\n");
 }
