@@ -241,35 +241,38 @@ function drawLabel(
 // a large base z-index to start with
 const baseZIndex = 10000;
 
-export type LabelData = {
+type LabelDataWithElement = {
+  element: Element;
   label: string;
   name: string;
   tagName: string;
   role?: string;
 };
 
-function drawLabelsOnSelector(selector: string): LabelData[] {
-  // wrapper element
-  const wrapper = document.createElement("div");
-  wrapper.classList.add("_label_overlay_wrapper");
+export type LabelData = Omit<LabelDataWithElement, "element"> & {
+  element?: never; // Element cannot be sent over the wire
+};
+
+function getLabelData(selector: string): LabelDataWithElement[] {
   // Get all elements that match the selector
   const elements = document.querySelectorAll(selector);
-  // record times a label is used so that we can add a number to the end of the label
-  // const labelCounts = new Map<string, number>();
-
   // Iterate over the elements
   let uid = 1;
-  const data: LabelData[] = [];
-  function setupLabel(name: string, elem: Element) {
+  const data: LabelDataWithElement[] = [];
+  function addLabel(name: string, elem: Element) {
     const uidString = uid.toString();
 
-    const item: LabelData = { label: uidString, name, tagName: elem.tagName };
+    const item: LabelDataWithElement = {
+      label: uidString,
+      name,
+      tagName: elem.tagName,
+      element: elem,
+    };
     if (elem.hasAttribute("role")) {
       item.role = elem.getAttribute("role") ?? "unknown";
     }
     data.push(item);
     elem.setAttribute(WEB_WAND_LABEL_ATTRIBUTE_NAME, uidString);
-    drawLabel(wrapper, elem, uidString, baseZIndex + uid);
     uid++;
   }
   elements.forEach((elem) => {
@@ -285,53 +288,37 @@ function drawLabelsOnSelector(selector: string): LabelData[] {
       const visibleTextOnInput = removeEmojis(
         elem.value || elem.placeholder || "",
       );
-      setupLabel(visibleTextOnInput, elem);
+      addLabel(visibleTextOnInput, elem);
       return;
-      // if (elem.value.length > 0 || elem.placeholder.length > 0) {
-      //   elem.setAttribute(WEB_WAND_LABEL_ATTRIBUTE_NAME, visibleTextOnInput);
-      //   return;
-      // }
     }
 
     const { visibleText, ariaLabel } = traverseDom(elem, selector);
     // if the element already has visible text, just use it as label and skip
     // TODO: detect and avoid duplication
     if (visibleText !== "") {
-      console.log(visibleText);
-      // elem.setAttribute(WEB_WAND_LABEL_ATTRIBUTE_NAME, visibleText);
-      setupLabel(visibleText, elem);
+      addLabel(visibleText, elem);
       return;
     }
-    setupLabel(ariaLabel, elem);
-    // // use the aria-label if it exists
-    // let labelBase = '';
-    // if (ariaLabel.length > 0) {
-    //   labelBase = ariaLabel;
-    // }
-    // // fallback to tag+index
-    // if (labelBase.length === 0) {
-    //   // for tag A we use "button" for better readability
-    //   const tagName =
-    //     elem.tagName === 'A' ? 'button' : elem.tagName.toLowerCase();
-    //   labelBase = `${tagName}#${index}`;
-    // }
-
-    // // increment the count for this label
-    // const count = labelCounts.get(labelBase) ?? 0;
-    // labelCounts.set(labelBase, count + 1);
-    // // if the label is used more than once, add a number to the end (start from 2)
-    // const labelSuffix = count > 0 ? `#${count + 1}` : '';
-
-    // const label = `${labelBase}${labelSuffix}`;
-    // // set attribute so it's easier to find the element with selector
-    // elem.setAttribute(WEB_WAND_LABEL_ATTRIBUTE_NAME, label);
-
-    // drawLabel(wrapper, elem, label, baseZIndex + index);
+    addLabel(ariaLabel, elem);
   });
 
-  document.body.appendChild(wrapper);
-  console.log("drawLabel", data);
   return data;
+}
+
+export function addLabelsToDom(data: LabelDataWithElement[]) {
+  // wrapper element
+  const wrapper = document.createElement("div");
+  wrapper.classList.add("_label_overlay_wrapper");
+  data.forEach(({ element, label }, index) => {
+    drawLabel(wrapper, element, label, baseZIndex + index);
+  });
+  document.body.appendChild(wrapper);
+}
+
+export function removeLabels() {
+  document.querySelectorAll("._label_overlay_wrapper").forEach((elem) => {
+    elem.remove();
+  });
 }
 
 const clickableRoles = [
@@ -371,11 +358,8 @@ export function drawLabels(): LabelData[] {
   removeAttributeFromAllElements(VISIBLE_TEXT_ATTRIBUTE_NAME);
   removeAttributeFromAllElements(ARIA_LABEL_ATTRIBUTE_NAME);
 
-  return drawLabelsOnSelector(selectorForInteractiveElements);
-}
-
-export function removeLabels() {
-  document.querySelectorAll("._label_overlay_wrapper").forEach((elem) => {
-    elem.remove();
-  });
+  const data = getLabelData(selectorForInteractiveElements);
+  addLabelsToDom(data);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  return data.map(({ element, ...rest }) => rest);
 }

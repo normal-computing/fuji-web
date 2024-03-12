@@ -1,4 +1,4 @@
-import { LabelData } from "./../pages/content/drawLabels";
+import { type LabelData } from "./../pages/content/drawLabels";
 import OpenAI from "openai";
 import { useAppState } from "../state/store";
 import { availableActions, availableActionsVision } from "./availableActions";
