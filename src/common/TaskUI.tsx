@@ -3,6 +3,7 @@ import React, { useCallback, useState } from "react";
 import { debugMode } from "../constants";
 import { useAppState } from "../state/store";
 import RunTaskButton from "./RunTaskButton";
+import VoiceButton from "./VoiceButton";
 import TaskHistory from "./TaskHistory";
 import TaskStatus from "./TaskStatus";
 
@@ -99,6 +100,7 @@ const TaskUI = () => {
       />
       <HStack>
         <RunTaskButton runTask={runTask} />
+        <VoiceButton />
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>
