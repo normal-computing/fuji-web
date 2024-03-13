@@ -28,7 +28,8 @@ export const availableActionsVision = [
   },
   {
     name: "scroll",
-    description: 'Scroll the page up or down. Value can be "up" or "down"',
+    description:
+      'Scroll the page to see the other parts. Use "up" or "down" to scroll half the height of the window. Use "top" or "bottom" to quickly scroll to the top or bottom of the page.',
     args: [
       {
         name: "value",
@@ -75,7 +76,8 @@ export const availableActions = [
   },
   {
     name: "scroll",
-    description: 'Scroll the page up or down. Value can be "up" or "down"',
+    description:
+      'Scroll the page to see the other parts. Use "up" or "down" to scroll half the height of the window. Use "top" or "bottom" to scroll to the top or bottom of the page.',
     args: [
       {
         name: "value",
