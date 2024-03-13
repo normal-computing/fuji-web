@@ -16,7 +16,6 @@ export type LocationInfo = {
 };
 
 export function fetchKnowledge(location: LocationInfo): string[] {
-  console.log(location);
   // TODO: fetch from a server
   const data = db as unknown as Data;
   let result: string[] = [];
