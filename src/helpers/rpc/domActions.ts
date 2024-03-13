@@ -243,6 +243,20 @@ export class DomActions {
     await sleep(300);
   }
 
+  public async scrollToTop() {
+    await this.sendCommand("Runtime.evaluate", {
+      expression: "window.scroll({left: 0, top: 0})",
+    });
+    await sleep(300);
+  }
+
+  public async scrollToBottom() {
+    await this.sendCommand("Runtime.evaluate", {
+      expression: "window.scroll({left: 0, top: document.body.offsetHeight})",
+    });
+    await sleep(300);
+  }
+
   public async setValueWithElementId(payload: {
     elementId: number;
     value: string;

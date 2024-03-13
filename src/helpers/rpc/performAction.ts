@@ -148,10 +148,21 @@ async function setValueWithLabel(
 }
 
 async function scroll(domActions: DomActions, action: Action) {
-  if (action.args.value === "up") {
-    await domActions.scrollUp();
-  } else {
-    await domActions.scrollDown();
+  switch (action.args.value) {
+    case "up":
+      await domActions.scrollUp();
+      break;
+    case "down":
+      await domActions.scrollDown();
+      break;
+    case "top":
+      await domActions.scrollToTop();
+      break;
+    case "bottom":
+      await domActions.scrollToBottom();
+      break;
+    default:
+      console.error("Invalid scroll value", action.args.value);
   }
 }
 
