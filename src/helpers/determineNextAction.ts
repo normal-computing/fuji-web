@@ -31,7 +31,8 @@ You can use the following tools:
 
 ${formattedActions}
 
-You will be be given a task to perform and the current state of the DOM. You will also be given previous actions that you have taken. You may retry a failed action up to one time.
+You will be given a task to perform and the current state of the DOM.
+You will also be given previous actions that you have taken. You may retry a failed action up to one time.
 
 There are two examples of actions:
 
@@ -58,9 +59,9 @@ You can use the following tools:
 
 ${formattedActionsVision}
 
-You will be be given a task to perform, and an image. The image will contain two parts: on the left is a clean screenshot of the current page, and on the right is the same screenshot with interactive elements annotated with corresponding label.
-You will be given a JSON-format data that contains information of annotations.
+You will be given a task to perform, and an image. The image will contain two parts: on the left is a clean screenshot of the current page, and on the right is the same screenshot with interactive elements annotated with corresponding label.
 You will also be given previous actions that you have taken. You may retry a failed action up to one time.
+You will also be given additional information of annotations.
 
 This is an example of an action:
 
