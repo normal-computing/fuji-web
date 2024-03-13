@@ -1,5 +1,30 @@
 // TODO: refactor such that it only has one "availableActions"
 // which dynamically decides whether it's "label" or "elementId" based on the model type
+
+const commonActions = [
+  {
+    name: "scroll",
+    description:
+      'Scroll the page to see the other parts. Use "up" or "down" to scroll half the height of the window. Use "top" or "bottom" to quickly scroll to the top or bottom of the page.',
+    args: [
+      {
+        name: "value",
+        type: "string",
+      },
+    ],
+  },
+  {
+    name: "finish",
+    description: "Indicates the task is finished",
+    args: [],
+  },
+  {
+    name: "fail",
+    description: "Indicates that you are unable to complete the task",
+    args: [],
+  },
+] as const;
+
 export const availableActionsVision = [
   {
     name: "click",
@@ -26,27 +51,7 @@ export const availableActionsVision = [
       },
     ],
   },
-  {
-    name: "scroll",
-    description:
-      'Scroll the page to see the other parts. Use "up" or "down" to scroll half the height of the window. Use "top" or "bottom" to quickly scroll to the top or bottom of the page.',
-    args: [
-      {
-        name: "value",
-        type: "string",
-      },
-    ],
-  },
-  {
-    name: "finish",
-    description: "Indicates the task is finished",
-    args: [],
-  },
-  {
-    name: "fail",
-    description: "Indicates that you are unable to complete the task",
-    args: [],
-  },
+  ...commonActions,
 ] as const;
 
 export const availableActions = [
@@ -74,27 +79,7 @@ export const availableActions = [
       },
     ],
   },
-  {
-    name: "scroll",
-    description:
-      'Scroll the page to see the other parts. Use "up" or "down" to scroll half the height of the window. Use "top" or "bottom" to scroll to the top or bottom of the page.',
-    args: [
-      {
-        name: "value",
-        type: "string",
-      },
-    ],
-  },
-  {
-    name: "finish",
-    description: "Indicates the task is finished",
-    args: [],
-  },
-  {
-    name: "fail",
-    description: "Indicates that you are unable to complete the task",
-    args: [],
-  },
+  ...commonActions,
 ] as const;
 
 type AvailableActionVision = (typeof availableActionsVision)[number];
