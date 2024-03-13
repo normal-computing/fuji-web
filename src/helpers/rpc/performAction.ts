@@ -3,6 +3,7 @@ import {
   WEB_WAND_LABEL_ATTRIBUTE_NAME,
   VISIBLE_TEXT_ATTRIBUTE_NAME,
 } from "../../constants";
+import { sleep } from "../utils";
 
 function getSelector(label: string): string {
   return `[${WEB_WAND_LABEL_ATTRIBUTE_NAME}="${label}"]`;
@@ -12,7 +13,7 @@ function getFallbackSelector(selectorName: string): string {
   return `[${VISIBLE_TEXT_ATTRIBUTE_NAME}="${selectorName}"]`;
 }
 
-export type ActionName = "click" | "setValue" | "scroll" | "finish";
+export type ActionName = "click" | "setValue" | "scroll" | "finish" | "wait";
 
 export type ActionWithLabel = {
   name: ActionName;
@@ -244,8 +245,11 @@ export default async function performAction(tabId: number, action: Action) {
 
   // Handle general actions directly.
   // Actions tied to specific elements are delegated based on their arg type.
+  // TODO: find a way to ensure all actions are handled properly
   if (action.name === "scroll") {
-    scroll(domActions, action);
+    await scroll(domActions, action);
+  } else if (action.name === "wait") {
+    await sleep(3000);
   } else if (action.name === "finish") {
     console.log("Action finished successfully.");
   } else if (isActionWithSelector(action)) {

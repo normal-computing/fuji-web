@@ -14,6 +14,12 @@ const commonActions = [
     ],
   },
   {
+    name: "wait",
+    description:
+      "Wait for 3 seconds before the next action. Useful when the page is loading.",
+    args: [],
+  },
+  {
     name: "finish",
     description: "Indicates the task is finished",
     args: [],
