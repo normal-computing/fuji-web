@@ -21,6 +21,7 @@ import performAction, { Action } from "../helpers/rpc/performAction";
 import { findActiveTab } from "../helpers/browserUtils";
 import { MyStateCreator, useAppState } from "./store";
 import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
+import { voiceControl } from "../helpers/voiceControl";
 
 export type TaskHistoryEntry = {
   prompt: string;
@@ -71,6 +72,9 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       };
 
       const instructions = get().ui.instructions;
+      if (instructions) {
+        voiceControl.speak("The current task is to " + instructions);
+      }
 
       if (!instructions || get().currentTask.status === "running") return;
 
@@ -163,6 +167,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           setActionStatus("performing-action");
           const action = parseResponse(query.response, isVisionModel);
+          voiceControl.speak(action.thought);
 
           set((state) => {
             query &&

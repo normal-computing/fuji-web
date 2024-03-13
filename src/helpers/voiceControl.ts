@@ -62,6 +62,12 @@ class VoiceControlManager {
     }
     this.setTranscription = null;
   };
+
+  public speak = (text: string): void => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 2;
+    speechSynthesis.speak(utterance);
+  };
 }
 
 export const voiceControl = new VoiceControlManager();
