@@ -3,21 +3,27 @@ import { Button, HStack, Icon } from "@chakra-ui/react";
 import { BsPlayFill, BsStopFill } from "react-icons/bs";
 import { voiceControl } from "../helpers/voiceControl";
 
-export default function VoiceButton() {
+export default function VoiceButton(props: {
+  audioMode: boolean;
+  taskInProgress: boolean;
+}) {
   const [isListening, setIsListening] = useState(false);
 
   const toggleVoiceControl = () => {
-    if (!isListening) {
-      voiceControl.startListening();
-    } else {
-      voiceControl.stopListening();
+    if (props.audioMode) {
+      if (!isListening) {
+        voiceControl.startListening();
+      } else {
+        voiceControl.stopListening();
+      }
+      setIsListening(!isListening);
     }
-    setIsListening(!isListening);
   };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
+      // Only toggle voice control if audioMode is true
+      if (event.code === "Space" && props.audioMode) {
         event.preventDefault();
         toggleVoiceControl();
       }
@@ -28,7 +34,7 @@ export default function VoiceButton() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isListening]);
+  }, [isListening, props.audioMode]);
 
   const button = (
     <Button
@@ -37,6 +43,7 @@ export default function VoiceButton() {
       }
       onClick={toggleVoiceControl}
       colorScheme={isListening ? "red" : "blue"}
+      isDisabled={!props.audioMode || props.taskInProgress}
     >
       {isListening ? "Stop" : "Start"} Speaking
     </Button>
