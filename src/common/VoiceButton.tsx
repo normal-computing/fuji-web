@@ -16,7 +16,7 @@ export default function VoiceButton() {
   };
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.code === "Space") {
         event.preventDefault();
         toggleVoiceControl();

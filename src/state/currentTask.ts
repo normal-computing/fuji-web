@@ -167,7 +167,9 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           setActionStatus("performing-action");
           const action = parseResponse(query.response, isVisionModel);
-          voiceControl.speak(action.thought);
+          if ("thought" in action) {
+            voiceControl.speak(action.thought);
+          }
 
           set((state) => {
             query &&

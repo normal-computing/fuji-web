@@ -1,12 +1,17 @@
 import { useAppState } from "../state/store";
+import OpenAI from "openai";
+
 type SetTranscriptionFunction = (transcript: string, isFinal: boolean) => void;
 
 class VoiceControlManager {
   private recognition: SpeechRecognition | null;
   private cumulativeTranscript = "";
   private setTranscription: SetTranscriptionFunction | null = null;
+  private openai: OpenAI | null;
 
   constructor() {
+    // TODO: can't initialize a new OpenAI here because cannot use useAppState here
+    this.openai = null;
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -63,10 +68,36 @@ class VoiceControlManager {
     this.setTranscription = null;
   };
 
-  public speak = (text: string): void => {
+  public basicSpeak = (text: string): void => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 2;
     speechSynthesis.speak(utterance);
+  };
+
+  public speak = async (text: string) => {
+    const key = useAppState.getState().settings.openAIKey;
+    if (!this.openai) {
+      this.openai = new OpenAI({
+        apiKey: key!,
+        dangerouslyAllowBrowser: true,
+      });
+    }
+
+    try {
+      const mp3Response = await this.openai.audio.speech.create({
+        model: "tts-1",
+        voice: "nova",
+        input: text,
+        speed: 1,
+      });
+      const arrayBuffer = await mp3Response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: "audio/mp3" });
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+    } catch (error) {
+      console.error("Error generating or playing speech:", error);
+    }
   };
 }
 
