@@ -286,7 +286,7 @@ export class DomActions {
     await this.selectAllText();
     await this.typeText(payload.value, payload.shiftEnter ?? false);
     // blur the element
-    await this.blurFocusedElement();
+    // await this.blurFocusedElement();
     return true;
   }
 
