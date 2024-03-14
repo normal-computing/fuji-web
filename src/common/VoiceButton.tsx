@@ -15,6 +15,7 @@ export default function VoiceButton(props: {
         voiceControl.startListening();
       } else {
         voiceControl.stopListening();
+        document.dispatchEvent(new CustomEvent("stopListening"));
       }
       setIsListening(!isListening);
     }

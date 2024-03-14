@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
   Button,
   HStack,
@@ -95,6 +95,20 @@ const TaskUI = () => {
       runTask();
     }
   };
+
+  useEffect(() => {
+    const handleStopListening = () => {
+      if (audioMode) {
+        runTask();
+      }
+    };
+
+    document.addEventListener("stopListening", handleStopListening);
+
+    return () => {
+      document.removeEventListener("stopListening", handleStopListening);
+    };
+  }, [audioMode, runTask]);
 
   return (
     <>
