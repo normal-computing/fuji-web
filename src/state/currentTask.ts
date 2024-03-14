@@ -21,6 +21,7 @@ import performAction, { Action } from "../helpers/rpc/performAction";
 import { findActiveTab } from "../helpers/browserUtils";
 import { MyStateCreator, useAppState } from "./store";
 import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
+import { fetchKnowledge } from "../helpers/knowledge";
 
 export type TaskHistoryEntry = {
   prompt: string;
@@ -116,11 +117,17 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           );
 
           if (isVisionModel) {
-            const [imgData, labelData] = await buildAnnotatedScreenshots(tabId);
+            const knowledge = await fetchKnowledge(
+              new URL(activeTab.url ?? ""),
+            );
+            const [imgData, labelData] = await buildAnnotatedScreenshots(
+              tabId,
+              knowledge,
+            );
             if (wasStopped()) break;
             query = await determineNextActionWithVision(
               instructions,
-              activeTab.url,
+              knowledge,
               previousActions.filter(
                 (pa) => !("error" in pa),
               ) as ParsedResponseSuccess[],
@@ -232,13 +239,27 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       await detachAllDebuggers();
     },
     showImagePrompt: async () => {
-      const tabId = get().currentTask.tabId;
-      const [imgData] = await buildAnnotatedScreenshots(tabId);
+      const activeTab = await findActiveTab();
+      const tabId = activeTab?.id || -1;
+      if (!activeTab || !tabId) {
+        throw new Error("No active tab found");
+      }
+      const knowledge = await fetchKnowledge(new URL(activeTab.url ?? ""));
+      const [imgData, labelData] = await buildAnnotatedScreenshots(
+        tabId,
+        knowledge,
+      );
+      console.log(labelData);
       openBase64InNewTab(imgData, "image/png");
     },
     prepareLabels: async () => {
-      const tabId = get().currentTask.tabId;
-      await callRPCWithTab(tabId, "drawLabels", []);
+      const activeTab = await findActiveTab();
+      const tabId = activeTab?.id || -1;
+      if (!activeTab || !tabId) {
+        throw new Error("No active tab found");
+      }
+      const knowledge = await fetchKnowledge(new URL(activeTab.url ?? ""));
+      await callRPCWithTab(tabId, "drawLabels", [knowledge]);
       await sleep(800);
       await callRPCWithTab(tabId, "removeLabels", []);
     },
