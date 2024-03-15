@@ -120,11 +120,12 @@ const TaskUI = () => {
       </FormControl>
       <HStack mt={2}>
         <RunTaskButton runTask={runTask} />
-        <VoiceButton
-          voiceMode={voiceMode}
-          taskInProgress={taskInProgress}
-          onStopSpeaking={() => runTask()}
-        />
+        {voiceMode && (
+          <VoiceButton
+            taskInProgress={taskInProgress}
+            onStopSpeaking={() => runTask()}
+          />
+        )}
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>
