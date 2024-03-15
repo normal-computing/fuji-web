@@ -7,11 +7,8 @@ class VoiceControlManager {
   private recognition: SpeechRecognition | null;
   private cumulativeTranscript = "";
   private setTranscription: SetTranscriptionFunction | null = null;
-  private openai: OpenAI | null;
 
   constructor() {
-    // TODO: can't initialize a new OpenAI here because cannot use useAppState here
-    this.openai = null;
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -75,16 +72,14 @@ class VoiceControlManager {
   };
 
   public speak = async (text: string) => {
-    const key = useAppState.getState().settings.openAIKey;
-    if (!this.openai) {
-      this.openai = new OpenAI({
-        apiKey: key!,
-        dangerouslyAllowBrowser: true,
-      });
-    }
+    const key = useAppState.getState().settings.openAIKey ?? undefined;
+    const openai = new OpenAI({
+      apiKey: key,
+      dangerouslyAllowBrowser: true,
+    });
 
     try {
-      const mp3Response = await this.openai.audio.speech.create({
+      const mp3Response = await openai.audio.speech.create({
         model: "tts-1",
         voice: "nova",
         input: text,
