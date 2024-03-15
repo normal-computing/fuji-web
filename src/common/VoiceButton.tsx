@@ -22,18 +22,17 @@ export default function VoiceButton(props: {
   };
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
-        event.preventDefault();
-        toggleVoiceControl();
-      }
-    };
+    if (!props.taskInProgress) {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.code === "Space") {
+          event.preventDefault();
+          toggleVoiceControl();
+        }
+      };
 
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
   }, [isListening, props.taskInProgress]);
 
   const button = (
