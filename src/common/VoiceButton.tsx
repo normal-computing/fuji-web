@@ -6,16 +6,17 @@ import { voiceControl } from "../helpers/voiceControl";
 export default function VoiceButton(props: {
   voiceMode: boolean;
   taskInProgress: boolean;
+  onStopSpeaking: () => void;
 }) {
   const [isListening, setIsListening] = useState(false);
 
   const toggleVoiceControl = () => {
-    if (props.voiceMode) {
+    if (props.voiceMode && !props.taskInProgress) {
       if (!isListening) {
         voiceControl.startListening();
       } else {
         voiceControl.stopListening();
-        document.dispatchEvent(new CustomEvent("stopListening"));
+        props.onStopSpeaking();
       }
       setIsListening(!isListening);
     }
@@ -35,7 +36,7 @@ export default function VoiceButton(props: {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isListening, props.voiceMode]);
+  }, [isListening, props.voiceMode, props.taskInProgress]);
 
   const button = (
     <Button

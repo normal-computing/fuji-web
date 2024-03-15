@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Button,
   HStack,
@@ -96,20 +96,6 @@ const TaskUI = () => {
     }
   };
 
-  useEffect(() => {
-    const handleStopListening = () => {
-      if (voiceMode) {
-        runTask();
-      }
-    };
-
-    document.addEventListener("stopListening", handleStopListening);
-
-    return () => {
-      document.removeEventListener("stopListening", handleStopListening);
-    };
-  }, [voiceMode, runTask]);
-
   return (
     <>
       <Textarea
@@ -134,7 +120,11 @@ const TaskUI = () => {
       </FormControl>
       <HStack mt={2}>
         <RunTaskButton runTask={runTask} />
-        <VoiceButton voiceMode={voiceMode} taskInProgress={taskInProgress} />
+        <VoiceButton
+          voiceMode={voiceMode}
+          taskInProgress={taskInProgress}
+          onStopSpeaking={() => runTask()}
+        />
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>
