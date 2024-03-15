@@ -8,8 +8,26 @@
 
 // maintain a set of attached tabs
 const attachedTabs = new Set<number>();
+let detachListenerSetUp = false;
+
+function setUpDetachListener() {
+  // only set up the listener once
+  if (detachListenerSetUp) return;
+  detachListenerSetUp = true;
+  chrome.tabs.onRemoved.addListener((tabId) => {
+    if (attachedTabs.has(tabId)) {
+      attachedTabs.delete(tabId);
+    }
+  });
+  chrome.debugger.onDetach.addListener((source) => {
+    if (source.tabId) {
+      attachedTabs.delete(source.tabId);
+    }
+  });
+}
 
 export async function attachDebugger(tabId: number) {
+  setUpDetachListener();
   console.log("start attachDebugger");
   // const isAttached = await isDebuggerAttached(tabId);
   const isAttached = attachedTabs.has(tabId);

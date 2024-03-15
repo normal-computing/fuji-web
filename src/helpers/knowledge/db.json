@@ -3,20 +3,66 @@
     "rules": [
       {
         "regexes": [".*"],
-        "knowledge": [
-          "The website X (formerly Twitter) is a social media platform. Many people still call it Twitter and use the term \"tweet\" to refer to a post.",
-          "Do not confuse \"post\" with \"message\". A post is a public message that can be seen by anyone, while a message is a private message that can only be seen by the recipient."
-        ]
+        "knowledge": {
+          "notes": [
+            "The website X (formerly Twitter) is a social media platform. Many people still call it Twitter and use the term \"tweet\" to refer to a post.",
+            "Do not confuse \"post\" with \"message\". A post is a public message that can be seen by anyone, while a message is a private message that can only be seen by the recipient."
+          ]
+        }
       },
       {
-        "regexes": ["/compose/post/?$"],
-        "knowledge": [
-          "The \"Add post\" button is used to compose a thread. Do not confuse with the \"Post\" button that sends the composed tweet."
-        ]
+        "regexes": ["^/compose/post/?$"],
+        "knowledge": {
+          "notes": [
+            "The \"Add post\" button is used to compose a thread. Do not confuse with the \"Post\" button that sends the composed tweet."
+          ]
+        }
       }
     ]
   },
-  "twitter.com": {
-    "redirect": "x.com"
+  "calendar.google.com": {
+    "rules": [
+      {
+        "regexes": [".*"],
+        "knowledge": {
+          "notes": [
+            "The best way to create a new event on Google Calendar is to click on the \"Create\" button, then click on the \"Event\" option, then fill in the details in the form, and click on the \"Save\" button."
+          ],
+          "annotationRules": [
+            {
+              "selector": "[data-key]",
+              "useAttributeAsName": "data-key",
+              "allowInvisible": false,
+              "allowCovered": true,
+              "allowAriaHidden": false
+            },
+            {
+              "selector": "[data-hovercard-id]",
+              "useAttributeAsName": "data-hovercard-id",
+              "allowInvisible": false,
+              "allowCovered": false,
+              "allowAriaHidden": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "airbnb.com": {
+    "rules": [
+      {
+        "regexes": ["^/?$"],
+        "knowledge": {
+          "annotationRules": [
+            {
+              "selector": "[data-testid=\"card-container\"]>a",
+              "allowInvisible": false,
+              "allowCovered": true,
+              "allowAriaHidden": true
+            }
+          ]
+        }
+      }
+    ]
   }
 }

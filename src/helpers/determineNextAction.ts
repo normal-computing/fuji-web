@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { useAppState } from "../state/store";
 import { availableActions, availableActionsVision } from "./availableActions";
 import { ParsedResponseSuccess } from "./parseResponse";
-import { fetchKnowledge } from "./knowledge/fetchKnowledge";
+import { type Knowledge } from "./knowledge";
 
 const formattedActions = availableActions
   .map((action, i) => {
@@ -82,7 +82,7 @@ export type NextAction = {
 
 export async function determineNextActionWithVision(
   taskInstructions: string,
-  url: string | undefined,
+  knowledge: Knowledge,
   previousActions: ParsedResponseSuccess[],
   screenshotData: string,
   labelData: LabelData[],
@@ -96,15 +96,13 @@ export async function determineNextActionWithVision(
     return null;
   }
   const model = useAppState.getState().settings.selectedModel;
-  const location = new URL(url ?? "");
-  const knowledge = fetchKnowledge(location);
   let prompt =
     formatPrompt(taskInstructions, previousActions) +
     `Current page progress: ${viewportPercentage.toFixed(1)}%`;
-  if (knowledge.length > 0) {
+  if (knowledge.notes != null && knowledge.notes?.length > 0) {
     prompt += `
     Notes regarding the current website:
-    ${knowledge.map((k) => `  - ${k}`).join("\n")}`;
+    ${knowledge.notes.map((k) => `  - ${k}`).join("\n")}`;
   }
   prompt += `
 
