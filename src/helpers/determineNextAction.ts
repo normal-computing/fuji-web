@@ -38,13 +38,13 @@ There are two examples of actions:
 
 Example 1:
 {
-  thought: "I should click the add to cart button",
+  thought: "I am clicking the add to cart button",
   action: "click(223)"
 }
 
 Example 2:
 {
-  thought: "I should continue to scroll down to find the section",
+  thought: "I continue to scroll down to find the section",
   action: "scroll("down")"
 }
 
@@ -66,7 +66,7 @@ You will also be given additional information of annotations.
 This is an example of an action:
 
 {
-  thought: "I should click the add to cart button",
+  thought: "I am clicking the add to cart button",
   action: "click('12')"
 }
 

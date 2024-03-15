@@ -60,7 +60,7 @@ const TaskUI = () => {
     instructions: state.ui.instructions,
     setInstructions: state.ui.actions.setInstructions,
   }));
-  const [audioMode, setAudioMode] = useState(false);
+  const [voiceMode, setAudioMode] = useState(false);
 
   const taskInProgress = state.taskStatus === "running";
 
@@ -98,7 +98,7 @@ const TaskUI = () => {
 
   useEffect(() => {
     const handleStopListening = () => {
-      if (audioMode) {
+      if (voiceMode) {
         runTask();
       }
     };
@@ -108,7 +108,7 @@ const TaskUI = () => {
     return () => {
       document.removeEventListener("stopListening", handleStopListening);
     };
-  }, [audioMode, runTask]);
+  }, [voiceMode, runTask]);
 
   return (
     <>
@@ -117,24 +117,24 @@ const TaskUI = () => {
         autoFocus
         placeholder="Try telling WebWand to do something..."
         value={state.instructions || ""}
-        disabled={taskInProgress || audioMode}
+        disabled={taskInProgress || voiceMode}
         onChange={(e) => state.setInstructions(e.target.value)}
         mb={2}
         onKeyDown={onKeyDown}
       />
       <FormControl display="flex" alignItems="center">
-        <FormLabel htmlFor="audio-mode" mb="0">
-          Audio Mode
+        <FormLabel htmlFor="voice-mode" mb="0">
+          Voice Mode
         </FormLabel>
         <Switch
-          id="audio-mode"
-          isChecked={audioMode}
+          id="voice-mode"
+          isChecked={voiceMode}
           onChange={(e) => setAudioMode(e.target.checked)}
         />
       </FormControl>
-      <HStack>
+      <HStack mt={2}>
         <RunTaskButton runTask={runTask} />
-        <VoiceButton audioMode={audioMode} taskInProgress={taskInProgress} />
+        <VoiceButton voiceMode={voiceMode} taskInProgress={taskInProgress} />
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>

@@ -4,13 +4,13 @@ import { BsPlayFill, BsStopFill } from "react-icons/bs";
 import { voiceControl } from "../helpers/voiceControl";
 
 export default function VoiceButton(props: {
-  audioMode: boolean;
+  voiceMode: boolean;
   taskInProgress: boolean;
 }) {
   const [isListening, setIsListening] = useState(false);
 
   const toggleVoiceControl = () => {
-    if (props.audioMode) {
+    if (props.voiceMode) {
       if (!isListening) {
         voiceControl.startListening();
       } else {
@@ -23,8 +23,8 @@ export default function VoiceButton(props: {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Only toggle voice control if audioMode is true
-      if (event.code === "Space" && props.audioMode) {
+      // Only toggle voice control if voiceMode is true
+      if (event.code === "Space" && props.voiceMode) {
         event.preventDefault();
         toggleVoiceControl();
       }
@@ -35,7 +35,7 @@ export default function VoiceButton(props: {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isListening, props.audioMode]);
+  }, [isListening, props.voiceMode]);
 
   const button = (
     <Button
@@ -44,7 +44,7 @@ export default function VoiceButton(props: {
       }
       onClick={toggleVoiceControl}
       colorScheme={isListening ? "red" : "blue"}
-      isDisabled={!props.audioMode || props.taskInProgress}
+      isDisabled={!props.voiceMode || props.taskInProgress}
     >
       {isListening ? "Stop" : "Start"} Speaking
     </Button>
