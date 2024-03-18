@@ -51,7 +51,7 @@
   "airbnb.com": {
     "rules": [
       {
-        "regexes": ["^/?$"],
+        "regexes": [".*"],
         "knowledge": {
           "annotationRules": [
             {

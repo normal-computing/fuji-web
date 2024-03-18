@@ -10,7 +10,7 @@ styleElem.setAttribute("type", "text/css");
 styleElem.innerHTML = `
 ._label_overlay_wrapper {
   position: absolute;
-  z-index: 9999;
+  z-index: 99999999;
   top: 0;
   left: 0;
 }
