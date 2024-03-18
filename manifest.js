@@ -42,6 +42,7 @@ const manifest = {
       matches: ["http://*/*", "https://*/*", "<all_urls>"],
       js: ["src/pages/content/index.js"],
       css: ["assets/css/contentStyleGlobal.css"],
+      run_at: "document_start", // load the js as soon as possible since it does not rely on the DOM
     },
   ],
   // devtools_page: "src/pages/devtools/index.html",

@@ -1,6 +1,6 @@
 import { sleep } from "../../helpers/utils";
 
-export default async function ripple(x: number, y: number) {
+export default function ripple(x: number, y: number) {
   const rippleRadius = 30;
   const ripple = document.createElement("div");
   ripple.classList.add("web-agent-ripple");
@@ -11,6 +11,9 @@ export default async function ripple(x: number, y: number) {
 
   document.body.appendChild(ripple);
 
-  await sleep(1000);
-  ripple.remove();
+  // remove after the animation to finish
+  // but we don't need to `await` it
+  sleep(800).then(() => {
+    ripple.remove();
+  });
 }
