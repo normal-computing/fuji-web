@@ -44,10 +44,10 @@ export const initializeRPC = () => {
           resp.then((resolvedResp) => {
             sendResponse(resolvedResp);
           });
-          return true;
         } else {
           sendResponse(resp);
         }
+        return true;
       }
     },
   );

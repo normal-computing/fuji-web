@@ -43,7 +43,7 @@ export const callRPCWithTab = async <K extends keyof RPCMethods>(
   tabId: number,
   method: K,
   payload: Parameters<RPCMethods[K]>,
-  maxTries = 1,
+  maxTries = 2,
 ): Promise<ReturnType<RPCMethods[K]>> => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let err: any;
