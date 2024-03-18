@@ -2,7 +2,7 @@ import { Button, Input, VStack, Text, Link, HStack } from "@chakra-ui/react";
 import React from "react";
 import { useAppState } from "../state/store";
 
-const ModelDropdown = () => {
+const SetAPIKey = () => {
   const { updateSettings } = useAppState((state) => ({
     updateSettings: state.settings.actions.update,
   }));
@@ -55,4 +55,4 @@ const ModelDropdown = () => {
   );
 };
 
-export default ModelDropdown;
+export default SetAPIKey;

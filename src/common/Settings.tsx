@@ -15,9 +15,14 @@ import {
 } from "@chakra-ui/react";
 import { ArrowBackIcon, RepeatIcon } from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
+import React from "react";
 import ModelDropdown from "./ModelDropdown";
 
-const Settings = () => {
+interface SettingsProps {
+  setSettingsView: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Settings = ({ setSettingsView }: SettingsProps) => {
   const state = useAppState((state) => ({
     updateSettings: state.settings.actions.update,
     voiceMode: state.settings.voiceMode,
@@ -26,9 +31,7 @@ const Settings = () => {
 
   if (!state.openAIKey) return null;
 
-  const closeSetting = () => {
-    state.updateSettings({ inSetting: false });
-  };
+  const closeSetting = () => setSettingsView(false);
 
   return (
     <>
@@ -73,7 +76,9 @@ const Settings = () => {
             Select Model
           </FormLabel>
           <Spacer />
-          <ModelDropdown />
+          <Box w="50%">
+            <ModelDropdown />
+          </Box>
         </Flex>
 
         <Flex alignItems="center">
