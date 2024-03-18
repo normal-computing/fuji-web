@@ -51,7 +51,7 @@ const Settings = () => {
       >
         <Flex alignItems="center">
           <Box>
-            <FormLabel htmlFor="voice-mode" mb="0">
+            <FormLabel htmlFor="reset-key" mb="0">
               OpenAI API Key
             </FormLabel>
             <FormHelperText>
@@ -60,6 +60,7 @@ const Settings = () => {
           </Box>
           <Spacer />
           <Button
+            id="reset-key"
             onClick={() => state.updateSettings({ openAIKey: "" })}
             rightIcon={<RepeatIcon />}
           >
@@ -68,7 +69,7 @@ const Settings = () => {
         </Flex>
 
         <Flex alignItems="center">
-          <FormLabel htmlFor="voice-mode" mb="0">
+          <FormLabel htmlFor="model-select" mb="0">
             Select Model
           </FormLabel>
           <Spacer />

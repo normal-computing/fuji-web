@@ -16,6 +16,7 @@ const ModelDropdown = () => {
   return (
     <Box w="50%">
       <Select
+        id="model-select"
         value={selectedModel || ""}
         onChange={(e) => updateSettings({ selectedModel: e.target.value })}
       >
