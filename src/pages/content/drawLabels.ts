@@ -68,8 +68,8 @@ function isVisible(
   const { display, visibility, opacity } = style;
   if (display === "none") return false;
   if (visibility !== "visible") return false;
-  if (opacity != null && parseFloat(opacity) < 0.1) return false; // considering something very close to 0 as invisible
-  // don't respect 'aria-hidden' attribute since they are most likely visible to the user
+  if (opacity != null && parseFloat(opacity) <= 0) return false;
+  // don't respect 'aria-hidden' attribute since they are most likely visible in the screenshot
   // if (element.getAttribute('aria-hidden') === 'true') return false;
 
   const rect = element.getBoundingClientRect();
