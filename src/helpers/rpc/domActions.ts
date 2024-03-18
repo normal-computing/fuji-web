@@ -78,7 +78,7 @@ export class DomActions {
     y: number,
     clickCount = 1,
   ): Promise<void> {
-    callRPCWithTab(this.tabId, "ripple", [x, y]);
+    await callRPCWithTab(this.tabId, "ripple", [x, y]);
     await this.sendCommand("Input.dispatchMouseEvent", {
       type: "mousePressed",
       x,
@@ -86,6 +86,7 @@ export class DomActions {
       button: "left",
       clickCount,
     });
+    await sleep(20);
     await this.sendCommand("Input.dispatchMouseEvent", {
       type: "mouseReleased",
       x,
