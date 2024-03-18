@@ -92,6 +92,7 @@ class VoiceControlManager {
       audio.play();
     } catch (error) {
       console.error("Error generating or playing speech:", error);
+      alert("Error generating or playing speech");
     }
   };
 }
