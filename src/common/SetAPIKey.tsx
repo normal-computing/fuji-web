@@ -26,8 +26,8 @@ const ModelDropdown = () => {
         .
         <br />
         <br />
-        WebWand stores your API key locally and securely, and it is only used to
-        communicate with the OpenAI API.
+        WebWand stores your API key locally on your device, and it is only used
+        to communicate with the OpenAI API.
       </Text>
       <HStack w="full">
         <Input

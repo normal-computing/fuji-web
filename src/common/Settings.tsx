@@ -55,7 +55,7 @@ const Settings = () => {
               OpenAI API Key
             </FormLabel>
             <FormHelperText>
-              The API key is stored locally and securely on your device
+              The API key is stored locally on your device
             </FormHelperText>
           </Box>
           <Spacer />
