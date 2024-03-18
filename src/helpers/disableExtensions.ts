@@ -2,9 +2,9 @@
 // We'll turn them off temporarily while Taxy is performing actions.
 const incompatibleExtensions = [
   // Dashlane
-  'fdjamakpfbbddfjaooikfcpapjohcfmg',
+  "fdjamakpfbbddfjaooikfcpapjohcfmg",
   // LastPass
-  'hdokiejnpimakedhajhdlcegeplioahd',
+  "hdokiejnpimakedhajhdlcegeplioahd",
 ];
 
 const disableCounts: Record<string, number> = {};
@@ -16,18 +16,18 @@ export const disableIncompatibleExtensions = async () => {
     chrome.management.getAll((extensions) => {
       if (chrome.runtime.lastError) {
         console.error(
-          'Failed to get extensions:',
-          chrome.runtime.lastError.message
+          "Failed to get extensions:",
+          chrome.runtime.lastError.message,
         );
         reject(chrome.runtime.lastError);
       } else {
         resolve(
           extensions.filter(
             (extension) =>
-              extension.type === 'extension' &&
+              extension.type === "extension" &&
               extension.enabled &&
-              incompatibleExtensions.includes(extension.id)
-          )
+              incompatibleExtensions.includes(extension.id),
+          ),
         );
       }
     });
@@ -38,7 +38,7 @@ export const disableIncompatibleExtensions = async () => {
       if (chrome.runtime.lastError) {
         console.error(
           `Failed to disable extension ${extension.id}:`,
-          chrome.runtime.lastError.message
+          chrome.runtime.lastError.message,
         );
       }
       disableCounts[extension.id] = (disableCounts[extension.id] || 0) + 1;
@@ -53,18 +53,18 @@ export const reenableExtensions = async () => {
     chrome.management.getAll((extensions) => {
       if (chrome.runtime.lastError) {
         console.error(
-          'Failed to get extensions:',
-          chrome.runtime.lastError.message
+          "Failed to get extensions:",
+          chrome.runtime.lastError.message,
         );
         reject(chrome.runtime.lastError);
       } else {
         resolve(
           extensions.filter(
             (extension) =>
-              extension.type === 'extension' &&
+              extension.type === "extension" &&
               !extension.enabled &&
-              incompatibleExtensions.includes(extension.id)
-          )
+              incompatibleExtensions.includes(extension.id),
+          ),
         );
       }
     });
@@ -82,7 +82,7 @@ export const reenableExtensions = async () => {
           if (chrome.runtime.lastError) {
             console.error(
               `Failed to enable extension ${extension.id}:`,
-              chrome.runtime.lastError.message
+              chrome.runtime.lastError.message,
             );
             reject(chrome.runtime.lastError);
           }

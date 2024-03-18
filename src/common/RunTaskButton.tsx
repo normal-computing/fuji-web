@@ -1,7 +1,7 @@
-import { Button, HStack, Icon } from '@chakra-ui/react';
-import React from 'react';
-import { useAppState } from '../state/store';
-import { BsPlayFill, BsStopFill } from 'react-icons/bs';
+import { Button, HStack, Icon } from "@chakra-ui/react";
+import React from "react";
+import { useAppState } from "../state/store";
+import { BsPlayFill, BsStopFill } from "react-icons/bs";
 
 export default function RunTaskButton(props: { runTask: () => void }) {
   const state = useAppState((state) => ({
@@ -15,13 +15,13 @@ export default function RunTaskButton(props: { runTask: () => void }) {
       rightIcon={<Icon as={BsPlayFill} boxSize={6} />}
       onClick={props.runTask}
       colorScheme="green"
-      disabled={state.taskState === 'running' || !state.instructions}
+      disabled={state.taskState === "running" || !state.instructions}
     >
       Start Task
     </Button>
   );
 
-  if (state.taskState === 'running') {
+  if (state.taskState === "running") {
     button = (
       <Button
         rightIcon={<Icon as={BsStopFill} boxSize={6} />}

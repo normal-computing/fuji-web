@@ -3,6 +3,6 @@ export const tagsSelfClose = (html: string) => {
   const re = /<([a-z]+)([^<]*?)><\/\1>/gi;
 
   // Replace empty elements with self-closing tags
-  const newHtml = html.replace(re, '<$1$2 />');
+  const newHtml = html.replace(re, "<$1$2 />");
   return newHtml;
 };

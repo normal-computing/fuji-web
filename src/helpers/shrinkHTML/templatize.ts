@@ -1,8 +1,8 @@
-import { range } from 'lodash';
+import { range } from "lodash";
 
 type JsonNode =
   | {
-      type: 'ELEMENT';
+      type: "ELEMENT";
       tagName: string;
       attributes: { [key: string]: string };
       children: JsonNode[];
@@ -11,7 +11,7 @@ type JsonNode =
       depth: number;
     }
   | {
-      type: 'TEXT';
+      type: "TEXT";
       content: string;
       templateHash: string;
       templateValues: [string];
@@ -35,7 +35,7 @@ type PossibleTemplates = Record<string, PossibleTemplate>;
 
 export function findPotentialTemplates(
   node: Node,
-  possibleTemplates: PossibleTemplates
+  possibleTemplates: PossibleTemplates,
 ): JsonNode | null {
   if (node.nodeType === Node.ELEMENT_NODE) {
     const element = node as Element;
@@ -58,15 +58,15 @@ export function findPotentialTemplates(
     const depth = children.reduce((max, c) => Math.max(max, c.depth), 0) + 1;
 
     const templateHash = `${element.tagName}#${Object.keys(
-      attributes
-    ).sort()}#${children.map((c) => c.templateHash).join('|')}`;
+      attributes,
+    ).sort()}#${children.map((c) => c.templateHash).join("|")}`;
 
     const templateValues = Object.values(attributes).concat(
-      children.flatMap((c) => c.templateValues)
+      children.flatMap((c) => c.templateValues),
     );
 
     const jsonNode: JsonNode = {
-      type: 'ELEMENT',
+      type: "ELEMENT",
       tagName: element.tagName,
       attributes,
       children,
@@ -93,7 +93,7 @@ export function findPotentialTemplates(
     const text = node.textContent;
     if (text && text.trim()) {
       return {
-        type: 'TEXT',
+        type: "TEXT",
         content: text,
         templateHash: `TEXT`,
         templateValues: [text],
@@ -111,7 +111,7 @@ const optimizeTemplate = (template: PossibleTemplate): OptimizedTemplate => {
     (i) => {
       const values = template.nodes.map((n) => n.templateValues[i]);
       return values.every((v) => v === values[0]);
-    }
+    },
   );
 
   return {
@@ -122,7 +122,7 @@ const optimizeTemplate = (template: PossibleTemplate): OptimizedTemplate => {
 };
 
 function chooseTemplates(
-  templates: Record<string, OptimizedTemplate>
+  templates: Record<string, OptimizedTemplate>,
 ): Record<string, OptimizedTemplate> {
   const chosenTemplates: Record<string, OptimizedTemplate> = {};
   const consumedTemplateCounts: Record<string, number> = {};
@@ -141,7 +141,7 @@ function chooseTemplates(
     const serialized = createTemplateTree(
       template.nodes[0],
       chosenTemplates,
-      template
+      template,
     );
     template.template = serialized.template;
     chosenTemplates[template.hash] = template;
@@ -156,7 +156,7 @@ function chooseTemplates(
 
 function getPlaceholder(
   template: OptimizedTemplate,
-  valueIndex: number
+  valueIndex: number,
 ): string {
   // valueIndex plus one minus the number of values below it that are inlined
   const placeholderIndex =
@@ -170,9 +170,9 @@ function createTemplateTree(
   node: JsonNode,
   templates: Record<string, OptimizedTemplate>,
   renderForTemplate: OptimizedTemplate,
-  currentValueIndex = 0
+  currentValueIndex = 0,
 ): { template: string; valueIndex: number; consumedTemplates: string[] } {
-  if (node.type === 'TEXT') {
+  if (node.type === "TEXT") {
     if (renderForTemplate.valuesToInline.has(currentValueIndex)) {
       return {
         template: node.content,
@@ -198,11 +198,11 @@ function createTemplateTree(
       } else {
         return ` ${k}=${getPlaceholder(
           renderForTemplate,
-          updatedValueIndex + i
+          updatedValueIndex + i,
         )}`;
       }
     })
-    .join('');
+    .join("");
 
   updatedValueIndex += Object.keys(node.attributes).length;
 
@@ -212,7 +212,7 @@ function createTemplateTree(
       child,
       templates,
       renderForTemplate,
-      updatedValueIndex
+      updatedValueIndex,
     );
     children.push(childTemplate.template);
     updatedValueIndex = childTemplate.valueIndex;
@@ -224,8 +224,8 @@ function createTemplateTree(
   return {
     template: `<${node.tagName.toLowerCase()}${attrs}${
       isSelfClosing
-        ? '/>'
-        : `>${children.join('')}</${node.tagName.toLowerCase()}>`
+        ? "/>"
+        : `>${children.join("")}</${node.tagName.toLowerCase()}>`
     }`,
     valueIndex: updatedValueIndex,
     consumedTemplates,
@@ -233,14 +233,15 @@ function createTemplateTree(
 }
 
 function isStringANumber(str: string): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return !isNaN(parseFloat(str)) && isFinite(str as any);
 }
 
 function serializeTree(
   node: JsonNode,
-  templates: Record<string, OptimizedTemplate>
+  templates: Record<string, OptimizedTemplate>,
 ): string {
-  if (node.type === 'TEXT') {
+  if (node.type === "TEXT") {
     return node.content;
   }
 
@@ -251,26 +252,26 @@ function serializeTree(
     return `{${template.label}(${node.templateValues
       .filter((v, i) => !template.valuesToInline.has(i))
       .map((v) => (isStringANumber(v) ? v : JSON.stringify(v)))
-      .join(',')})}`;
+      .join(",")})}`;
   }
 
   const attrs = Object.entries(node.attributes)
     .map(([k, v]) => ` ${k}="${v}"`)
-    .join('');
+    .join("");
 
   const children = node.children
     .map((child) => serializeTree(child, templates))
-    .join('');
+    .join("");
 
   const isSelfClosing = node.children.length === 0;
 
   return `<${node.tagName.toLowerCase()}${attrs}${
-    isSelfClosing ? '/>' : `>${children}</${node.tagName.toLowerCase()}>`
+    isSelfClosing ? "/>" : `>${children}</${node.tagName.toLowerCase()}>`
   }`;
 }
 
 export default function templatize(html: string): string {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const doc = new DOMParser().parseFromString(html, "text/html");
   const root = doc.documentElement;
 
   const possibleTemplates: Record<string, PossibleTemplate> = {};
@@ -286,7 +287,7 @@ export default function templatize(html: string): string {
         [optimized.hash]: optimized,
       };
     },
-    {}
+    {},
   );
 
   // Choose which templates to apply
@@ -294,10 +295,10 @@ export default function templatize(html: string): string {
 
   const printedTemplates = Object.values(chosenTemplates)
     .map((t) => `${t.label}: ${t.template}`)
-    .join('\n');
+    .join("\n");
 
   // Apply chosen templates to the tree
   const templatizedTree = serializeTree(tree, chosenTemplates);
 
-  return printedTemplates + '\n\n' + templatizedTree;
+  return printedTemplates + "\n\n" + templatizedTree;
 }

@@ -1,7 +1,5 @@
-import { test } from '@jest/globals';
-import templatize from './templatize';
-
-type TestCases = [string, string][];
+import { test } from "@jest/globals";
+import templatize from "./templatize";
 
 const sample = `
 <body>
@@ -83,7 +81,7 @@ const sample = `
 //   expect(templatize(sample)).toBe(``);
 // });
 
-test('templatize', () => {
+test("templatize", () => {
   // const dom = new DOMParser().parseFromString(sample, 'text/html');
 
   const out = templatize(sample);

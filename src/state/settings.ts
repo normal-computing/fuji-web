@@ -1,4 +1,4 @@
-import { MyStateCreator } from './store';
+import { MyStateCreator } from "./store";
 
 export type SettingsSlice = {
   openAIKey: string | null;
@@ -9,7 +9,7 @@ export type SettingsSlice = {
 };
 export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
   openAIKey: null,
-  selectedModel: 'gpt-4-vision-preview',
+  selectedModel: "gpt-4-vision-preview",
   actions: {
     update: (values) => {
       set((state) => {

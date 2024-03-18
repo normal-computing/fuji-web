@@ -1,4 +1,4 @@
-import { MyStateCreator } from './store';
+import { MyStateCreator } from "./store";
 
 export type UiSlice = {
   instructions: string | null;

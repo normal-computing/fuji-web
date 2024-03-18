@@ -9,7 +9,7 @@ export function truthyFilter<T>(value: T | null | undefined): value is T {
 export async function waitFor(
   predicate: () => Promise<boolean>,
   interval: number,
-  _maxChecks: number
+  _maxChecks: number,
 ): Promise<void> {
   // special case for 0 maxChecks (wait forever)
   const maxChecks = _maxChecks === 0 ? Infinity : _maxChecks;
@@ -23,7 +23,7 @@ export async function waitFor(
         checkCount++;
         if (checkCount >= maxChecks) {
           clearInterval(intervalId);
-          reject('Timed out waiting for condition');
+          reject("Timed out waiting for condition");
         }
       }
     }, interval);
@@ -33,7 +33,7 @@ export async function waitFor(
 export async function waitTillStable(
   getSize: () => Promise<number>,
   interval: number,
-  timeout: number
+  timeout: number,
 ): Promise<void> {
   let lastSize = 0;
   let countStableSizeIterations = 0;
@@ -43,7 +43,7 @@ export async function waitTillStable(
     async () => {
       const currentSize = await getSize();
 
-      console.log('last: ', lastSize, ' <> curr: ', currentSize);
+      console.log("last: ", lastSize, " <> curr: ", currentSize);
 
       if (lastSize != 0 && currentSize === lastSize) {
         countStableSizeIterations++;
@@ -52,7 +52,7 @@ export async function waitTillStable(
       }
 
       if (countStableSizeIterations >= minStableSizeIterations) {
-        console.log('Size stable! Assume fully rendered..');
+        console.log("Size stable! Assume fully rendered..");
         return true;
       }
 
@@ -60,6 +60,6 @@ export async function waitTillStable(
       return false;
     },
     interval,
-    timeout / interval
+    timeout / interval,
   );
 }

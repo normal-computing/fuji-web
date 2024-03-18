@@ -1,8 +1,8 @@
-import React from 'react';
-import { Text } from '@chakra-ui/react';
-import { countTokens } from '../helpers/countTokens';
-import { useAsync } from 'react-use';
-import { useAppState } from '../state/store';
+import React from "react";
+import { Text } from "@chakra-ui/react";
+import { countTokens } from "../helpers/countTokens";
+import { useAsync } from "react-use";
+import { useAppState } from "../state/store";
 
 const TokenCount = ({ html }: { html: string }) => {
   const selectedModel = useAppState((state) => state.settings.selectedModel);
@@ -10,16 +10,16 @@ const TokenCount = ({ html }: { html: string }) => {
   const numTokens =
     useAsync(
       () => countTokens(html, selectedModel as string),
-      [html, selectedModel]
+      [html, selectedModel],
     ).value || null;
 
   let displayedCount = null;
   if (!html) {
-    displayedCount = 'Waiting for HTML';
+    displayedCount = "Waiting for HTML";
   } else if (numTokens === null) {
-    displayedCount = 'Counting...';
+    displayedCount = "Counting...";
   } else {
-    displayedCount = numTokens + ' tokens';
+    displayedCount = numTokens + " tokens";
   }
 
   return (

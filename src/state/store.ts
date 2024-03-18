@@ -1,10 +1,10 @@
-import { merge } from 'lodash';
-import { create, StateCreator } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
-import { createJSONStorage, devtools, persist } from 'zustand/middleware';
-import { createCurrentTaskSlice, CurrentTaskSlice } from './currentTask';
-import { createUiSlice, UiSlice } from './ui';
-import { createSettingsSlice, SettingsSlice } from './settings';
+import { merge } from "lodash";
+import { create, StateCreator } from "zustand";
+import { immer } from "zustand/middleware/immer";
+import { createJSONStorage, devtools, persist } from "zustand/middleware";
+import { createCurrentTaskSlice, CurrentTaskSlice } from "./currentTask";
+import { createUiSlice, UiSlice } from "./ui";
+import { createSettingsSlice, SettingsSlice } from "./settings";
 
 export type StoreType = {
   currentTask: CurrentTaskSlice;
@@ -14,7 +14,7 @@ export type StoreType = {
 
 export type MyStateCreator<T> = StateCreator<
   StoreType,
-  [['zustand/immer', never]],
+  [["zustand/immer", never]],
   [],
   T
 >;
@@ -26,10 +26,10 @@ export const useAppState = create<StoreType>()(
         currentTask: createCurrentTaskSlice(...a),
         ui: createUiSlice(...a),
         settings: createSettingsSlice(...a),
-      }))
+      })),
     ),
     {
-      name: 'app-state',
+      name: "app-state",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         // Stuff we want to persist
@@ -43,8 +43,8 @@ export const useAppState = create<StoreType>()(
       }),
       merge: (persistedState, currentState) =>
         merge(currentState, persistedState),
-    }
-  )
+    },
+  ),
 );
 
 // @ts-expect-error used for debugging

@@ -1,6 +1,6 @@
-import { Select } from '@chakra-ui/react';
-import React from 'react';
-import { useAppState } from '../state/store';
+import { Select } from "@chakra-ui/react";
+import React from "react";
+import { useAppState } from "../state/store";
 
 const ModelDropdown = () => {
   const { selectedModel, updateSettings } = useAppState((state) => ({
@@ -17,7 +17,7 @@ const ModelDropdown = () => {
   return (
     // Chakra UI Select component
     <Select
-      value={selectedModel || ''}
+      value={selectedModel || ""}
       onChange={(e) => updateSettings({ selectedModel: e.target.value })}
     >
       <option value="gpt-3.5-turbo-16k">GPT-3.5 Turbo (16k)</option>
