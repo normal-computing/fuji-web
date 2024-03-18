@@ -1,13 +1,14 @@
 import { Box, ChakraProvider, Heading, HStack } from "@chakra-ui/react";
 import React from "react";
 import { useAppState } from "../state/store";
-import ModelDropdown from "./ModelDropdown";
 import SetAPIKey from "./SetAPIKey";
 import TaskUI from "./TaskUI";
-import OptionsDropdown from "./OptionsDropdown";
+import SettingButton from "./SettingButton";
+import Settings from "./Settings";
 
 const App = () => {
   const openAIKey = useAppState((state) => state.settings.openAIKey);
+  const inSetting = useAppState((state) => state.settings.inSetting);
 
   return (
     <ChakraProvider>
@@ -16,12 +17,9 @@ const App = () => {
           <Heading as="h1" size="lg" flex={1}>
             WebWand 🪄
           </Heading>
-          <HStack spacing={2}>
-            <ModelDropdown />
-            <OptionsDropdown />
-          </HStack>
+          <SettingButton />
         </HStack>
-        {openAIKey ? <TaskUI /> : <SetAPIKey />}
+        {openAIKey ? inSetting ? <Settings /> : <TaskUI /> : <SetAPIKey />}
       </Box>
     </ChakraProvider>
   );
