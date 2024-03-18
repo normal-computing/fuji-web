@@ -64,5 +64,27 @@
         }
       }
     ]
+  },
+  "amazon.com": {
+    "rules": [
+      {
+        "regexes": [".*"],
+        "knowledge": {
+          "notes": [
+            "Be careful not to confuse the \"Add to Cart\" with the \"Buy Now\". The \"Add to Cart\" button adds the item to the cart, while the \"Buy Now\" button takes you to the checkout page.",
+            "Do not confuse \"Buy Now\" and \"Buy New\" on product page.",
+            "You should always verify if the product is in stock before buying or adding to the cart. If the product is not in stock, you should notify the user about it."
+          ]
+        }
+      },
+      {
+        "regexes": ["^/s$"],
+        "knowledge": {
+          "notes": [
+            "There is no \"Add to Cart\" button on the search results page. You need to click on the product name to go to the product details page first."
+          ]
+        }
+      }
+    ]
   }
 }
