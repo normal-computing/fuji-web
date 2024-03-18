@@ -21,6 +21,7 @@ import performAction, { Action } from "../helpers/rpc/performAction";
 import { findActiveTab } from "../helpers/browserUtils";
 import { MyStateCreator, useAppState } from "./store";
 import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
+import { voiceControl } from "../helpers/voiceControl";
 import { fetchKnowledge } from "../helpers/knowledge";
 
 export type TaskHistoryEntry = {
@@ -32,6 +33,7 @@ export type TaskHistoryEntry = {
 
 export type CurrentTaskSlice = {
   tabId: number;
+  isListening: boolean;
   instructions: string | null;
   history: TaskHistoryEntry[];
   status: "idle" | "running" | "success" | "error" | "interrupted";
@@ -51,6 +53,8 @@ export type CurrentTaskSlice = {
     showImagePrompt: () => Promise<void>;
     prepareLabels: () => Promise<void>;
     performActionString: (actionString: string) => Promise<void>;
+    startListening: () => void;
+    stopListening: () => void;
   };
 };
 export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
@@ -58,6 +62,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
   get,
 ) => ({
   tabId: -1,
+  isListening: false,
   instructions: null,
   history: [],
   status: "idle",
@@ -72,6 +77,9 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       };
 
       const instructions = get().ui.instructions;
+      if (instructions) {
+        voiceControl.speak("The current task is to " + instructions);
+      }
 
       if (!instructions || get().currentTask.status === "running") return;
 
@@ -170,6 +178,9 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           setActionStatus("performing-action");
           const action = parseResponse(query.response, isVisionModel);
+          if ("thought" in action) {
+            voiceControl.speak(action.thought);
+          }
 
           set((state) => {
             query &&
@@ -284,6 +295,16 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         action.parsedAction as Action,
       );
     },
+    startListening: () =>
+      set((state) => {
+        state.currentTask.isListening = true;
+        voiceControl.startListening();
+      }),
+    stopListening: () =>
+      set((state) => {
+        state.currentTask.isListening = false;
+        voiceControl.stopListening();
+      }),
   },
 });
 

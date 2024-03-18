@@ -1,8 +1,18 @@
-import { Button, HStack, Spacer, Textarea, useToast } from "@chakra-ui/react";
 import React, { useCallback, useState } from "react";
+import {
+  Button,
+  HStack,
+  Spacer,
+  Textarea,
+  useToast,
+  Switch,
+  FormControl,
+  FormLabel,
+} from "@chakra-ui/react";
 import { debugMode } from "../constants";
 import { useAppState } from "../state/store";
 import RunTaskButton from "./RunTaskButton";
+import VoiceButton from "./VoiceButton";
 import TaskHistory from "./TaskHistory";
 import TaskStatus from "./TaskStatus";
 
@@ -50,6 +60,7 @@ const TaskUI = () => {
     instructions: state.ui.instructions,
     setInstructions: state.ui.actions.setInstructions,
   }));
+  const [voiceMode, setVoiceMode] = useState(false);
 
   const taskInProgress = state.taskStatus === "running";
 
@@ -92,13 +103,29 @@ const TaskUI = () => {
         autoFocus
         placeholder="Try telling WebWand to do something..."
         value={state.instructions || ""}
-        disabled={taskInProgress}
+        disabled={taskInProgress || voiceMode}
         onChange={(e) => state.setInstructions(e.target.value)}
         mb={2}
         onKeyDown={onKeyDown}
       />
-      <HStack>
+      <FormControl display="flex" alignItems="center">
+        <FormLabel htmlFor="voice-mode" mb="0">
+          Voice Mode
+        </FormLabel>
+        <Switch
+          id="voice-mode"
+          isChecked={voiceMode}
+          onChange={(e) => setVoiceMode(e.target.checked)}
+        />
+      </FormControl>
+      <HStack mt={2}>
         <RunTaskButton runTask={runTask} />
+        {voiceMode && (
+          <VoiceButton
+            taskInProgress={taskInProgress}
+            onStopSpeaking={() => runTask()}
+          />
+        )}
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>

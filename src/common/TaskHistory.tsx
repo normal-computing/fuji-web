@@ -11,11 +11,10 @@ import {
   Spacer,
   ColorProps,
   BackgroundProps,
-} from '@chakra-ui/react';
-import React from 'react';
-import { TaskHistoryEntry } from '../state/currentTask';
-import { useAppState } from '../state/store';
-import CopyButton from './CopyButton';
+} from "@chakra-ui/react";
+import { TaskHistoryEntry } from "../state/currentTask";
+import { useAppState } from "../state/store";
+import CopyButton from "./CopyButton";
 
 type TaskHistoryItemProps = {
   index: number;
@@ -43,7 +42,7 @@ const CollapsibleComponent = (props: {
       </AccordionButton>
     </Heading>
     <AccordionPanel>
-      {props.text.split('\n').map((line, index) => (
+      {props.text.split("\n").map((line, index) => (
         <Box key={index} fontSize="xs">
           {line}
           <br />
@@ -54,29 +53,29 @@ const CollapsibleComponent = (props: {
 );
 
 const TaskHistoryItem = ({ index, entry }: TaskHistoryItemProps) => {
-  let itemTitle = '';
-  if ('error' in entry.action) {
+  let itemTitle = "";
+  if ("error" in entry.action) {
     itemTitle = `Error: ${entry.action.error}`;
   } else if (entry.action?.thought) {
     itemTitle = entry.action.thought;
   }
 
   const colors: {
-    text: ColorProps['textColor'];
-    bg: BackgroundProps['bgColor'];
+    text: ColorProps["textColor"];
+    bg: BackgroundProps["bgColor"];
   } = {
     text: undefined,
     bg: undefined,
   };
-  if ('error' in entry.action || entry.action.parsedAction.name === 'fail') {
-    colors.text = 'red.800';
-    colors.bg = 'red.100';
+  if ("error" in entry.action || entry.action.parsedAction.name === "fail") {
+    colors.text = "red.800";
+    colors.bg = "red.100";
   } else if (
-    'parsedAction' in entry.action &&
-    entry.action.parsedAction.name === 'finish'
+    "parsedAction" in entry.action &&
+    entry.action.parsedAction.name === "finish"
   ) {
-    colors.text = 'green.800';
-    colors.bg = 'green.100';
+    colors.text = "green.800";
+    colors.bg = "green.100";
   }
 
   return (
@@ -124,7 +123,7 @@ export default function TaskHistory() {
     taskHistory: state.currentTask.history,
   }));
 
-  if (taskHistory.length === 0 && taskStatus !== 'running') return null;
+  if (taskHistory.length === 0 && taskStatus !== "running") return null;
 
   return (
     <VStack mt={8}>
