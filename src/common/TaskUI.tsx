@@ -60,7 +60,7 @@ const TaskUI = () => {
     instructions: state.ui.instructions,
     setInstructions: state.ui.actions.setInstructions,
   }));
-  const [voiceMode, setAudioMode] = useState(false);
+  const [voiceMode, setVoiceMode] = useState(false);
 
   const taskInProgress = state.taskStatus === "running";
 
@@ -115,7 +115,7 @@ const TaskUI = () => {
         <Switch
           id="voice-mode"
           isChecked={voiceMode}
-          onChange={(e) => setAudioMode(e.target.checked)}
+          onChange={(e) => setVoiceMode(e.target.checked)}
         />
       </FormControl>
       <HStack mt={2}>

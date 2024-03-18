@@ -33,6 +33,7 @@ export type TaskHistoryEntry = {
 
 export type CurrentTaskSlice = {
   tabId: number;
+  isListening: boolean;
   instructions: string | null;
   history: TaskHistoryEntry[];
   status: "idle" | "running" | "success" | "error" | "interrupted";
@@ -52,6 +53,8 @@ export type CurrentTaskSlice = {
     showImagePrompt: () => Promise<void>;
     prepareLabels: () => Promise<void>;
     performActionString: (actionString: string) => Promise<void>;
+    startListening: () => void;
+    stopListening: () => void;
   };
 };
 export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
@@ -59,6 +62,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
   get,
 ) => ({
   tabId: -1,
+  isListening: false,
   instructions: null,
   history: [],
   status: "idle",
@@ -291,6 +295,16 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         action.parsedAction as Action,
       );
     },
+    startListening: () =>
+      set((state) => {
+        state.currentTask.isListening = true;
+        voiceControl.startListening();
+      }),
+    stopListening: () =>
+      set((state) => {
+        state.currentTask.isListening = false;
+        voiceControl.stopListening();
+      }),
   },
 });
 
