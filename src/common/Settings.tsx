@@ -19,10 +19,10 @@ import React from "react";
 import ModelDropdown from "./ModelDropdown";
 
 interface SettingsProps {
-  setSettingsView: React.Dispatch<React.SetStateAction<boolean>>;
+  setInSettingsView: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Settings = ({ setSettingsView }: SettingsProps) => {
+const Settings = ({ setInSettingsView }: SettingsProps) => {
   const state = useAppState((state) => ({
     updateSettings: state.settings.actions.update,
     voiceMode: state.settings.voiceMode,
@@ -31,7 +31,7 @@ const Settings = ({ setSettingsView }: SettingsProps) => {
 
   if (!state.openAIKey) return null;
 
-  const closeSetting = () => setSettingsView(false);
+  const closeSetting = () => setInSettingsView(false);
 
   return (
     <>

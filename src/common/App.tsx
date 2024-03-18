@@ -14,7 +14,7 @@ import Settings from "./Settings";
 
 const App = () => {
   const openAIKey = useAppState((state) => state.settings.openAIKey);
-  const [settingsView, setSettingsView] = useState(false);
+  const [inSettingsView, setInSettingsView] = useState(false);
 
   return (
     <ChakraProvider>
@@ -25,13 +25,13 @@ const App = () => {
           </Heading>
           <IconButton
             icon={<SettingsIcon />}
-            onClick={() => setSettingsView(true)}
+            onClick={() => setInSettingsView(true)}
             aria-label="open settings"
           />
         </HStack>
         {openAIKey ? (
-          settingsView ? (
-            <Settings setSettingsView={setSettingsView} />
+          inSettingsView ? (
+            <Settings setInSettingsView={setInSettingsView} />
           ) : (
             <TaskUI />
           )

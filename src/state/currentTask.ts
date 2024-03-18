@@ -80,7 +80,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
       const instructions = get().ui.instructions;
       if (voiceMode && instructions) {
-        voiceControl.speak("The current task is to " + instructions);
+        voiceControl.speak("The current task is to " + instructions, onError);
       }
 
       if (!instructions || get().currentTask.status === "running") return;
@@ -181,7 +181,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           setActionStatus("performing-action");
           const action = parseResponse(query.response, isVisionModel);
           if (voiceMode && "thought" in action) {
-            voiceControl.speak(action.thought);
+            voiceControl.speak(action.thought, onError);
           }
 
           set((state) => {
