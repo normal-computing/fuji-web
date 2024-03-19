@@ -71,7 +71,7 @@ class VoiceControlManager {
     speechSynthesis.speak(utterance);
   };
 
-  public speak = async (text: string) => {
+  public speak = async (text: string, onError: (error: string) => void) => {
     const key = useAppState.getState().settings.openAIKey ?? undefined;
     const openai = new OpenAI({
       apiKey: key,
@@ -90,8 +90,10 @@ class VoiceControlManager {
       const audioUrl = URL.createObjectURL(blob);
       const audio = new Audio(audioUrl);
       audio.play();
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Error generating or playing speech:", error);
+      onError(error.message);
     }
   };
 }

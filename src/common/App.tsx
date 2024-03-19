@@ -1,13 +1,20 @@
-import { Box, ChakraProvider, Heading, HStack } from "@chakra-ui/react";
-import React from "react";
+import {
+  Box,
+  ChakraProvider,
+  Heading,
+  HStack,
+  IconButton,
+} from "@chakra-ui/react";
+import { SettingsIcon } from "@chakra-ui/icons";
+import React, { useState } from "react";
 import { useAppState } from "../state/store";
-import ModelDropdown from "./ModelDropdown";
 import SetAPIKey from "./SetAPIKey";
 import TaskUI from "./TaskUI";
-import OptionsDropdown from "./OptionsDropdown";
+import Settings from "./Settings";
 
 const App = () => {
   const openAIKey = useAppState((state) => state.settings.openAIKey);
+  const [inSettingsView, setInSettingsView] = useState(false);
 
   return (
     <ChakraProvider>
@@ -16,12 +23,21 @@ const App = () => {
           <Heading as="h1" size="lg" flex={1}>
             WebWand 🪄
           </Heading>
-          <HStack spacing={2}>
-            <ModelDropdown />
-            <OptionsDropdown />
-          </HStack>
+          <IconButton
+            icon={<SettingsIcon />}
+            onClick={() => setInSettingsView(true)}
+            aria-label="open settings"
+          />
         </HStack>
-        {openAIKey ? <TaskUI /> : <SetAPIKey />}
+        {openAIKey ? (
+          inSettingsView ? (
+            <Settings setInSettingsView={setInSettingsView} />
+          ) : (
+            <TaskUI />
+          )
+        ) : (
+          <SetAPIKey />
+        )}
       </Box>
     </ChakraProvider>
   );

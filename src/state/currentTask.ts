@@ -69,6 +69,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
   actionStatus: "idle",
   actions: {
     runTask: async (onError) => {
+      const voiceMode = useAppState.getState().settings.voiceMode;
+
       const wasStopped = () => get().currentTask.status !== "running";
       const setActionStatus = (status: CurrentTaskSlice["actionStatus"]) => {
         set((state) => {
@@ -77,8 +79,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       };
 
       const instructions = get().ui.instructions;
-      if (instructions) {
-        voiceControl.speak("The current task is to " + instructions);
+      if (voiceMode && instructions) {
+        voiceControl.speak("The current task is to " + instructions, onError);
       }
 
       if (!instructions || get().currentTask.status === "running") return;
@@ -178,8 +180,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           setActionStatus("performing-action");
           const action = parseResponse(query.response, isVisionModel);
-          if ("thought" in action) {
-            voiceControl.speak(action.thought);
+          if (voiceMode && "thought" in action) {
+            voiceControl.speak(action.thought, onError);
           }
 
           set((state) => {

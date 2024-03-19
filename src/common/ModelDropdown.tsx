@@ -1,5 +1,4 @@
 import { Select } from "@chakra-ui/react";
-import React from "react";
 import { useAppState } from "../state/store";
 
 const ModelDropdown = () => {
@@ -15,8 +14,8 @@ const ModelDropdown = () => {
   if (!openAIKey) return null;
 
   return (
-    // Chakra UI Select component
     <Select
+      id="model-select"
       value={selectedModel || ""}
       onChange={(e) => updateSettings({ selectedModel: e.target.value })}
     >
