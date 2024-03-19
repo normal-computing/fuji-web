@@ -12,28 +12,35 @@ WebWand only sends data to OpenAI's API. It does not send any data to third part
 
 ## Installing and Running
 
-Currently this extension is only available through this GitHub repo. To build and install the extension locally on your machine, follow the instructions below.
+### Download and Install the extension in your browser
 
-### Installing the extension
+1. Go to the [releases page](https://github.com/normal-computing/web-wand/releases), find the latest version of the extension and download "artifact.zip".
+2. Unzip the file.
+3. Load your extension on Chrome by doing the following:
+   1. Navigate to `chrome://extensions/`
+   2. Toggle `Developer mode`
+   3. Click on `Load unpacked extension`
+   4. Select the unzipped folder
+
+### Use the extension
+
+*Please note that you might need to refresh the page for the extension to work.*
+
+1. Find the WebWand icon in the top right corner of your browser and click on it to open the sidepanel.
+2. The next thing you need to do is create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) and paste it in the provided box. This key will be stored securely in your browser, and will not be uploaded to a third party.
+3. Finally, navigate to a webpage you want WebWand and type in the task you want it to perform. For example, if you want to search for a movie on Google, you can type `Search for the movie Oblivion`. Then press `Enter` or click `Run` to execute the task.
+
+### Build the extension
+
+If you want to build the extension from source, follow these instructions:
 
 1. Ensure you have [Node.js](https://nodejs.org/). The developement was done on Node v20 but it should work with some lower versions.
 2. Clone this repository
 3. Install `pnpm` globally: `npm install -g pnpm` (check your node version >= 16.6, recommended >= 18)
 4. Run `pnpm install` 
+5. Run `pnpm dev` to start the development server
 
-### Running in your browser
-
-1. Run on terminal:
-    - Dev: `pnpm dev` or `npm run dev`
-    - Prod: `pnpm build` or `npm run build`
-2. Load your extension on Chrome by doing the following:
-   1. Navigate to `chrome://extensions/`
-   2. Toggle `Developer mode`
-   3. Click on `Load unpacked extension`
-   4. Select the `dist` folder
-3. The browser plugin will be available as a side panel.
-4. The next thing you need to do is create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) and paste it in the provided box. This key will be stored securely in your browser, and will not be uploaded to a third party.
-5. Finally, navigate to a webpage you want WebWand and type in the task you want it to perform. For example, if you want to search for a movie on Google, you can type `Search for the movie Oblivion`. Then press `Enter` or click `Run` to execute the task.
+When loading the extension, you will need to load the `dist` folder.
 
 ## How it Works
 
