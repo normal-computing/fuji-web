@@ -55,7 +55,7 @@
         "knowledge": {
           "annotationRules": [
             {
-              "selector": "[data-testid=\"card-container\"]>a",
+              "selector": "[data-testid=\"listing-card-title\"]",
               "allowInvisible": false,
               "allowCovered": true,
               "allowAriaHidden": true
