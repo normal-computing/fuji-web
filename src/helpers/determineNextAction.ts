@@ -158,7 +158,7 @@ ${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
       // TODO: need to verify the new API error format
       console.error("determineNextAction error:");
       console.error(error);
-      if (error.includes("server error")) {
+      if (error.message.includes("server error")) {
         // Problem with the OpenAI API, try again
         if (notifyError) {
           notifyError(error);
@@ -222,7 +222,7 @@ export async function determineNextAction(
       // TODO: need to verify the new API error format
       console.error("determineNextAction error:");
       console.error(error);
-      if (error.includes("server error")) {
+      if (error.message.includes("server error")) {
         // Problem with the OpenAI API, try again
         if (notifyError) {
           notifyError(error);
