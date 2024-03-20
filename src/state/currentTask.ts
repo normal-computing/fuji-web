@@ -10,10 +10,10 @@ import {
   parseResponse,
 } from "../helpers/parseResponse";
 import {
-  determineNextAction,
   determineNextActionWithVision,
   type NextAction,
-} from "../helpers/determineNextAction";
+} from "../helpers/vision-agent/determineNextAction";
+import { determineNextAction } from "../helpers/dom-agent/determineNextAction";
 import { callRPCWithTab } from "../helpers/rpc/pageRPC";
 import { getSimplifiedDom } from "../helpers/simplifyDom";
 import { sleep, truthyFilter } from "../helpers/utils";
