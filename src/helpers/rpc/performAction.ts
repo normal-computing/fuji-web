@@ -183,8 +183,13 @@ function createOperateTool(
 
 export const operateTool = createOperateTool(clickWithLabel, setValueWithLabel);
 
-// DOM agent still use this (using elementId instead of label)
-export const operateToolLegacy = createOperateTool(
+// DOM agent currently use this (using elementId instead of label)
+export const operateToolWithSimpliedDom = createOperateTool(
   clickWithElementId,
   setValueWithElementId,
+);
+
+export const operateToolWithSelector = createOperateTool(
+  clickWithSelector,
+  setValueWithSelector,
 );
