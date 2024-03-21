@@ -93,6 +93,7 @@ export async function determineNextAction(
           usage: completion.usage,
           prompt,
           rawResponse,
+          // TODO: refactor dom agent so we don't need this
           action: visionActionAdapter(parsed),
         };
       } catch (e) {
