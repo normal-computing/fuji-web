@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Switch,
   Button,
@@ -35,9 +35,10 @@ import { findActiveTab } from "../helpers/browserUtils";
 
 type DomainKnowledgeProps = {
   domainRules: DomainRules;
+  onRemove: () => void;
 };
 
-const DomainKnowledge = ({ domainRules }: DomainKnowledgeProps) => {
+const DomainKnowledge = ({ domainRules, onRemove }: DomainKnowledgeProps) => {
   const getJson = (domainRules: Rule): string => {
     return JSON.stringify(domainRules, null, 2);
   };
@@ -62,6 +63,9 @@ const DomainKnowledge = ({ domainRules }: DomainKnowledgeProps) => {
           </AccordionItem>
         ))}
       </Accordion>
+      <Button colorScheme="red" onClick={onRemove} mt={4}>
+        Remove
+      </Button>
     </>
   );
 };
@@ -88,6 +92,13 @@ const NewKnowledgeForm = () => {
   const updateSettings = useAppState((state) => state.settings.actions.update);
   const domainRules = useAppState((state) => state.settings.domainRules);
   const toast = useToast();
+
+  const removeRule = (index) => {
+    setFormState((prevState) => ({
+      ...prevState,
+      rules: prevState.rules.filter((_, ruleIndex) => ruleIndex !== index),
+    }));
+  };
 
   const addNewRule = () => {
     setFormState((prevState) => ({
@@ -342,6 +353,14 @@ const NewKnowledgeForm = () => {
                     />
                   </Flex>
                 </FormControl>
+                <Button
+                  mt={4}
+                  colorScheme="red"
+                  onClick={() => removeRule(index)}
+                  isDisabled={formState.rules.length <= 1} // Disable if only one rule
+                >
+                  Remove Rule
+                </Button>
               </Box>
             ))}
             <Button onClick={addNewRule}>Add Another Rule</Button>
@@ -368,25 +387,24 @@ const NewKnowledgeForm = () => {
 
 const CustomKnowledgeBase = () => {
   const domainRules = useAppState((state) => state.settings.domainRules);
+  const updateSettings = useAppState((state) => state.settings.actions.update);
 
-  useEffect(() => {
-    const initializeDomain = async () => {
-      const tab = await findActiveTab();
-      if (tab && tab.url) {
-        const url = new URL(tab.url);
-        const domain = url.hostname.replace(/^www\./, "");
-        setDefaultDomain(domain);
-      }
-    };
-    initializeDomain();
-  }, []);
+  const removeDomainRule = (domainIndex: number) => {
+    const updatedDomainRules = domainRules.filter(
+      (_, index) => index !== domainIndex,
+    );
+    updateSettings({ domainRules: updatedDomainRules });
+  };
 
   return (
     <VStack spacing={4}>
       {domainRules.length > 0 ? (
         domainRules.map((rules, index) => (
           <Box key={index} w="full" p={4} borderWidth="1px" borderRadius="lg">
-            <DomainKnowledge domainRules={rules} />
+            <DomainKnowledge
+              domainRules={rules}
+              onRemove={() => removeDomainRule(index)}
+            />
           </Box>
         ))
       ) : (
