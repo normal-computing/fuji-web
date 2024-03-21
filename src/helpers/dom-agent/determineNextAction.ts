@@ -101,7 +101,10 @@ export async function determineNextAction(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error instanceof Error) {
-        errorChecker(error, notifyError);
+        const recoverable = errorChecker(error, notifyError);
+        if (!recoverable) {
+          throw error;
+        }
       } else {
         console.error("Unexpected determineNextAction error:");
         console.error(error);
