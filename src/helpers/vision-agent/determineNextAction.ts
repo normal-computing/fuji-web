@@ -7,6 +7,7 @@ import {
   type ToolOperation,
 } from "./tools";
 import { type Knowledge } from "../knowledge";
+import errorChecker from "../errorChecker";
 
 const visionSystemMessage = `
 You are a browser automation assistant.
@@ -134,16 +135,11 @@ ${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      // TODO: need to verify the new API error format
-      console.error("determineNextAction error: ");
-      console.error(error);
-      if (error.message.includes("server error")) {
-        // Problem with the OpenAI API
-        if (notifyError) {
-          notifyError(
-            "There is a problem with the OpenAI API. Please check its status page https://status.openai.com/ and try again later.",
-          );
-        }
+      if (error instanceof Error) {
+        errorChecker(error, notifyError);
+      } else {
+        console.error("Unexpected determineNextAction error:");
+        console.error(error);
       }
     }
   }

@@ -1,0 +1,45 @@
+import OpenAI from "openai";
+import { debugMode } from "../constants";
+
+// returns true if the error is recoverable by retrying the query
+export default function errorChecker(
+  err: Error,
+  notifyError?: (errMsg: string) => void,
+): boolean {
+  const log = (msg: string, e: Error) => {
+    if (debugMode) {
+      console.error(msg, e);
+    }
+    if (notifyError) {
+      notifyError(msg);
+    }
+  };
+  if (err instanceof OpenAI.APIError) {
+    if (err instanceof OpenAI.InternalServerError) {
+      log(
+        "There is a problem with the OpenAI API server. Please check its status page https://status.openai.com/ and try again later.",
+        err,
+      );
+      return false;
+    }
+    if (
+      err instanceof OpenAI.AuthenticationError ||
+      err instanceof OpenAI.PermissionDeniedError
+    ) {
+      log("The OpenAI API key you provided might not be valid", err);
+      return false;
+    }
+    if (err instanceof OpenAI.APIConnectionError) {
+      log(
+        "There is a problem with the network connection to the OpenAI API. Please check your network connection and try again later.",
+        err,
+      );
+      return true;
+    }
+    // other API errors are not recoverable
+    return false;
+  }
+  log("Error:", err);
+  // retry everything else (e.g. network errors, syntax error, timeout)
+  return true;
+}
