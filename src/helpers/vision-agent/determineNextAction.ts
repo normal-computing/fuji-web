@@ -135,22 +135,23 @@ ${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // TODO: need to verify the new API error format
-      console.error("determineNextAction error:");
+      console.error("determineNextAction error: ");
       console.error(error);
       if (error.message.includes("server error")) {
-        // Problem with the OpenAI API, try again
+        // Problem with the OpenAI API
         if (notifyError) {
-          notifyError(error);
+          notifyError(
+            "There is a problem with the OpenAI API. Please check its status page https://status.openai.com/ and try again later.",
+          );
         }
-      } else {
-        // Another error, give up
-        throw new Error(error);
       }
     }
   }
-  throw new Error(
-    `Failed to complete query after ${maxAttempts} attempts. Please try again later.`,
-  );
+  const errMsg = `Failed to complete query after ${maxAttempts} attempts. Please try again later.`;
+  if (notifyError) {
+    notifyError(errMsg);
+  }
+  throw new Error(errMsg);
 }
 
 export function formatPrompt(
