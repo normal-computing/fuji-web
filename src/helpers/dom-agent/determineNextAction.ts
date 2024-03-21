@@ -6,6 +6,7 @@ import {
   Action as VisionAction,
   QueryResult,
 } from "../vision-agent/determineNextAction";
+import errorChecker from "../errorChecker";
 
 const formattedActions = availableActions
   .map((action, i) => {
@@ -99,23 +100,19 @@ export async function determineNextAction(
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      // TODO: need to verify the new API error format
-      console.error("determineNextAction error:");
-      console.error(error);
-      if (error.message.includes("server error")) {
-        // Problem with the OpenAI API, try again
-        if (notifyError) {
-          notifyError(error);
-        }
+      if (error instanceof Error) {
+        errorChecker(error, notifyError);
       } else {
-        // Another error, give up
-        throw new Error(error);
+        console.error("Unexpected determineNextAction error:");
+        console.error(error);
       }
     }
   }
-  throw new Error(
-    `Failed to complete query after ${maxAttempts} attempts. Please try again later.`,
-  );
+  const errMsg = `Failed to complete query after ${maxAttempts} attempts. Please try again later.`;
+  if (notifyError) {
+    notifyError(errMsg);
+  }
+  throw new Error(errMsg);
 }
 
 export function formatPrompt(
