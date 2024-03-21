@@ -4,6 +4,7 @@ import {
   VISIBLE_TEXT_ATTRIBUTE_NAME,
 } from "../../constants";
 import { sleep } from "../utils";
+import { type ToolOperation } from "../vision-agent/tools";
 
 function getSelector(label: string): string {
   return `[${WEB_WAND_LABEL_ATTRIBUTE_NAME}="${label}"]`;
@@ -42,9 +43,9 @@ export type ActionWithSelector = {
 export type Action = ActionWithLabel | ActionWithElementId | ActionWithSelector;
 
 // Type guards
-function isActionWithLabel(action: Action): action is ActionWithLabel {
-  return "label" in action.args;
-}
+// function isActionWithLabel(action: Action): action is ActionWithLabel {
+//   return "label" in action.args;
+// }
 
 function isActionWithElementId(action: Action): action is ActionWithElementId {
   return "elementId" in action.args;
@@ -148,8 +149,8 @@ async function setValueWithLabel(
   });
 }
 
-async function scroll(domActions: DomActions, action: Action) {
-  switch (action.args.value) {
+async function scroll(domActions: DomActions, value: string) {
+  switch (value) {
     case "up":
       await domActions.scrollUp();
       break;
@@ -163,7 +164,7 @@ async function scroll(domActions: DomActions, action: Action) {
       await domActions.scrollToBottom();
       break;
     default:
-      console.error("Invalid scroll value", action.args.value);
+      console.error("Invalid scroll value", value);
   }
 }
 
@@ -239,6 +240,7 @@ export async function performActionWithLabel(
   }
 }
 
+// TODO: unify the action handling
 export default async function performAction(tabId: number, action: Action) {
   console.log("performAction", tabId, action);
   const domActions = new DomActions(tabId);
@@ -247,7 +249,7 @@ export default async function performAction(tabId: number, action: Action) {
   // Actions tied to specific elements are delegated based on their arg type.
   // TODO: find a way to ensure all actions are handled properly
   if (action.name === "scroll") {
-    await scroll(domActions, action);
+    await scroll(domActions, action.args.value ?? "down");
   } else if (action.name === "wait") {
     await sleep(3000);
   } else if (action.name === "finish") {
@@ -256,9 +258,47 @@ export default async function performAction(tabId: number, action: Action) {
     await performActionWithSelector(domActions, action);
   } else if (isActionWithElementId(action)) {
     await performActionWithElementId(domActions, action);
-  } else if (isActionWithLabel(action)) {
-    await performActionWithLabel(domActions, action);
   } else {
     console.error("Invalid action arguments", action);
+  }
+}
+
+export async function legacyPerformAction(
+  tabId: number,
+  action: ToolOperation,
+) {
+  const patchedAction: ActionWithElementId = {
+    // @ts-expect-error: temporary workaround
+    name: action.name,
+    args: {
+      elementId: action.args && "label" in action.args ? action.args.label : "",
+      ...action.args,
+    },
+  };
+  return await performAction(tabId, patchedAction);
+}
+
+export async function operateTool(tabId: number, action: ToolOperation) {
+  console.log("operateTool", tabId, action);
+  const domActions = new DomActions(tabId);
+
+  switch (action.name) {
+    case "scroll":
+      await scroll(domActions, action.args.value);
+      break;
+    case "wait":
+      await sleep(3000);
+      break;
+    case "finish":
+      console.log("Action finished successfully.");
+      break;
+    case "click":
+      await performActionWithLabel(domActions, action);
+      break;
+    case "setValue":
+      await performActionWithLabel(domActions, action);
+      break;
+    default:
+      console.error("Invalid action name", action);
   }
 }

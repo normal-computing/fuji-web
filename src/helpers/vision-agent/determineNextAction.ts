@@ -1,57 +1,62 @@
 import { type LabelData } from "@pages/content/drawLabels";
 import OpenAI from "openai";
 import { useAppState } from "../../state/store";
-import { availableActionsVision } from "../availableActions";
-import { ParsedResponseSuccess } from "../parseResponse";
+import {
+  allToolsDescriptions,
+  toolSchemaUnion,
+  type ToolOperation,
+} from "./tools";
 import { type Knowledge } from "../knowledge";
-
-const formattedActionsVision = availableActionsVision
-  .map((action, i) => {
-    const args = action.args
-      .map((arg) => `${arg.name}: ${arg.type}`)
-      .join(", ");
-    return `${i + 1}. ${action.name}(${args}): ${action.description}`;
-  })
-  .join("\n");
 
 const visionSystemMessage = `
 You are a browser automation assistant.
 
 You can use the following tools:
 
-${formattedActionsVision}
+${allToolsDescriptions}
 
 You will be given a task to perform, and an image. The image will contain two parts: on the left is a clean screenshot of the current page, and on the right is the same screenshot with interactive elements annotated with corresponding label.
 You will also be given previous actions that you have taken. You may retry a failed action up to one time.
 You will also be given additional information of annotations.
 
-This is an example of an action:
+This is an example of expected response from you:
 
 {
-  thought: "I am clicking the add to cart button",
-  action: "click('12')"
+  "thought": "I am clicking the add to cart button",
+  "action": {
+    "name": "click",
+    "args": {
+      "label": "123"
+    }
+  }
 }
 
-Your response must always be in JSON format and must include "thought" and "action".
-When finish, use "finish()" in "action" and include a brief summary of the task in "thought"; if user is seeking an answer, also include the answer in "thought".
+Your response must always be in JSON format and must include string "thought" and object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
+When finish, use the "finish" action and include a brief summary of the task in "thought"; if user is seeking an answer, also include the answer in "thought".
 `;
 
-export type NextAction = {
+export type QueryResult = {
   usage: OpenAI.CompletionUsage | undefined;
   prompt: string;
-  response: string;
+  rawResponse: string;
+  action: Action;
 } | null;
+
+export type Action = {
+  thought: string;
+  operation: ToolOperation;
+};
 
 export async function determineNextActionWithVision(
   taskInstructions: string,
   knowledge: Knowledge,
-  previousActions: ParsedResponseSuccess[],
+  previousActions: Action[],
   screenshotData: string,
   labelData: LabelData[],
   viewportPercentage: number,
   maxAttempts = 3,
   notifyError?: (error: string) => void,
-): Promise<NextAction> {
+): Promise<QueryResult> {
   const key = useAppState.getState().settings.openAIKey;
   if (!key) {
     notifyError?.("No OpenAI key found");
@@ -81,6 +86,7 @@ ${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
     try {
       const completion = await openai.chat.completions.create({
         model: model,
+        // does not work for vision model yet
         // response_format: {
         //   type: 'json_object',
         // },
@@ -110,10 +116,21 @@ ${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
         temperature: 0,
       });
 
+      const rawResponse = completion.choices[0].message?.content?.trim() ?? "";
+      let action = null;
+      try {
+        action = parseResponse(rawResponse);
+      } catch (e) {
+        console.error(e);
+        // TODO: try use LLM to fix format when response is not valid
+        throw new Error(`Incorrectly formatted response: ${e}`);
+      }
+
       return {
         usage: completion.usage,
         prompt,
-        response: completion.choices[0].message?.content?.trim() || "",
+        rawResponse,
+        action,
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -138,13 +155,18 @@ ${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
 
 export function formatPrompt(
   taskInstructions: string,
-  previousActions: ParsedResponseSuccess[],
+  previousActions: Action[],
 ) {
   let previousActionsString = "";
 
   if (previousActions.length > 0) {
     const serializedActions = previousActions
-      .map((action) => `Thought: ${action.thought}\nAction:${action.action}`)
+      .map(
+        (action) =>
+          `Thought: ${action.thought}\nAction:${JSON.stringify(
+            action.operation,
+          )}`,
+      )
       .join("\n\n");
     previousActionsString = `You have already taken the following actions: \n${serializedActions}\n\n`;
   }
@@ -164,4 +186,43 @@ function tomlLikeStringifyObject(obj: Record<string, unknown>): string {
   return Object.entries(obj)
     .map(([key, value]) => `${key} = ${JSON.stringify(value)}`)
     .join("\n");
+}
+
+// sometimes AI replies with a JSON wrapped in triple backticks
+export function extractJsonFromMarkdown(input: string): string[] {
+  // Create a regular expression to capture code wrapped in triple backticks
+  const regex = /```(json)?\s*([\s\S]*?)\s*```/g;
+
+  const results = [];
+  let match;
+  while ((match = regex.exec(input)) !== null) {
+    // If 'json' is specified, add the content to the results array
+    if (match[1] === "json") {
+      results.push(match[2]);
+    } else if (match[2].startsWith("{")) {
+      results.push(match[2]);
+    }
+  }
+  return results;
+}
+
+export function parseResponse(rawResponse: string): Action {
+  let response;
+  try {
+    response = JSON.parse(rawResponse);
+  } catch (_e) {
+    try {
+      response = JSON.parse(extractJsonFromMarkdown(rawResponse)[0]);
+    } catch (_e) {
+      throw new Error("Response does not contain valid JSON.");
+    }
+  }
+  if (response.thought == null || response.action == null) {
+    throw new Error("Invalid response: Thought and Action are required");
+  }
+  const operation = toolSchemaUnion.parse(response.action);
+  return {
+    thought: response.thought,
+    operation,
+  };
 }

@@ -1,7 +1,11 @@
 import OpenAI from "openai";
 import { useAppState } from "../../state/store";
-import { availableActions } from "../availableActions";
-import { ParsedResponseSuccess } from "../parseResponse";
+import { availableActions } from "./availableActions";
+import { ParsedResponseSuccess, parseResponse } from "./parseResponse";
+import {
+  Action as VisionAction,
+  QueryResult,
+} from "../vision-agent/determineNextAction";
 
 const formattedActions = availableActions
   .map((action, i) => {
@@ -40,19 +44,13 @@ Your response must always be in JSON format and must include "thought" and "acti
 When finish, use "finish()" in "action" and include a brief summary of the task in "thought".
 `;
 
-export type NextAction = {
-  usage: OpenAI.CompletionUsage | undefined;
-  prompt: string;
-  response: string;
-} | null;
-
 export async function determineNextAction(
   taskInstructions: string,
-  previousActions: ParsedResponseSuccess[],
+  previousActions: VisionAction[],
   simplifiedDOM: string,
   maxAttempts = 3,
   notifyError?: (error: string) => void,
-): Promise<NextAction> {
+): Promise<QueryResult> {
   const key = useAppState.getState().settings.openAIKey;
   if (!key) {
     notifyError?.("No OpenAI key found");
@@ -84,11 +82,21 @@ export async function determineNextAction(
         temperature: 0,
       });
 
-      return {
-        usage: completion.usage,
-        prompt,
-        response: completion.choices[0].message?.content?.trim() || "",
-      };
+      const rawResponse = completion.choices[0].message?.content?.trim() || "";
+      try {
+        const parsed = await parseResponse(rawResponse, false);
+        if ("error" in parsed) {
+          throw new Error(parsed.error);
+        }
+        return {
+          usage: completion.usage,
+          prompt,
+          rawResponse,
+          action: visionActionAdapter(parsed),
+        };
+      } catch (e) {
+        console.error("Failed to parse response", e);
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // TODO: need to verify the new API error format
@@ -112,14 +120,19 @@ export async function determineNextAction(
 
 export function formatPrompt(
   taskInstructions: string,
-  previousActions: ParsedResponseSuccess[],
+  previousActions: VisionAction[],
   pageContents?: string,
 ) {
   let previousActionsString = "";
 
   if (previousActions.length > 0) {
     const serializedActions = previousActions
-      .map((action) => `Thought: ${action.thought}\nAction:${action.action}`)
+      .map(
+        (action) =>
+          `Thought: ${action.thought}\nAction:${JSON.stringify(
+            action.operation,
+          )}`,
+      )
       .join("\n\n");
     previousActionsString = `You have already taken the following actions: \n${serializedActions}\n\n`;
   }
@@ -138,4 +151,18 @@ Current page contents:
 ${pageContents}`;
   }
   return result;
+}
+
+function visionActionAdapter(action: ParsedResponseSuccess): VisionAction {
+  const args = { ...action.parsedAction.args, label: "" };
+  if ("elementId" in args) {
+    args.label = args.elementId;
+  }
+  return {
+    thought: action.thought,
+    operation: {
+      name: action.parsedAction.name,
+      args,
+    } as VisionAction["operation"],
+  };
 }
