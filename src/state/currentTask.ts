@@ -14,7 +14,7 @@ import { determineNextAction } from "../helpers/dom-agent/determineNextAction";
 import { callRPCWithTab } from "../helpers/rpc/pageRPC";
 import { getSimplifiedDom } from "../helpers/simplifyDom";
 import { sleep, truthyFilter } from "../helpers/utils";
-import { operateTool, legacyPerformAction } from "../helpers/rpc/performAction";
+import { operateTool, operateToolLegacy } from "../helpers/rpc/performAction";
 import { findActiveTab } from "../helpers/browserUtils";
 import { MyStateCreator, useAppState } from "./store";
 import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
@@ -195,7 +195,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           if (isVisionModel) {
             await operateTool(tabId, query.action.operation);
           } else {
-            await legacyPerformAction(tabId, query.action.operation);
+            await operateToolLegacy(tabId, query.action.operation);
           }
 
           if (wasStopped()) break;

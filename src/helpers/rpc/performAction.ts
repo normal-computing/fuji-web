@@ -14,48 +14,7 @@ function getFallbackSelector(selectorName: string): string {
   return `[${VISIBLE_TEXT_ATTRIBUTE_NAME}="${selectorName}"]`;
 }
 
-export type ActionName = "click" | "setValue" | "scroll" | "finish" | "wait";
-
-export type ActionWithLabel = {
-  name: ActionName;
-  args: {
-    label: string;
-    value?: string;
-  };
-};
-
-export type ActionWithElementId = {
-  name: ActionName;
-  args: {
-    elementId: string;
-    value?: string;
-  };
-};
-
-export type ActionWithSelector = {
-  name: ActionName;
-  args: {
-    selector: string;
-    value?: string;
-  };
-};
-
-export type Action = ActionWithLabel | ActionWithElementId | ActionWithSelector;
-
-// Type guards
-// function isActionWithLabel(action: Action): action is ActionWithLabel {
-//   return "label" in action.args;
-// }
-
-function isActionWithElementId(action: Action): action is ActionWithElementId {
-  return "elementId" in action.args;
-}
-
-function isActionWithSelector(action: Action): action is ActionWithSelector {
-  return "selector" in action.args;
-}
-
-async function clickWithSelector(
+export async function clickWithSelector(
   domActions: DomActions,
   selector: string,
 ): Promise<boolean> {
@@ -65,7 +24,7 @@ async function clickWithSelector(
   });
 }
 
-async function clickWithElementId(
+export async function clickWithElementId(
   domActions: DomActions,
   elementId: string,
 ): Promise<boolean> {
@@ -75,7 +34,7 @@ async function clickWithElementId(
   });
 }
 
-async function clickWithLabel(
+export async function clickWithLabel(
   domActions: DomActions,
   label: string,
 ): Promise<boolean> {
@@ -98,7 +57,7 @@ async function clickWithLabel(
   });
 }
 
-async function setValueWithSelector(
+export async function setValueWithSelector(
   domActions: DomActions,
   selector: string,
   value: string,
@@ -110,7 +69,7 @@ async function setValueWithSelector(
   });
 }
 
-async function setValueWithElementId(
+export async function setValueWithElementId(
   domActions: DomActions,
   elementId: string,
   value: string,
@@ -122,7 +81,7 @@ async function setValueWithElementId(
   });
 }
 
-async function setValueWithLabel(
+export async function setValueWithLabel(
   domActions: DomActions,
   label: string,
   value: string,
@@ -149,7 +108,7 @@ async function setValueWithLabel(
   });
 }
 
-async function scroll(domActions: DomActions, value: string) {
+export async function scroll(domActions: DomActions, value: string) {
   switch (value) {
     case "up":
       await domActions.scrollUp();
@@ -168,138 +127,64 @@ async function scroll(domActions: DomActions, value: string) {
   }
 }
 
-export async function performActionWithSelector(
-  domActions: DomActions,
-  action: ActionWithSelector,
-) {
-  const selectorName = action.args.selector;
-  if (action.name === "click") {
-    const success = await clickWithSelector(domActions, selectorName);
-    if (!success) {
-      console.error("Unable to find element with selector: ", selectorName);
+function createOperateTool(
+  click: (domActions: DomActions, label: string) => Promise<boolean>,
+  setValue: (
+    domActions: DomActions,
+    label: string,
+    value: string,
+  ) => Promise<boolean>,
+): (tabId: number, action: ToolOperation) => Promise<void> {
+  return async (tabId: number, action: ToolOperation) => {
+    const domActions = new DomActions(tabId);
+    console.log("operateTool", action);
+    switch (action.name) {
+      case "scroll":
+        await scroll(domActions, action.args.value);
+        break;
+      case "wait":
+        await sleep(3000);
+        break;
+      case "finish":
+        console.log("Action finished successfully.");
+        break;
+      case "fail":
+        console.warn("Action failed.");
+        break;
+      case "click": {
+        const success = await click(domActions, action.args.label);
+        if (!success) {
+          console.error(
+            "Unable to find element with label: ",
+            action.args.label,
+          );
+        }
+        break;
+      }
+      case "setValue": {
+        const success = await setValue(
+          domActions,
+          action.args.label,
+          action.args.value || "",
+        );
+        if (!success) {
+          console.error(
+            "Unable to find element with label: ",
+            action.args.label,
+          );
+        }
+        break;
+      }
+      default:
+        console.error("Invalid action name", action);
     }
-  } else if (action.name === "setValue") {
-    const success = await setValueWithSelector(
-      domActions,
-      selectorName,
-      action.args.value || "",
-    );
-    if (!success) {
-      console.error("Unable to find element with selector: ", selectorName);
-    }
-  } else {
-    console.log("other actions");
-  }
-}
-
-export async function performActionWithElementId(
-  domActions: DomActions,
-  action: ActionWithElementId,
-) {
-  const elementId = action.args.elementId;
-  if (action.name === "click") {
-    const success = await clickWithElementId(domActions, elementId);
-    if (!success) {
-      console.error("Unable to find element with elementId: ", elementId);
-    }
-  } else if (action.name === "setValue") {
-    const success = await setValueWithElementId(
-      domActions,
-      elementId,
-      action.args.value || "",
-    );
-    if (!success) {
-      console.error("Unable to find element with elementId: ", elementId);
-    }
-  } else {
-    console.log("other actions");
-  }
-}
-
-export async function performActionWithLabel(
-  domActions: DomActions,
-  action: ActionWithLabel,
-) {
-  const label = action.args.label;
-  if (action.name === "click") {
-    const success = await clickWithLabel(domActions, label);
-    if (!success) {
-      console.error("Unable to find element with label: ", label);
-    }
-  } else if (action.name === "setValue") {
-    const success = await setValueWithLabel(
-      domActions,
-      label,
-      action.args.value || "",
-    );
-    if (!success) {
-      console.error("Unable to find element with label: ", label);
-    }
-  } else {
-    console.log("other actions");
-  }
-}
-
-// TODO: unify the action handling
-export default async function performAction(tabId: number, action: Action) {
-  console.log("performAction", tabId, action);
-  const domActions = new DomActions(tabId);
-
-  // Handle general actions directly.
-  // Actions tied to specific elements are delegated based on their arg type.
-  // TODO: find a way to ensure all actions are handled properly
-  if (action.name === "scroll") {
-    await scroll(domActions, action.args.value ?? "down");
-  } else if (action.name === "wait") {
-    await sleep(3000);
-  } else if (action.name === "finish") {
-    console.log("Action finished successfully.");
-  } else if (isActionWithSelector(action)) {
-    await performActionWithSelector(domActions, action);
-  } else if (isActionWithElementId(action)) {
-    await performActionWithElementId(domActions, action);
-  } else {
-    console.error("Invalid action arguments", action);
-  }
-}
-
-// TODO: refactor dom agent so we don't need this
-export async function legacyPerformAction(
-  tabId: number,
-  action: ToolOperation,
-) {
-  const patchedAction: ActionWithElementId = {
-    // @ts-expect-error: temporary workaround
-    name: action.name,
-    args: {
-      elementId: action.args && "label" in action.args ? action.args.label : "",
-      ...action.args,
-    },
   };
-  return await performAction(tabId, patchedAction);
 }
 
-export async function operateTool(tabId: number, action: ToolOperation) {
-  console.log("operateTool", tabId, action);
-  const domActions = new DomActions(tabId);
+export const operateTool = createOperateTool(clickWithLabel, setValueWithLabel);
 
-  switch (action.name) {
-    case "scroll":
-      await scroll(domActions, action.args.value);
-      break;
-    case "wait":
-      await sleep(3000);
-      break;
-    case "finish":
-      console.log("Action finished successfully.");
-      break;
-    case "click":
-      await performActionWithLabel(domActions, action);
-      break;
-    case "setValue":
-      await performActionWithLabel(domActions, action);
-      break;
-    default:
-      console.error("Invalid action name", action);
-  }
-}
+// DOM agent still use this (using elementId instead of label)
+export const operateToolLegacy = createOperateTool(
+  clickWithElementId,
+  setValueWithElementId,
+);

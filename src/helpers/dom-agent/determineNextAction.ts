@@ -2,10 +2,7 @@ import OpenAI from "openai";
 import { useAppState } from "../../state/store";
 import { availableActions } from "./availableActions";
 import { ParsedResponseSuccess, parseResponse } from "./parseResponse";
-import {
-  Action as VisionAction,
-  QueryResult,
-} from "../vision-agent/determineNextAction";
+import { Action, QueryResult } from "../vision-agent/determineNextAction";
 import errorChecker from "../errorChecker";
 
 const formattedActions = availableActions
@@ -47,7 +44,7 @@ When finish, use "finish()" in "action" and include a brief summary of the task 
 
 export async function determineNextAction(
   taskInstructions: string,
-  previousActions: VisionAction[],
+  previousActions: Action[],
   simplifiedDOM: string,
   maxAttempts = 3,
   notifyError?: (error: string) => void,
@@ -121,7 +118,7 @@ export async function determineNextAction(
 
 export function formatPrompt(
   taskInstructions: string,
-  previousActions: VisionAction[],
+  previousActions: Action[],
   pageContents?: string,
 ) {
   let previousActionsString = "";
@@ -154,7 +151,9 @@ ${pageContents}`;
   return result;
 }
 
-function visionActionAdapter(action: ParsedResponseSuccess): VisionAction {
+// make action compatible with vision agent
+// TODO: refactor dom agent so we don't need this
+function visionActionAdapter(action: ParsedResponseSuccess): Action {
   const args = { ...action.parsedAction.args, label: "" };
   if ("elementId" in args) {
     args.label = args.elementId;
@@ -164,6 +163,6 @@ function visionActionAdapter(action: ParsedResponseSuccess): VisionAction {
     operation: {
       name: action.parsedAction.name,
       args,
-    } as VisionAction["operation"],
+    } as Action["operation"],
   };
 }
