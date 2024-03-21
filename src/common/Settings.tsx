@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Alert,
   AlertIcon,
@@ -17,17 +18,18 @@ import {
   Spacer,
   useToast,
 } from "@chakra-ui/react";
-import { ArrowBackIcon, RepeatIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, RepeatIcon, EditIcon } from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
-import React from "react";
 import ModelDropdown from "./ModelDropdown";
 import { callRPC } from "../helpers/rpc/pageRPC";
+import CustomKnowledgeBase from "./CustomKnowledgeBase";
 
-interface SettingsProps {
+type SettingsProps = {
   setInSettingsView: React.Dispatch<React.SetStateAction<boolean>>;
-}
+};
 
 const Settings = ({ setInSettingsView }: SettingsProps) => {
+  const [showCKB, setShowCKB] = useState(false);
   const state = useAppState((state) => ({
     selectedModel: state.settings.selectedModel,
     updateSettings: state.settings.actions.update,
@@ -41,6 +43,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
   const isVisionModel = state.selectedModel === "gpt-4-vision-preview";
 
   const closeSetting = () => setInSettingsView(false);
+  const toggleCKB = () => setShowCKB(!showCKB);
 
   async function checkMicrophonePermission(): Promise<PermissionState> {
     if (!navigator.permissions) {
@@ -87,34 +90,47 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
           onClick={closeSetting}
           aria-label="close settings"
         />
-        <Heading as="h3" size="lg">
+        <Heading as="h4" size="md">
           Settings
         </Heading>
       </HStack>
-      <FormControl
-        as={VStack}
-        divider={<StackDivider borderColor="gray.200" />}
-        spacing={4}
-        align="stretch"
-      >
-        <Flex alignItems="center">
-          <Box>
-            <FormLabel htmlFor="reset-key" mb="0">
-              OpenAI API Key
+      {showCKB ? (
+        <CustomKnowledgeBase />
+      ) : (
+        <FormControl
+          as={VStack}
+          divider={<StackDivider borderColor="gray.200" />}
+          spacing={4}
+          align="stretch"
+        >
+          <Flex alignItems="center">
+            <Box>
+              <FormLabel htmlFor="reset-key" mb="0">
+                OpenAI API Key
+              </FormLabel>
+              <FormHelperText>
+                The API key is stored locally on your device
+              </FormHelperText>
+            </Box>
+            <Spacer />
+            <Button
+              id="reset-key"
+              onClick={() => state.updateSettings({ openAIKey: "" })}
+              rightIcon={<RepeatIcon />}
+            >
+              Reset
+            </Button>
+          </Flex>
+
+          <Flex alignItems="center">
+            <FormLabel htmlFor="model-select" mb="0">
+              Select Model
             </FormLabel>
-            <FormHelperText>
-              The API key is stored locally on your device
-            </FormHelperText>
-          </Box>
-          <Spacer />
-          <Button
-            id="reset-key"
-            onClick={() => state.updateSettings({ openAIKey: "" })}
-            rightIcon={<RepeatIcon />}
-          >
-            Reset
-          </Button>
-        </Flex>
+            <Spacer />
+            <Box w="50%">
+              <ModelDropdown />
+            </Box>
+          </Flex>
 
         <Flex alignItems="center">
           <FormLabel htmlFor="model-select" mb="0">
@@ -134,7 +150,6 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             </AlertDescription>
           </Alert>
         )}
-
         <Flex alignItems="center">
           <FormLabel htmlFor="voice-mode" mb="0">
             Turn On Voice Mode
@@ -150,7 +165,21 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             }}
           />
         </Flex>
-      </FormControl>
+          <Flex alignItems="center">
+            <FormLabel htmlFor="custom-knowledge" mb="0">
+              Custom Knowledge Base
+            </FormLabel>
+            <Spacer />
+            <Button
+              id="custom-knowledge"
+              rightIcon={<EditIcon />}
+              onClick={toggleCKB}
+            >
+              Edit
+            </Button>
+          </Flex>
+        </FormControl>
+      )}
     </>
   );
 };
