@@ -53,12 +53,7 @@ const CollapsibleComponent = (props: {
 );
 
 const TaskHistoryItem = ({ index, entry }: TaskHistoryItemProps) => {
-  let itemTitle = "";
-  if ("error" in entry.action) {
-    itemTitle = `Error: ${entry.action.error}`;
-  } else if (entry.action?.thought) {
-    itemTitle = entry.action.thought;
-  }
+  const itemTitle = entry.action.thought;
 
   const colors: {
     text: ColorProps["textColor"];
@@ -67,13 +62,10 @@ const TaskHistoryItem = ({ index, entry }: TaskHistoryItemProps) => {
     text: undefined,
     bg: undefined,
   };
-  if ("error" in entry.action || entry.action.operation.name === "fail") {
+  if (entry.action.operation.name === "fail") {
     colors.text = "red.800";
     colors.bg = "red.100";
-  } else if (
-    "parsedAction" in entry.action &&
-    entry.action.operation.name === "finish"
-  ) {
+  } else if (entry.action.operation.name === "finish") {
     colors.text = "green.800";
     colors.bg = "green.100";
   }
