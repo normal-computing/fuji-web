@@ -19,7 +19,7 @@ import {
   operateToolWithSimpliedDom,
 } from "../helpers/rpc/performAction";
 import { findActiveTab } from "../helpers/browserUtils";
-import { MyStateCreator, useAppState } from "./store";
+import { MyStateCreator } from "./store";
 import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
 import { voiceControl } from "../helpers/voiceControl";
 import { fetchKnowledge } from "../helpers/knowledge";
@@ -69,7 +69,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
   actionStatus: "idle",
   actions: {
     runTask: async (onError) => {
-      const voiceMode = useAppState.getState().settings.voiceMode;
+      const voiceMode = get().settings.voiceMode;
 
       const wasStopped = () => get().currentTask.status !== "running";
       const setActionStatus = (status: CurrentTaskSlice["actionStatus"]) => {
@@ -118,8 +118,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           let query: QueryResult | null = null;
 
           const isVisionModel =
-            useAppState.getState().settings.selectedModel ===
-            "gpt-4-vision-preview";
+            get().settings.selectedModel === "gpt-4-vision-preview";
           const viewportPercentage = await callRPCWithTab(
             tabId,
             "getViewportPercentage",
