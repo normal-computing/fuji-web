@@ -69,15 +69,19 @@ const DomainKnowledge = ({ domainRules }: DomainKnowledgeProps) => {
 const NewKnowledgeForm = () => {
   const [formState, setFormState] = useState({
     newDomain: "",
-    newRegexes: "",
-    newRegexType: "all",
-    customRegex: "",
-    newNote: "",
-    newSelector: "",
-    newAttribute: "",
-    allowInvisible: false,
-    allowCovered: false,
-    allowAriaHidden: false,
+    rules: [
+      {
+        newRegexes: "",
+        newRegexType: "all",
+        customRegex: "",
+        newNote: "",
+        newSelector: "",
+        newAttribute: "",
+        allowInvisible: false,
+        allowCovered: false,
+        allowAriaHidden: false,
+      },
+    ],
   });
   const [defaultDomain, setDefaultDomain] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -85,33 +89,32 @@ const NewKnowledgeForm = () => {
   const domainRules = useAppState((state) => state.settings.domainRules);
   const toast = useToast();
 
+  const addNewRule = () => {
+    setFormState((prevState) => ({
+      ...prevState,
+      rules: [
+        ...prevState.rules,
+        {
+          // Add a new rule with default values
+          newRegexes: "",
+          newRegexType: "all",
+          customRegex: "",
+          newNote: "",
+          newSelector: "",
+          newAttribute: "",
+          allowInvisible: false,
+          allowCovered: false,
+          allowAriaHidden: false,
+        },
+      ],
+    }));
+  };
+
   const addDomainRules = () => {
-    const {
-      newDomain,
-      newNote,
-      newRegexType,
-      customRegex,
-      newSelector,
-      newAttribute,
-      allowInvisible,
-      allowCovered,
-      allowAriaHidden,
-    } = formState;
-    let regexes: string[];
-    switch (newRegexType) {
-      case "all":
-        regexes = [".*"];
-        break;
-      case "one":
-        regexes = [`^https?://${newDomain.replace(/\./g, "\\.")}$`];
-        break;
-      case "custom":
-        regexes = [customRegex];
-        break;
-      default:
-        regexes = [];
-    }
-    if (!newDomain) {
+    const { newDomain, rules } = formState;
+    const domain = newDomain != "" ? newDomain : defaultDomain;
+
+    if (!domain) {
       toast({
         title: "Domain is required",
         status: "error",
@@ -120,48 +123,91 @@ const NewKnowledgeForm = () => {
       });
       return;
     }
-    const newRule: Rule = {
-      regexes,
-      knowledge: {
-        notes: [newNote],
-        annotationRules: [
-          {
-            selector: newSelector,
-            useAttributeAsName: newAttribute,
-            allowInvisible,
-            allowCovered,
-            allowAriaHidden,
-          },
-        ],
-      },
+
+    // Map each rule in the formState to a Rule object
+    const newRules = rules.map((rule) => {
+      let regexes: string[];
+      switch (rule.newRegexType) {
+        case "all":
+          regexes = [".*"];
+          break;
+          7;
+        case "one":
+          regexes = [`^https?://${domain.replace(/\./g, "\\.")}$`];
+          break;
+        case "custom":
+          regexes = [rule.customRegex];
+          break;
+        default:
+          regexes = [];
+      }
+
+      return {
+        regexes,
+        knowledge: {
+          notes: [rule.newNote],
+          annotationRules: [
+            {
+              selector: rule.newSelector,
+              useAttributeAsName: rule.newAttribute,
+              allowInvisible: rule.allowInvisible,
+              allowCovered: rule.allowCovered,
+              allowAriaHidden: rule.allowAriaHidden,
+            },
+          ],
+        },
+      };
+    });
+
+    // Create a new DomainRules object with the new rules
+    const newDomainRules = {
+      domain,
+      rules: newRules,
     };
-    const newDomainRules: DomainRules = {
-      domain: newDomain,
-      rules: [newRule],
-    };
+
+    // Update the settings with the new domain rules
     updateSettings({ domainRules: [...domainRules, newDomainRules] });
 
-    // Reset form
+    // Reset form to initial state or close the form/modal
     setFormState({
       newDomain: defaultDomain,
-      newNote: "",
-      newRegexes: "",
-      newRegexType: "Any URL on this domain",
-      customRegex: "",
-      newSelector: "",
-      newAttribute: "",
-      allowInvisible: false,
-      allowCovered: false,
-      allowAriaHidden: false,
+      rules: [
+        {
+          // Reset to initial rule structure
+          newRegexes: "",
+          newRegexType: "all",
+          customRegex: "",
+          newNote: "",
+          newSelector: "",
+          newAttribute: "",
+          allowInvisible: false,
+          allowCovered: false,
+          allowAriaHidden: false,
+        },
+      ],
     });
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormState((prevState) => ({
-      ...prevState,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    if (name.startsWith("rules[")) {
+      const index = parseInt(name.match(/\[(\d+)\]/)[1], 10);
+      const propName = name.split("].")[1];
+      const updatedRules = [...formState.rules];
+      updatedRules[index] = {
+        ...updatedRules[index],
+        [propName]: type === "checkbox" ? checked : value,
+      };
+      setFormState((prevState) => ({
+        ...prevState,
+        rules: updatedRules,
+      }));
+    } else {
+      setFormState((prevState) => ({
+        ...prevState,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }
   };
 
   const handleOpenNewKnowledgeForm = async () => {
@@ -197,105 +243,108 @@ const NewKnowledgeForm = () => {
             <Heading mt={4} as="h4" size="md">
               Rules
             </Heading>
-            <Box borderWidth="1px" borderRadius="lg">
-              <FormControl isRequired mt={4}>
-                <FormLabel>Regex Type</FormLabel>
-                <Select
-                  name="newRegexType"
-                  value={formState.newRegexType}
-                  onChange={handleChange}
-                >
-                  <option value="all">Any URL on this domain</option>
-                  <option value="one">Only this URL</option>
-                  <option value="custom">Custom regex</option>
-                </Select>
-                {formState.newRegexType === "custom" && (
+            {formState.rules.map((rule, index) => (
+              <Box key={index} borderWidth="1px" borderRadius="lg" p={4} mt={4}>
+                <FormControl isRequired mt={4}>
+                  <FormLabel>Regexes</FormLabel>
+                  <Select
+                    name={`rules[${index}].newRegexType`}
+                    value={rule.newRegexes}
+                    onChange={handleChange}
+                  >
+                    <option value="all">Any URL on this domain</option>
+                    <option value="one">Only this URL</option>
+                    <option value="custom">Custom regex</option>
+                  </Select>
+                  {rule.newRegexes === "custom" && (
+                    <Input
+                      name="customRegex"
+                      value={rule.customRegex}
+                      onChange={handleChange}
+                      placeholder="Enter custom regex"
+                    />
+                  )}
+                </FormControl>
+
+                <Heading mt={4} as="h5" size="sm">
+                  Knowledge
+                </Heading>
+                <FormControl>
+                  <FormLabel>Notes</FormLabel>
+                  <Textarea
+                    name={`rules[${index}].newNote`}
+                    resize="none"
+                    value={rule.newNote}
+                    onChange={handleChange}
+                    placeholder="Enter notes"
+                  />
+                  <FormHelperText>
+                    freeform tips about using the website
+                  </FormHelperText>
+                </FormControl>
+
+                <Heading mt={4} as="h6" size="xs">
+                  annotationRules
+                </Heading>
+                <FormControl>
+                  <FormLabel>selector</FormLabel>
                   <Input
-                    name="customRegex"
-                    value={formState.customRegex}
+                    name={`rules[${index}].newSelector`}
+                    resize="none"
+                    value={rule.newSelector}
                     onChange={handleChange}
-                    placeholder="Enter custom regex"
+                    placeholder="Enter selector"
                   />
-                )}
-              </FormControl>
-
-              <Heading mt={4} as="h5" size="sm">
-                Knowledge
-              </Heading>
-              <FormControl>
-                <FormLabel>Notes</FormLabel>
-                <Textarea
-                  name="newNote"
-                  resize="none"
-                  value={formState.newNote}
-                  onChange={handleChange}
-                  placeholder="Enter notes"
-                />
-                <FormHelperText>
-                  freeform tips about using the website
-                </FormHelperText>
-              </FormControl>
-
-              <Heading mt={4} as="h6" size="xs">
-                annotationRules
-              </Heading>
-              <FormControl>
-                <FormLabel>selector</FormLabel>
-                <Input
-                  name="newSelector"
-                  resize="none"
-                  value={formState.newSelector}
-                  onChange={handleChange}
-                  placeholder="Enter selector"
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel>useAttributeAsName</FormLabel>
-                <Input
-                  name="newAttribute"
-                  resize="none"
-                  value={formState.newAttribute}
-                  onChange={handleChange}
-                  placeholder="Enter attribute"
-                />
-              </FormControl>
-              <FormControl>
-                <Flex alignItems="center">
-                  <Tooltip label="Allow invisible">
-                    <FormLabel>allowInvisible</FormLabel>
-                  </Tooltip>
-                  <Switch
-                    name="allowInvisible"
-                    isChecked={formState.allowInvisible}
+                </FormControl>
+                <FormControl>
+                  <FormLabel>useAttributeAsName</FormLabel>
+                  <Input
+                    name={`rules[${index}].newAttribute`}
+                    resize="none"
+                    value={rule.newAttribute}
                     onChange={handleChange}
+                    placeholder="Enter attribute"
                   />
-                </Flex>
-              </FormControl>
-              <FormControl>
-                <Flex alignItems="center">
-                  <Tooltip label="Allow covered">
-                    <FormLabel>allowCovered</FormLabel>
-                  </Tooltip>
-                  <Switch
-                    name="allowCovered"
-                    isChecked={formState.allowCovered}
-                    onChange={handleChange}
-                  />
-                </Flex>
-              </FormControl>
-              <FormControl>
-                <Flex alignItems="center">
-                  <Tooltip label="Allow aria hidden">
-                    <FormLabel>allowAriaHidden</FormLabel>
-                  </Tooltip>
-                  <Switch
-                    name="allowAriaHidden"
-                    isChecked={formState.allowAriaHidden}
-                    onChange={handleChange}
-                  />
-                </Flex>
-              </FormControl>
-            </Box>
+                </FormControl>
+                <FormControl>
+                  <Flex alignItems="center">
+                    <Tooltip label="Allow invisible">
+                      <FormLabel>allowInvisible</FormLabel>
+                    </Tooltip>
+                    <Switch
+                      name={`rules[${index}].allowInvisible`}
+                      isChecked={rule.allowInvisible}
+                      onChange={handleChange}
+                    />
+                  </Flex>
+                </FormControl>
+                <FormControl>
+                  <Flex alignItems="center">
+                    <Tooltip label="Allow covered">
+                      <FormLabel>allowCovered</FormLabel>
+                    </Tooltip>
+                    <Switch
+                      name={`rules[${index}].allowCovered`}
+                      isChecked={rule.allowCovered}
+                      onChange={handleChange}
+                    />
+                  </Flex>
+                </FormControl>
+                <FormControl>
+                  <Flex alignItems="center">
+                    <Tooltip label="Allow aria hidden">
+                      <FormLabel>allowAriaHidden</FormLabel>
+                    </Tooltip>
+                    <Switch
+                      name={`rules[${index}].allowAriaHidden`}
+                      isChecked={rule.allowAriaHidden}
+                      onChange={handleChange}
+                    />
+                  </Flex>
+                </FormControl>
+              </Box>
+            ))}
+            <Button onClick={addNewRule}>Add Another Rule</Button>
           </ModalBody>
           <ModalFooter>
             <Button
