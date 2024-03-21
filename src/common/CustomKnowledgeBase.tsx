@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Switch,
   Button,
@@ -27,9 +27,11 @@ import {
   AccordionIcon,
   FormHelperText,
   Tooltip,
+  Select,
 } from "@chakra-ui/react";
 import { type DomainRules, type Rule } from "../helpers/knowledge/type";
 import { useAppState } from "../state/store";
+import { findActiveTab } from "../helpers/browserUtils";
 
 type DomainKnowledgeProps = {
   domainRules: DomainRules;
@@ -68,6 +70,8 @@ const NewKnowledgeForm = () => {
   const [formState, setFormState] = useState({
     newDomain: "",
     newRegexes: "",
+    newRegexType: "all",
+    customRegex: "",
     newNote: "",
     newSelector: "",
     newAttribute: "",
@@ -75,6 +79,7 @@ const NewKnowledgeForm = () => {
     allowCovered: false,
     allowAriaHidden: false,
   });
+  const [defaultDomain, setDefaultDomain] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const updateSettings = useAppState((state) => state.settings.actions.update);
   const domainRules = useAppState((state) => state.settings.domainRules);
@@ -84,14 +89,29 @@ const NewKnowledgeForm = () => {
     const {
       newDomain,
       newNote,
-      newRegexes,
+      newRegexType,
+      customRegex,
       newSelector,
       newAttribute,
       allowInvisible,
       allowCovered,
       allowAriaHidden,
     } = formState;
-    if (!newDomain || !newRegexes) {
+    let regexes: string[];
+    switch (newRegexType) {
+      case "all":
+        regexes = [".*"];
+        break;
+      case "one":
+        regexes = [`^https?://${newDomain.replace(/\./g, "\\.")}$`];
+        break;
+      case "custom":
+        regexes = [customRegex];
+        break;
+      default:
+        regexes = [];
+    }
+    if (!newDomain) {
       toast({
         title: "Domain is required",
         status: "error",
@@ -101,7 +121,7 @@ const NewKnowledgeForm = () => {
       return;
     }
     const newRule: Rule = {
-      regexes: [newRegexes],
+      regexes,
       knowledge: {
         notes: [newNote],
         annotationRules: [
@@ -123,9 +143,11 @@ const NewKnowledgeForm = () => {
 
     // Reset form
     setFormState({
-      newDomain: "",
+      newDomain: defaultDomain,
       newNote: "",
       newRegexes: "",
+      newRegexType: "Any URL on this domain",
+      customRegex: "",
       newSelector: "",
       newAttribute: "",
       allowInvisible: false,
@@ -142,9 +164,19 @@ const NewKnowledgeForm = () => {
     }));
   };
 
+  const handleOpenNewKnowledgeForm = async () => {
+    const tab = await findActiveTab();
+    if (tab && tab.url) {
+      const url = new URL(tab.url);
+      const domain = url.hostname.replace(/^www\./, "");
+      setDefaultDomain(domain);
+    }
+    onOpen();
+  };
+
   return (
     <>
-      <Button onClick={onOpen}>Add Domain Knowledge</Button>
+      <Button onClick={handleOpenNewKnowledgeForm}>Add Domain Knowledge</Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
@@ -155,7 +187,7 @@ const NewKnowledgeForm = () => {
               <FormLabel>Domain</FormLabel>
               <Input
                 name="newDomain"
-                value={formState.newDomain}
+                value={formState.newDomain || defaultDomain}
                 onChange={handleChange}
                 placeholder="Enter domain name"
               />
@@ -165,93 +197,105 @@ const NewKnowledgeForm = () => {
             <Heading mt={4} as="h4" size="md">
               Rules
             </Heading>
-            <FormControl isRequired>
-              <FormLabel>regexes</FormLabel>
-              <Input
-                name="newRegexes"
-                value={formState.newRegexes}
-                onChange={handleChange}
-                placeholder="Enter regexes"
-              />
-              <FormHelperText>e.g. .*</FormHelperText>
-            </FormControl>
+            <Box borderWidth="1px" borderRadius="lg">
+              <FormControl isRequired mt={4}>
+                <FormLabel>Regex Type</FormLabel>
+                <Select
+                  name="newRegexType"
+                  value={formState.newRegexType}
+                  onChange={handleChange}
+                >
+                  <option value="all">Any URL on this domain</option>
+                  <option value="one">Only this URL</option>
+                  <option value="custom">Custom regex</option>
+                </Select>
+                {formState.newRegexType === "custom" && (
+                  <Input
+                    name="customRegex"
+                    value={formState.customRegex}
+                    onChange={handleChange}
+                    placeholder="Enter custom regex"
+                  />
+                )}
+              </FormControl>
 
-            <Heading mt={4} as="h5" size="sm">
-              Knowledge
-            </Heading>
-            <FormControl>
-              <FormLabel>Notes</FormLabel>
-              <Textarea
-                name="newNote"
-                resize="none"
-                value={formState.newNote}
-                onChange={handleChange}
-                placeholder="Enter notes"
-              />
-              <FormHelperText>
-                freeform tips about using the website
-              </FormHelperText>
-            </FormControl>
+              <Heading mt={4} as="h5" size="sm">
+                Knowledge
+              </Heading>
+              <FormControl>
+                <FormLabel>Notes</FormLabel>
+                <Textarea
+                  name="newNote"
+                  resize="none"
+                  value={formState.newNote}
+                  onChange={handleChange}
+                  placeholder="Enter notes"
+                />
+                <FormHelperText>
+                  freeform tips about using the website
+                </FormHelperText>
+              </FormControl>
 
-            <Heading mt={4} as="h6" size="xs">
-              annotationRules
-            </Heading>
-            <FormControl>
-              <FormLabel>selector</FormLabel>
-              <Input
-                name="newSelector"
-                resize="none"
-                value={formState.newSelector}
-                onChange={handleChange}
-                placeholder="Enter selector"
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>useAttributeAsName</FormLabel>
-              <Input
-                name="newAttribute"
-                resize="none"
-                value={formState.newAttribute}
-                onChange={handleChange}
-                placeholder="Enter attribute"
-              />
-            </FormControl>
-            <FormControl>
-              <Flex alignItems="center">
-                <Tooltip label="Allow invisible">
-                  <FormLabel>allowInvisible</FormLabel>
-                </Tooltip>
-                <Switch
-                  name="allowInvisible"
-                  isChecked={formState.allowInvisible}
+              <Heading mt={4} as="h6" size="xs">
+                annotationRules
+              </Heading>
+              <FormControl>
+                <FormLabel>selector</FormLabel>
+                <Input
+                  name="newSelector"
+                  resize="none"
+                  value={formState.newSelector}
                   onChange={handleChange}
+                  placeholder="Enter selector"
                 />
-              </Flex>
-            </FormControl>
-            <FormControl>
-              <Flex alignItems="center">
-                <Tooltip label="Allow covered">
-                  <FormLabel>allowCovered</FormLabel>
-                </Tooltip>
-                <Switch
-                  name="allowCovered"
-                  isChecked={formState.allowCovered}
+              </FormControl>
+              <FormControl>
+                <FormLabel>useAttributeAsName</FormLabel>
+                <Input
+                  name="newAttribute"
+                  resize="none"
+                  value={formState.newAttribute}
                   onChange={handleChange}
+                  placeholder="Enter attribute"
                 />
-              </Flex>
-            </FormControl>
-            <FormControl>
-              <Flex alignItems="center">
-                <Tooltip label="Allow aria hidden">
-                  <FormLabel>allowAriaHidden</FormLabel>
-                </Tooltip>
-                <Switch
-                  name="allowAriaHidden"
-                  isChecked={formState.allowAriaHidden}
-                  onChange={handleChange}
-                />
-              </Flex>
-            </FormControl>
+              </FormControl>
+              <FormControl>
+                <Flex alignItems="center">
+                  <Tooltip label="Allow invisible">
+                    <FormLabel>allowInvisible</FormLabel>
+                  </Tooltip>
+                  <Switch
+                    name="allowInvisible"
+                    isChecked={formState.allowInvisible}
+                    onChange={handleChange}
+                  />
+                </Flex>
+              </FormControl>
+              <FormControl>
+                <Flex alignItems="center">
+                  <Tooltip label="Allow covered">
+                    <FormLabel>allowCovered</FormLabel>
+                  </Tooltip>
+                  <Switch
+                    name="allowCovered"
+                    isChecked={formState.allowCovered}
+                    onChange={handleChange}
+                  />
+                </Flex>
+              </FormControl>
+              <FormControl>
+                <Flex alignItems="center">
+                  <Tooltip label="Allow aria hidden">
+                    <FormLabel>allowAriaHidden</FormLabel>
+                  </Tooltip>
+                  <Switch
+                    name="allowAriaHidden"
+                    isChecked={formState.allowAriaHidden}
+                    onChange={handleChange}
+                  />
+                </Flex>
+              </FormControl>
+            </Box>
           </ModalBody>
           <ModalFooter>
             <Button
@@ -275,6 +319,18 @@ const NewKnowledgeForm = () => {
 
 const CustomKnowledgeBase = () => {
   const domainRules = useAppState((state) => state.settings.domainRules);
+
+  useEffect(() => {
+    const initializeDomain = async () => {
+      const tab = await findActiveTab();
+      if (tab && tab.url) {
+        const url = new URL(tab.url);
+        const domain = url.hostname.replace(/^www\./, "");
+        setDefaultDomain(domain);
+      }
+    };
+    initializeDomain();
+  }, []);
 
   return (
     <VStack spacing={4}>
