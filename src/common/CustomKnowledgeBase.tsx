@@ -1,4 +1,3 @@
-// CustomKnowledgeBase.tsx
 import React, { useState } from "react";
 import {
   Switch,
@@ -11,7 +10,6 @@ import {
   FormLabel,
   useToast,
   useDisclosure,
-
   Modal,
   ModalOverlay,
   ModalContent,
@@ -27,7 +25,9 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
-  Badge} from "@chakra-ui/react";
+  FormHelperText,
+  Tooltip,
+} from "@chakra-ui/react";
 import { type DomainRules, type Rule } from "../helpers/knowledge/type";
 import { useAppState } from "../state/store";
 
@@ -36,7 +36,10 @@ type DomainKnowledgeProps = {
 };
 
 const DomainKnowledge = ({ domainRules }: DomainKnowledgeProps) => {
-  console.log(domainRules.rules.length);
+  const getJson = (domainRules: Rule): string => {
+    return JSON.stringify(domainRules, null, 2);
+  };
+
   return (
     <>
       <Heading as="h4" size="md">
@@ -44,60 +47,15 @@ const DomainKnowledge = ({ domainRules }: DomainKnowledgeProps) => {
       </Heading>
       <Accordion allowToggle>
         {domainRules.rules.map((rule, ruleIndex) => (
-          <AccordionItem key={ruleIndex}>
-            <h2>
+          <AccordionItem key={ruleIndex} backgroundColor="white">
+            <Heading as="h4" size="xs">
               <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  Rule {ruleIndex + 1}
-                </Box>
+                <Box>Rule {ruleIndex + 1}</Box>
                 <AccordionIcon />
               </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              <Text mb={2}>Regexes:</Text>
-              {rule.regexes.map((regex, regexIndex) => (
-                <Badge key={regexIndex} mr={2}>
-                  {regex}
-                </Badge>
-              ))}
-              <Box mt={4}>
-                <Text fontWeight="bold">Knowledge:</Text>
-                {rule.knowledge.notes.map((note, noteIndex) => (
-                  <Text key={noteIndex} ml={4}>
-                    - {note}
-                  </Text>
-                ))}
-                {rule.knowledge.annotationRules && (
-                  <Box mt={2}>
-                    <Text fontWeight="bold">Annotation Rules:</Text>
-                    {rule.knowledge.annotationRules.map(
-                      (annotationRule, annotationIndex) => (
-                        <Box key={annotationIndex} ml={4} mt={1}>
-                          <Text>Selector: {annotationRule.selector}</Text>
-                          {annotationRule.useAttributeAsName && (
-                            <Text>
-                              Use Attribute As Name:{" "}
-                              {annotationRule.useAttributeAsName}
-                            </Text>
-                          )}
-                          <Text>
-                            Allow Invisible:{" "}
-                            {annotationRule.allowInvisible ? "Yes" : "No"}
-                          </Text>
-                          <Text>
-                            Allow Covered:{" "}
-                            {annotationRule.allowCovered ? "Yes" : "No"}
-                          </Text>
-                          <Text>
-                            Allow Aria Hidden:{" "}
-                            {annotationRule.allowAriaHidden ? "Yes" : "No"}
-                          </Text>
-                        </Box>
-                      ),
-                    )}
-                  </Box>
-                )}
-              </Box>
+            </Heading>
+            <AccordionPanel>
+              <pre style={{ overflowX: "auto" }}>{getJson(rule)}</pre>
             </AccordionPanel>
           </AccordionItem>
         ))}
@@ -107,21 +65,33 @@ const DomainKnowledge = ({ domainRules }: DomainKnowledgeProps) => {
 };
 
 const NewKnowledgeForm = () => {
-  const [newDomain, setNewDomain] = useState("");
-  const [newNote, setNewNote] = useState("");
-  const [newRegexes, setNewRegexes] = useState("");
-  const [newSelector, setNewSelector] = useState("");
-  const [newAttribute, setNewAttribute] = useState("");
-  const [allowInvisible, setAllowInvisible] = useState(false);
-  const [allowCovered, setAllowCovered] = useState(false);
-  const [allowAriaHidden, setAllowAriaHidden] = useState(false);
+  const [formState, setFormState] = useState({
+    newDomain: "",
+    newRegexes: "",
+    newNote: "",
+    newSelector: "",
+    newAttribute: "",
+    allowInvisible: false,
+    allowCovered: false,
+    allowAriaHidden: false,
+  });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const updateSettings = useAppState((state) => state.settings.actions.update);
-  const toast = useToast();
   const domainRules = useAppState((state) => state.settings.domainRules);
+  const toast = useToast();
 
   const addDomainRules = () => {
-    if (!newDomain) {
+    const {
+      newDomain,
+      newNote,
+      newRegexes,
+      newSelector,
+      newAttribute,
+      allowInvisible,
+      allowCovered,
+      allowAriaHidden,
+    } = formState;
+    if (!newDomain || !newRegexes) {
       toast({
         title: "Domain is required",
         status: "error",
@@ -150,14 +120,26 @@ const NewKnowledgeForm = () => {
       rules: [newRule],
     };
     updateSettings({ domainRules: [...domainRules, newDomainRules] });
-    setNewDomain(""); // Reset new domain input
-    setNewNote("");
-    setNewRegexes("");
-    setNewSelector("");
-    setNewAttribute("");
-    setAllowInvisible(false);
-    setAllowCovered(false);
-    setAllowAriaHidden(false);
+
+    // Reset form
+    setFormState({
+      newDomain: "",
+      newNote: "",
+      newRegexes: "",
+      newSelector: "",
+      newAttribute: "",
+      allowInvisible: false,
+      allowCovered: false,
+      allowAriaHidden: false,
+    });
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormState((prevState) => ({
+      ...prevState,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   return (
@@ -172,94 +154,115 @@ const NewKnowledgeForm = () => {
             <FormControl isRequired>
               <FormLabel>Domain</FormLabel>
               <Input
-                value={newDomain}
-                onChange={(e) => setNewDomain(e.target.value)}
+                name="newDomain"
+                value={formState.newDomain}
+                onChange={handleChange}
                 placeholder="Enter domain name"
               />
+              <FormHelperText>e.g. x.com, calendar.google.com</FormHelperText>
             </FormControl>
 
             <Heading mt={4} as="h4" size="md">
-              {" "}
-              Rules{" "}
+              Rules
             </Heading>
-
             <FormControl isRequired>
               <FormLabel>regexes</FormLabel>
               <Input
-                value={newRegexes}
-                onChange={(e) => setNewRegexes(e.target.value)}
+                name="newRegexes"
+                value={formState.newRegexes}
+                onChange={handleChange}
                 placeholder="Enter regexes"
               />
+              <FormHelperText>e.g. .*</FormHelperText>
             </FormControl>
 
             <Heading mt={4} as="h5" size="sm">
-              {" "}
-              Knowledge{" "}
+              Knowledge
             </Heading>
-
-            <FormControl isRequired>
+            <FormControl>
               <FormLabel>Notes</FormLabel>
               <Textarea
+                name="newNote"
                 resize="none"
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
+                value={formState.newNote}
+                onChange={handleChange}
                 placeholder="Enter notes"
               />
+              <FormHelperText>
+                freeform tips about using the website
+              </FormHelperText>
             </FormControl>
 
             <Heading mt={4} as="h6" size="xs">
-              {" "}
-              annotationRules{" "}
+              annotationRules
             </Heading>
-
             <FormControl>
               <FormLabel>selector</FormLabel>
               <Input
+                name="newSelector"
                 resize="none"
-                value={newSelector}
-                onChange={(e) => setNewSelector(e.target.value)}
+                value={formState.newSelector}
+                onChange={handleChange}
                 placeholder="Enter selector"
               />
             </FormControl>
             <FormControl>
               <FormLabel>useAttributeAsName</FormLabel>
               <Input
+                name="newAttribute"
                 resize="none"
-                value={newAttribute}
-                onChange={(e) => setNewAttribute(e.target.value)}
+                value={formState.newAttribute}
+                onChange={handleChange}
                 placeholder="Enter attribute"
               />
             </FormControl>
             <FormControl>
               <Flex alignItems="center">
-                <FormLabel>allowInvisible</FormLabel>
+                <Tooltip label="Allow invisible">
+                  <FormLabel>allowInvisible</FormLabel>
+                </Tooltip>
                 <Switch
-                  isChecked={allowInvisible}
-                  onChange={() => setAllowInvisible(!allowInvisible)}
+                  name="allowInvisible"
+                  isChecked={formState.allowInvisible}
+                  onChange={handleChange}
                 />
               </Flex>
             </FormControl>
             <FormControl>
               <Flex alignItems="center">
-                <FormLabel>allowCovered</FormLabel>
+                <Tooltip label="Allow covered">
+                  <FormLabel>allowCovered</FormLabel>
+                </Tooltip>
                 <Switch
-                  isChecked={allowCovered}
-                  onChange={() => setAllowCovered(!allowCovered)}
+                  name="allowCovered"
+                  isChecked={formState.allowCovered}
+                  onChange={handleChange}
                 />
               </Flex>
             </FormControl>
             <FormControl>
               <Flex alignItems="center">
-                <FormLabel>allowAriaHidden</FormLabel>
+                <Tooltip label="Allow aria hidden">
+                  <FormLabel>allowAriaHidden</FormLabel>
+                </Tooltip>
                 <Switch
-                  isChecked={allowAriaHidden}
-                  onChange={() => setAllowAriaHidden(!allowAriaHidden)}
+                  name="allowAriaHidden"
+                  isChecked={formState.allowAriaHidden}
+                  onChange={handleChange}
                 />
               </Flex>
             </FormControl>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={addDomainRules}>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={() => {
+                addDomainRules();
+                // TODO: validate form entry before close
+                onClose();
+              }}
+            >
               Save
             </Button>
             <Button onClick={onClose}>Cancel</Button>

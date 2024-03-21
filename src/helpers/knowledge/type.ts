@@ -6,7 +6,7 @@ export type DomainRules = {
 export type Rule = {
   regexes: string[];
   knowledge: {
-    notes: string[];
+    notes?: string[];
     annotationRules?: {
       selector: string;
       useAttributeAsName?: string;
