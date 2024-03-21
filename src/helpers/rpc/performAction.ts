@@ -263,6 +263,7 @@ export default async function performAction(tabId: number, action: Action) {
   }
 }
 
+// TODO: refactor dom agent so we don't need this
 export async function legacyPerformAction(
   tabId: number,
   action: ToolOperation,
