@@ -268,16 +268,9 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       await sleep(800);
       await callRPCWithTab(tabId, "removeLabels", []);
     },
+    // currently only for debugging operation format used vision model
     performActionString: async (actionString: string) => {
-      if (
-        useAppState.getState().settings.selectedModel !== "gpt-4-vision-preview"
-      ) {
-        throw new Error("Only vision models can perform actions");
-      }
       const parsedResponse = parseResponse(actionString);
-      if ("error" in parsedResponse.operation) {
-        throw parsedResponse.operation.error;
-      }
       if (
         parsedResponse.operation.name === "finish" ||
         parsedResponse.operation.name === "fail"

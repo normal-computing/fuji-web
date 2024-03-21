@@ -85,7 +85,7 @@ export async function determineNextAction(
 
       const rawResponse = completion.choices[0].message?.content?.trim() || "";
       try {
-        const parsed = await parseResponse(rawResponse, false);
+        const parsed = await parseResponse(rawResponse);
         if ("error" in parsed) {
           throw new Error(parsed.error);
         }

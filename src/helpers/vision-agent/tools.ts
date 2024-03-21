@@ -47,14 +47,14 @@ export const waitSchema = z.object({
 
 export const finishSchema = z.object({
   name: z.literal("finish"),
-  description: z.literal("Indicates the task is finished").optional(),
+  description: z.literal("Indicate the task is finished").optional(),
   args: z.object({}).optional(),
 });
 
 export const failSchema = z.object({
   name: z.literal("fail"),
   description: z
-    .literal("Indicates that you are unable to complete the task")
+    .literal("Indicate that you are unable to complete the task")
     .optional(),
   args: z.object({}).optional(),
 });
