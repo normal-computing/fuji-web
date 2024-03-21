@@ -1,7 +1,7 @@
 {
   "name": "web-wand",
   "version": "2.0.2",
-  "description": "chrome extension",
+  "description": "WebWand is a tool that redefines web interaction, making complex online tasks as simple as uttering a single command.",
   "repository": {
     "type": "git",
     "url": "https://github.com/normal-computing/web-wand"
