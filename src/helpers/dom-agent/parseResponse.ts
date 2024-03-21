@@ -1,8 +1,4 @@
-import {
-  ActionPayload,
-  availableActions,
-  availableActionsVision,
-} from "./availableActions";
+import { ActionPayload, availableActions } from "./availableActions";
 
 export type ParsedResponseSuccess = {
   thought: string;
@@ -73,10 +69,7 @@ function parseFunctionCall(callString: string) {
   return { name, args };
 }
 
-export function parseResponse(
-  text: string,
-  isVisionModel: boolean,
-): ParsedResponse {
+export function parseResponse(text: string): ParsedResponse {
   let action;
   try {
     action = JSON.parse(text);
@@ -106,16 +99,9 @@ export function parseResponse(
   const { name: actionName, args: argsArray } = parseFunctionCall(actionString);
   console.log(actionName, argsArray);
 
-  let availableAction = null;
-  if (isVisionModel) {
-    availableAction = availableActionsVision.find(
-      (action) => action.name === actionName,
-    );
-  } else {
-    availableAction = availableActions.find(
-      (action) => action.name === actionName,
-    );
-  }
+  const availableAction = availableActions.find(
+    (action) => action.name === actionName,
+  );
 
   if (!availableAction) {
     return {
