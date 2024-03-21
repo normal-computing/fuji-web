@@ -1,16 +1,5 @@
 const commonActions = [
   {
-    name: "scroll",
-    description:
-      'Scroll the page to see the other parts. Use "up" or "down" to scroll half the height of the window. Use "top" or "bottom" to quickly scroll to the top or bottom of the page.',
-    args: [
-      {
-        name: "value",
-        type: "string",
-      },
-    ],
-  },
-  {
     name: "wait",
     description:
       "Wait for 3 seconds before the next action. Useful when the page is loading.",
