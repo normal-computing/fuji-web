@@ -5,19 +5,16 @@ import {
   reenableExtensions,
 } from "../helpers/disableExtensions";
 import {
-  ParsedResponse,
-  ParsedResponseSuccess,
-  parseResponse,
-} from "../helpers/parseResponse";
-import {
   determineNextActionWithVision,
-  type NextAction,
+  parseResponse,
+  type QueryResult,
+  type Action,
 } from "../helpers/vision-agent/determineNextAction";
 import { determineNextAction } from "../helpers/dom-agent/determineNextAction";
 import { callRPCWithTab } from "../helpers/rpc/pageRPC";
 import { getSimplifiedDom } from "../helpers/simplifyDom";
 import { sleep, truthyFilter } from "../helpers/utils";
-import performAction, { Action } from "../helpers/rpc/performAction";
+import { operateTool, legacyPerformAction } from "../helpers/rpc/performAction";
 import { findActiveTab } from "../helpers/browserUtils";
 import { MyStateCreator, useAppState } from "./store";
 import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
@@ -27,7 +24,7 @@ import { fetchKnowledge } from "../helpers/knowledge";
 export type TaskHistoryEntry = {
   prompt: string;
   response: string;
-  action: ParsedResponse;
+  action: Action;
   usage: OpenAI.CompletionUsage | undefined;
 };
 
@@ -115,7 +112,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           setActionStatus("performing-query");
 
-          let query: NextAction | null = null;
+          let query: QueryResult | null = null;
 
           const isVisionModel =
             useAppState.getState().settings.selectedModel ===
@@ -138,9 +135,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             query = await determineNextActionWithVision(
               instructions,
               knowledge,
-              previousActions.filter(
-                (pa) => !("error" in pa),
-              ) as ParsedResponseSuccess[],
+              previousActions,
               imgData,
               labelData,
               viewportPercentage,
@@ -160,9 +155,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             if (wasStopped()) break;
             query = await determineNextAction(
               instructions,
-              previousActions.filter(
-                (pa) => !("error" in pa),
-              ) as ParsedResponseSuccess[],
+              previousActions,
               pageDOM.outerHTML,
               3,
               onError,
@@ -179,32 +172,31 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           if (wasStopped()) break;
 
           setActionStatus("performing-action");
-          const action = parseResponse(query.response, isVisionModel);
-          if (voiceMode && "thought" in action) {
-            voiceControl.speak(action.thought, onError);
+          if (voiceMode && "thought" in query.action) {
+            voiceControl.speak(query.action.thought, onError);
           }
 
           set((state) => {
             query &&
               state.currentTask.history.push({
                 prompt: query.prompt,
-                response: query.response,
-                action,
+                response: query.rawResponse,
+                action: query.action,
                 usage: query.usage,
               });
           });
-          if ("error" in action) {
-            onError(action.error);
-            break;
-          }
           if (
-            action === null ||
-            action.parsedAction.name === "finish" ||
-            action.parsedAction.name === "fail"
+            query.action.operation === null ||
+            query.action.operation.name === "finish" ||
+            query.action.operation.name === "fail"
           ) {
             break;
           }
-          await performAction(tabId, action.parsedAction as Action);
+          if (isVisionModel) {
+            await operateTool(tabId, query.action.operation);
+          } else {
+            await legacyPerformAction(tabId, query.action.operation);
+          }
 
           if (wasStopped()) break;
 
@@ -277,25 +269,22 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       await callRPCWithTab(tabId, "removeLabels", []);
     },
     performActionString: async (actionString: string) => {
-      const action = parseResponse(
-        actionString,
-        useAppState.getState().settings.selectedModel ===
-          "gpt-4-vision-preview",
-      );
-      if ("error" in action) {
-        throw action.error;
+      if (
+        useAppState.getState().settings.selectedModel !== "gpt-4-vision-preview"
+      ) {
+        throw new Error("Only vision models can perform actions");
+      }
+      const parsedResponse = parseResponse(actionString);
+      if ("error" in parsedResponse.operation) {
+        throw parsedResponse.operation.error;
       }
       if (
-        action === null ||
-        action.parsedAction.name === "finish" ||
-        action.parsedAction.name === "fail"
+        parsedResponse.operation.name === "finish" ||
+        parsedResponse.operation.name === "fail"
       ) {
         return;
       }
-      await performAction(
-        get().currentTask.tabId,
-        action.parsedAction as Action,
-      );
+      await operateTool(get().currentTask.tabId, parsedResponse.operation);
     },
     startListening: () =>
       set((state) => {
