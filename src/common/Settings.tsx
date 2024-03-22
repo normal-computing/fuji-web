@@ -1,4 +1,7 @@
 import {
+  Alert,
+  AlertIcon,
+  AlertDescription,
   Heading,
   IconButton,
   HStack,
@@ -24,12 +27,15 @@ interface SettingsProps {
 
 const Settings = ({ setInSettingsView }: SettingsProps) => {
   const state = useAppState((state) => ({
+    selectedModel: state.settings.selectedModel,
     updateSettings: state.settings.actions.update,
     voiceMode: state.settings.voiceMode,
     openAIKey: state.settings.openAIKey,
   }));
 
   if (!state.openAIKey) return null;
+
+  const isVisionModel = state.selectedModel === "gpt-4-vision-preview";
 
   const closeSetting = () => setInSettingsView(false);
 
@@ -80,6 +86,15 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             <ModelDropdown />
           </Box>
         </Flex>
+        {!isVisionModel && (
+          <Alert status="warning" borderRadius="lg">
+            <AlertIcon />
+            <AlertDescription fontSize="sm">
+              Most of WebWand&rsquo;s capabilities are based on the GPT-4 Vision
+              mode. Non-vision models are available for research purposes.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Flex alignItems="center">
           <FormLabel htmlFor="voice-mode" mb="0">
