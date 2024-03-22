@@ -6,7 +6,7 @@ import { type Knowledge } from "../knowledge";
 import errorChecker from "../errorChecker";
 import { type Action, parseResponse } from "./parseResponse";
 
-const visionSystemMessage = `
+const systemMessage = `
 You are a browser automation assistant.
 
 You can use the following tools:
@@ -82,7 +82,7 @@ export async function determineNextActionWithVision(
         messages: [
           {
             role: "system",
-            content: visionSystemMessage,
+            content: systemMessage,
           },
           {
             role: "user",
