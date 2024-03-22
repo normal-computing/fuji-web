@@ -23,6 +23,18 @@ export const setValueSchema = z.object({
   }),
 });
 
+export const navigateSchema = z.object({
+  name: z.literal("navigate"),
+  description: z
+    .literal(
+      "Navigate to a new page. The value should be a URL. Use this tool only when the current task requires navigating to a new page.",
+    )
+    .optional(),
+  args: z.object({
+    url: z.string(),
+  }),
+});
+
 export const scrollSchema = z.object({
   name: z.literal("scroll"),
   description: z
@@ -62,6 +74,7 @@ export const failSchema = z.object({
 export const toolSchemaUnion = z.discriminatedUnion("name", [
   clickSchema,
   setValueSchema,
+  navigateSchema,
   scrollSchema,
   waitSchema,
   finishSchema,
