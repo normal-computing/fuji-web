@@ -5,8 +5,6 @@ import {
   Input,
   FormControl,
   FormLabel,
-  Flex,
-  Tooltip,
   Select,
   ModalHeader,
   ModalBody,
@@ -17,20 +15,25 @@ import {
   InputGroup,
   InputRightElement,
   IconButton,
-  HStack,
 } from "@chakra-ui/react";
-import { AddIcon, SmallCloseIcon } from "@chakra-ui/icons";
+import { SmallCloseIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
 import { findActiveTab } from "../helpers/browserUtils";
 import { useAppState } from "../state/store";
 
 type NewKnowledgeFormProps = {
   isEditMode?: boolean;
+  editData?: {
+    host: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rules: any[];
+  };
   onSaved: () => void;
 };
 
 const NewKnowledgeForm = ({
   isEditMode = false,
+  editData,
   onSaved,
 }: NewKnowledgeFormProps) => {
   const [defaultHost, setDefaultHost] = useState("");
@@ -42,70 +45,74 @@ const NewKnowledgeForm = ({
       newHost: "",
       rules: [
         {
-          regexType: "all", // 'all', 'one', or 'custom'
-          regexes: [""],
-          newNotes: [" "],
-          annotationRules: [
-            {
-              newSelector: "",
-              newAttribute: "",
-              allowInvisible: false,
-              allowCovered: false,
-              allowAriaHidden: false,
-            },
-          ],
+          regexType: "all",
+          regexes: [".*"],
+          knowledge: {
+            notes: [""],
+            annotationRules: [
+              {
+                newSelector: "",
+                newAttribute: "",
+                allowInvisible: false,
+                allowCovered: false,
+                allowAriaHidden: false,
+              },
+            ],
+          },
         },
       ],
     },
     onSubmit: (values) => {
       const { newHost, rules } = values;
-      const host = newHost !== "" ? newHost : defaultHost;
-      const newRules = rules.map((rule) => {
-        let regexes: string[] = [];
-        switch (rule.regexType) {
-          case "all":
-            regexes = [".*"];
-            break;
-          case "one":
-            regexes = [`^https?://${host.replace(/\./g, "\\.")}/?$`]; // Adjust regex as needed
-            break;
-          case "custom":
-            regexes = rule.regexes.filter((r) => r.trim() !== "");
-            break;
-          default:
-            break;
-        }
+      const host =
+        isEditMode && editData
+          ? editData.host
+          : newHost !== ""
+            ? newHost
+            : defaultHost;
 
-        const knowledge = {
-          notes: [...rule.newNotes],
-          annotationRules: rule.annotationRules.map((ar) => ({
-            selector: ar.newSelector,
-            useAttributeAsName: ar.newAttribute,
-            allowInvisible: ar.allowInvisible,
-            allowCovered: ar.allowCovered,
-            allowAriaHidden: ar.allowAriaHidden,
-          })),
-        };
+      // Transform rules to exclude 'regexType' before submission
+      const transformedRules = rules.map(
+        ({ regexType, regexes, knowledge }) => {
+          let transformedRegexes = regexes;
+          switch (regexType) {
+            case "all":
+              transformedRegexes = [".*"];
+              break;
+            case "one":
+              transformedRegexes = [
+                `^https?://${host.replace(/\./g, "\\.")}/?$`,
+              ];
+              break;
+            case "custom":
+              // For 'custom', we already have the correct regexes array
+              break;
+            default:
+              break;
+          }
 
-        return {
-          regexes,
-          knowledge,
-        };
-      });
+          return {
+            regexes: transformedRegexes,
+            knowledge,
+          };
+        },
+      );
 
-      const updatedHostData = { ...hostData, [host]: { rules: newRules } };
+      const updatedHostData = {
+        ...hostData,
+        [host]: { rules: transformedRules },
+      };
       updateSettings({ hostData: updatedHostData });
       onSaved();
     },
   });
 
   useEffect(() => {
-    if (isEditMode) {
-      // formik.setValues({
-      //   newHost: editData.host,
-      //   rules: editData.rules,
-      // });
-      console.log("set value");
+    if (isEditMode && editData) {
+      formik.setValues({
+        newHost: editData.host,
+        rules: editData.rules,
+      });
     } else {
       formik.resetForm();
       if (!isEditMode) {
@@ -124,25 +131,24 @@ const NewKnowledgeForm = ({
     }
   };
 
-  const addNewRule = () => {
+  const addRule = () => {
     const newRule = {
-      regexType: "all",
-      regexes: [""],
-      newNotes: [""],
-      annotationRules: [
-        {
-          newSelector: "",
-          newAttribute: "",
-          allowInvisible: false,
-          allowCovered: false,
-          allowAriaHidden: false,
-        },
-      ],
+      regexesType: "all",
+      regexes: [".*"],
+      knowledge: {
+        notes: [""],
+        annotationRules: [
+          {
+            newSelector: "",
+            newAttribute: "",
+            allowInvisible: false,
+            allowCovered: false,
+            allowAriaHidden: false,
+          },
+        ],
+      },
     };
-
-    // Add the new rule to the existing rules array in the formik state
-    const updatedRules = [...formik.values.rules, newRule];
-    formik.setFieldValue("rules", updatedRules);
+    formik.setFieldValue("rules", [...formik.values.rules, newRule]);
   };
 
   const removeRule = (index: number) => {
@@ -152,13 +158,13 @@ const NewKnowledgeForm = ({
 
   const addNote = (ruleIndex: number) => {
     const updatedRules = [...formik.values.rules];
-    updatedRules[ruleIndex].newNotes.push("");
+    updatedRules[ruleIndex].knowledge.notes.push("");
     formik.setFieldValue("rules", updatedRules);
   };
 
   const removeNote = (ruleIndex: number, noteIndex: number) => {
     const updatedRules = [...formik.values.rules];
-    updatedRules[ruleIndex].newNotes.splice(noteIndex, 1);
+    updatedRules[ruleIndex].knowledge.notes.splice(noteIndex, 1);
     formik.setFieldValue("rules", updatedRules);
   };
 
@@ -172,17 +178,16 @@ const NewKnowledgeForm = ({
     };
 
     const updatedRules = [...formik.values.rules];
-    if (!updatedRules[ruleIndex].annotationRules) {
-      updatedRules[ruleIndex].annotationRules = [];
-    }
-    updatedRules[ruleIndex].annotationRules.push(newAnnotationRule);
-
+    updatedRules[ruleIndex].knowledge.annotationRules.push(newAnnotationRule);
     formik.setFieldValue("rules", updatedRules);
   };
 
   const removeAnnotation = (ruleIndex: number, annotationIndex: number) => {
     const updatedRules = [...formik.values.rules];
-    updatedRules[ruleIndex].annotationRules.splice(annotationIndex, 1);
+    updatedRules[ruleIndex].knowledge.annotationRules.splice(
+      annotationIndex,
+      1,
+    );
     formik.setFieldValue("rules", updatedRules);
   };
 
@@ -199,69 +204,78 @@ const NewKnowledgeForm = ({
   const removeCustomRegex = (ruleIndex: number, regexIndex: number) => {
     const updatedRules = [...formik.values.rules];
     updatedRules[ruleIndex].regexes.splice(regexIndex, 1);
+    if (updatedRules[ruleIndex].regexes.length === 0) {
+      updatedRules[ruleIndex].regexes.push("");
+    }
     formik.setFieldValue("rules", updatedRules);
   };
 
+  const regexOptions = [
+    { value: "all", label: "Any URL on this host" },
+    { value: "one", label: "Only this URL" },
+    { value: "custom", label: "Custom regex" },
+  ];
+
   const renderAnnotationRules = (ruleIndex, annotation, aIndex) => (
-    <>
-      <FormControl key={aIndex}>
-        <FormLabel>selector</FormLabel>
+    <Box key={aIndex} borderWidth="1px" borderRadius="lg" p={4} mt={2}>
+      <FormControl>
+        <FormLabel>Selector</FormLabel>
         <Input
-          name={`rules[${ruleIndex}].annotationRules[${aIndex}].newSelector`}
-          onChange={formik.handleChange}
+          name={`rules[${ruleIndex}].knowledge.annotationRules[${aIndex}].newSelector`}
           value={annotation.newSelector}
+          onChange={formik.handleChange}
           placeholder="Enter selector"
         />
       </FormControl>
-      <FormControl>
+
+      <FormControl mt={2}>
         <FormLabel>useAttributeAsName</FormLabel>
         <Input
-          name={`rules[${ruleIndex}].annotationRules[${aIndex}].newAttribute`}
-          onChange={formik.handleChange}
+          name={`rules[${ruleIndex}].knowledge.annotationRules[${aIndex}].newAttribute`}
           value={annotation.newAttribute}
-          placeholder="Enter attribute"
+          onChange={formik.handleChange}
+          placeholder="Enter attribute to use as name"
         />
       </FormControl>
-      <FormControl>
-        <Flex alignItems="center">
-          <Tooltip label="Allow invisible">
-            <FormLabel>allowInvisible</FormLabel>
-          </Tooltip>
-          <Switch
-            name={`rules[${aIndex}].annotationRules[${aIndex}].allowInvisible`}
-            isChecked={annotation.allowInvisible}
-            onChange={formik.handleChange}
-          />
-        </Flex>
+
+      <FormControl display="flex" alignItems="center" mt={2}>
+        <FormLabel mb="0">allowInvisible</FormLabel>
+        <Switch
+          ml={2}
+          isChecked={annotation.allowInvisible}
+          onChange={formik.handleChange}
+          name={`rules[${ruleIndex}].knowledge.annotationRules[${aIndex}].allowInvisible`}
+        />
       </FormControl>
-      <FormControl>
-        <Flex alignItems="center">
-          <Tooltip label="Allow covered">
-            <FormLabel>allowCovered</FormLabel>
-          </Tooltip>
-          <Switch
-            name={`rules[${aIndex}].annotationRules[${aIndex}].allowCovered`}
-            isChecked={annotation.allowCovered}
-            onChange={formik.handleChange}
-          />
-        </Flex>
+
+      <FormControl display="flex" alignItems="center" mt={2}>
+        <FormLabel mb="0">allowCovered</FormLabel>
+        <Switch
+          ml={2}
+          isChecked={annotation.allowCovered}
+          onChange={formik.handleChange}
+          name={`rules[${ruleIndex}].knowledge.annotationRules[${aIndex}].allowCovered`}
+        />
       </FormControl>
-      <FormControl>
-        <Flex alignItems="center">
-          <Tooltip label="Allow aria hidden">
-            <FormLabel>allowAriaHidden</FormLabel>
-          </Tooltip>
-          <Switch
-            name={`rules[${aIndex}].annotationRules[${aIndex}].allowAriaHidden`}
-            isChecked={annotation.allowAriaHidden}
-            onChange={formik.handleChange}
-          />
-        </Flex>
+
+      <FormControl display="flex" alignItems="center" mt={2}>
+        <FormLabel mb="0">allowAriaHidden</FormLabel>
+        <Switch
+          ml={2}
+          isChecked={annotation.allowAriaHidden}
+          onChange={formik.handleChange}
+          name={`rules[${ruleIndex}].knowledge.annotationRules[${aIndex}].allowAriaHidden`}
+        />
       </FormControl>
-      <Button onClick={() => removeAnnotation(ruleIndex, aIndex)}>
+
+      <Button
+        mt={2}
+        colorScheme="red"
+        onClick={() => removeAnnotation(ruleIndex, aIndex)}
+      >
         Remove Annotation
       </Button>
-    </>
+    </Box>
   );
 
   return (
@@ -283,113 +297,87 @@ const NewKnowledgeForm = ({
           Rules
         </Heading>
         {formik.values.rules.map((rule, ruleIndex) => (
-          <Box key={ruleIndex} borderWidth="1px" borderRadius="lg">
+          <Box key={ruleIndex} borderWidth="1px" borderRadius="lg" p={4}>
             <FormControl isRequired>
-              <FormLabel>regexes</FormLabel>
+              <FormLabel>Regexes</FormLabel>
               <Select
                 name={`rules[${ruleIndex}].regexType`}
-                onChange={formik.handleChange}
                 value={rule.regexType}
+                onChange={formik.handleChange}
               >
-                <option value="all">Any URL on this host</option>
-                <option value="one">Only this URL</option>
-                <option value="custom">Custom regex</option>
+                {regexOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </Select>
               {rule.regexType === "custom" &&
                 rule.regexes.map((regex, regexIndex) => (
-                  <FormControl key={regexIndex}>
-                    <InputGroup size="md">
-                      <Input
-                        name={`rules[${ruleIndex}].regexes[${regexIndex}]`}
-                        value={regex}
-                        onChange={formik.handleChange}
-                        placeholder="Enter custom regex"
-                      />
-                      <InputRightElement width="4.5rem">
-                        <IconButton
-                          variant="ghost"
-                          aria-label="Remove custom regex"
-                          icon={<SmallCloseIcon />}
-                          onClick={() =>
-                            removeCustomRegex(ruleIndex, regexIndex)
-                          }
-                        />
-                      </InputRightElement>
-                    </InputGroup>
-                  </FormControl>
-                ))}
-
-              {rule.regexType === "custom" && (
-                <IconButton
-                  aria-label="Add custom regex"
-                  icon={<AddIcon />}
-                  onClick={() => addCustomRegex(ruleIndex)}
-                />
-              )}
-            </FormControl>
-
-            <Heading as="h5" size="sm">
-              Knowledge
-            </Heading>
-            <Box borderWidth="1px" borderRadius="lg">
-              <HStack>
-                <FormLabel>notes</FormLabel>
-                <IconButton
-                  size="sm"
-                  aria-label="Add note"
-                  icon={<AddIcon />}
-                  onClick={() => addNote(ruleIndex)}
-                />
-              </HStack>
-              {rule.newNotes.map((note, noteIndex) => (
-                <FormControl key={noteIndex}>
-                  <InputGroup size="md">
+                  <InputGroup key={regexIndex} size="md" mb={2}>
                     <Input
-                      name={`rules[${ruleIndex}].newNotes[${noteIndex}]`}
-                      value={note}
+                      name={`rules[${ruleIndex}].regexes[${regexIndex}]`}
+                      value={regex}
                       onChange={formik.handleChange}
-                      placeholder="Enter note"
+                      placeholder="Enter regex"
                     />
                     <InputRightElement width="4.5rem">
                       <IconButton
-                        variant="ghost"
-                        aria-label="Remove note"
+                        aria-label="Remove regex"
                         icon={<SmallCloseIcon />}
-                        onClick={() => removeNote(ruleIndex, noteIndex)}
+                        onClick={() => removeCustomRegex(ruleIndex, regexIndex)}
                       />
                     </InputRightElement>
                   </InputGroup>
-                </FormControl>
-              ))}
-
-              <Box borderWidth="1px" borderRadius="lg">
-                <HStack>
-                  <Heading as="h6" size="xs">
-                    Annotation Rules
-                  </Heading>
-                  <IconButton
-                    size="sm"
-                    aria-label="Add annotation"
-                    icon={<AddIcon />}
-                    onClick={() => addAnnotation(ruleIndex)}
-                  />
-                </HStack>
-                {rule.annotationRules.map((annotation, aIndex) =>
-                  renderAnnotationRules(ruleIndex, annotation, aIndex),
-                )}
-              </Box>
-
-              <Button
-                colorScheme="red"
-                onClick={() => removeRule(ruleIndex)}
-                isDisabled={formik.values.rules.length <= 1}
-              >
-                Remove Rule
+                ))}
+              <Button mt={2} onClick={() => addCustomRegex(ruleIndex)}>
+                Add Regex
               </Button>
-            </Box>
+            </FormControl>
+
+            <FormControl mt={4}>
+              <FormLabel>Notes</FormLabel>
+              {rule.knowledge.notes.map((note, noteIndex) => (
+                <InputGroup key={noteIndex} size="md" mb={2}>
+                  <Input
+                    name={`rules[${ruleIndex}].knowledge.notes[${noteIndex}]`}
+                    value={note}
+                    onChange={formik.handleChange}
+                    placeholder="Enter note"
+                  />
+                  <InputRightElement width="4.5rem">
+                    <IconButton
+                      aria-label="Remove note"
+                      icon={<SmallCloseIcon />}
+                      onClick={() => removeNote(ruleIndex, noteIndex)}
+                    />
+                  </InputRightElement>
+                </InputGroup>
+              ))}
+              <Button mt={2} onClick={() => addNote(ruleIndex)}>
+                Add Note
+              </Button>
+            </FormControl>
+
+            <Heading as="h5" size="sm" mt={4}>
+              Annotation Rules
+            </Heading>
+            {rule.knowledge.annotationRules.map((annotation, aIndex) =>
+              renderAnnotationRules(ruleIndex, annotation, aIndex),
+            )}
+            <Button mt={2} onClick={() => addAnnotation(ruleIndex)}>
+              Add Annotation
+            </Button>
+
+            <Button
+              mt={4}
+              colorScheme="red"
+              onClick={() => removeRule(ruleIndex)}
+            >
+              Remove Rule
+            </Button>
           </Box>
         ))}
-        <Button mt={4} onClick={addNewRule} colorScheme="blue">
+        <Button mt={4} onClick={addRule} colorScheme="blue">
           Add Another Rule
         </Button>
       </ModalBody>

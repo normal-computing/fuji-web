@@ -79,11 +79,18 @@ const CustomKnowledgeBase = () => {
   };
 
   const openEditForm = (host: string) => {
-    // setEditingHostData({
-    //   newHost: host,
-    //   rules: hostData[host].rules,
-    // });
-    console.log(host);
+    const originalRules = hostData[host].rules;
+
+    const transformedRules = originalRules?.map((rule) => ({
+      ...rule,
+      regexType: "custom",
+    }));
+
+    setEditingHostData({
+      host,
+      rules: transformedRules,
+    });
+
     openModal();
   };
 
@@ -105,7 +112,7 @@ const CustomKnowledgeBase = () => {
           <ModalCloseButton />
           <NewKnowledgeForm
             isEditMode={!!editingHostData}
-            // editData={editingHostData}
+            editData={editingHostData}
             onSaved={closeModal}
           />
         </ModalContent>
