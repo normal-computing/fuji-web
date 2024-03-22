@@ -64,19 +64,13 @@ export async function determineNextActionWithVision(
     return null;
   }
   const model = useAppState.getState().settings.selectedModel;
-  let prompt =
-    formatPrompt(taskInstructions, previousActions) +
-    `Current page progress: ${viewportPercentage.toFixed(1)}%`;
-  if (knowledge.notes != null && knowledge.notes?.length > 0) {
-    prompt += `
-    Notes regarding the current website:
-    ${knowledge.notes.map((k) => `  - ${k}`).join("\n")}`;
-  }
-  prompt += `
-
-Use the following data as a reference of the annotated elements (using \`===\` as a delimiter between each annotation):
-
-${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
+  const prompt = formatPrompt(
+    taskInstructions,
+    previousActions,
+    knowledge,
+    labelData,
+    viewportPercentage,
+  );
 
   const openai = new OpenAI({
     apiKey: key,
@@ -156,6 +150,9 @@ ${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
 export function formatPrompt(
   taskInstructions: string,
   previousActions: Action[],
+  knowledge: Knowledge,
+  labelData: LabelData[],
+  viewportPercentage: number,
 ) {
   let previousActionsString = "";
 
@@ -171,14 +168,26 @@ export function formatPrompt(
     previousActionsString = `You have already taken the following actions: \n${serializedActions}\n\n`;
   }
 
-  const result = `The user requests the following task:
+  let result = `The user requests the following task:
 
 ${taskInstructions}
 
 ${previousActionsString}
 
 Current time: ${new Date().toLocaleString()}
+Current page progress: ${viewportPercentage.toFixed(1)}%
 `;
+
+  if (knowledge.notes != null && knowledge.notes?.length > 0) {
+    result += `
+Notes regarding the current website:
+${knowledge.notes.map((k) => `  - ${k}`).join("\n")}`;
+  }
+  result += `
+
+Use the following data as a reference of the annotated elements (using \`===\` as a delimiter between each annotation):
+
+${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
   return result;
 }
 
