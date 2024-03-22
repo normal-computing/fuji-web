@@ -22,6 +22,18 @@ export const setValueSchema = z.object({
     value: z.string(),
   }),
 });
+export const setValueAndSubmitSchema = z.object({
+  name: z.literal("setValueAndSubmit"),
+  description: z
+    .literal(
+      'Like "setValue", except then it presses ENTER to submit the form.',
+    )
+    .optional(),
+  args: z.object({
+    label: z.string(),
+    value: z.string(),
+  }),
+});
 
 export const navigateSchema = z.object({
   name: z.literal("navigate"),
@@ -74,6 +86,7 @@ export const failSchema = z.object({
 export const toolSchemaUnion = z.discriminatedUnion("name", [
   clickSchema,
   setValueSchema,
+  setValueAndSubmitSchema,
   navigateSchema,
   scrollSchema,
   waitSchema,

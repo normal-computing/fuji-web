@@ -179,6 +179,20 @@ function createOperateTool(
         }
         break;
       }
+      case "setValueAndSubmit": {
+        const success = await setValue(
+          domActions,
+          action.args.label,
+          (action.args.value || "") + "\n",
+        );
+        if (!success) {
+          console.error(
+            "Unable to find element with label: ",
+            action.args.label,
+          );
+        }
+        break;
+      }
       default:
         console.error("Invalid action name", action);
     }
