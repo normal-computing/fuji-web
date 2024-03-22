@@ -1,5 +1,14 @@
 import React, { useCallback, useState } from "react";
-import { Button, HStack, Spacer, Textarea, useToast } from "@chakra-ui/react";
+import {
+  Button,
+  HStack,
+  Spacer,
+  Textarea,
+  useToast,
+  Alert,
+  AlertIcon,
+  AlertDescription,
+} from "@chakra-ui/react";
 import { debugMode } from "../constants";
 import { useAppState } from "../state/store";
 import RunTaskButton from "./RunTaskButton";
@@ -69,7 +78,7 @@ const TaskUI = () => {
     [toast],
   );
 
-  const runTask = () => {
+  const runTask = useCallback(() => {
     state.instructions && state.runTask(toastError);
     // if (state.instructions) {
     //   chrome.runtime.sendMessage({
@@ -77,7 +86,7 @@ const TaskUI = () => {
     //     task: state.instructions,
     //   });
     // }
-  };
+  }, [state, toastError]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -98,17 +107,26 @@ const TaskUI = () => {
         mb={2}
         onKeyDown={onKeyDown}
       />
-      <HStack mt={2}>
+      <HStack mt={2} mb={2}>
         <RunTaskButton runTask={runTask} />
         {state.voiceMode && (
           <VoiceButton
             taskInProgress={taskInProgress}
-            onStopSpeaking={() => runTask()}
+            onStopSpeaking={runTask}
           />
         )}
         <Spacer />
         {debugMode && <TaskStatus />}
       </HStack>
+      {state.voiceMode && (
+        <Alert status="info" borderRadius="lg">
+          <AlertIcon />
+          <AlertDescription fontSize="sm">
+            In Voice Mode, you can press Space to start speaking and Space again
+            to stop. WebWand will run the task when you stop speaking.
+          </AlertDescription>
+        </Alert>
+      )}
       {debugMode && <ActionExecutor />}
       <TaskHistory />
     </>

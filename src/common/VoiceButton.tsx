@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { Button, HStack, Icon } from "@chakra-ui/react";
 import { BsPlayFill, BsStopFill } from "react-icons/bs";
 import { useAppState } from "../state/store";
 
-export default function VoiceButton(props: {
+export default function VoiceButton({
+  taskInProgress,
+  onStopSpeaking,
+}: {
   taskInProgress: boolean;
   onStopSpeaking: () => void;
 }) {
@@ -13,19 +16,19 @@ export default function VoiceButton(props: {
     stopListening: state.currentTask.actions.stopListening,
   }));
 
-  const toggleVoiceControl = () => {
-    if (!props.taskInProgress) {
+  const toggleVoiceControl = useCallback(() => {
+    if (!taskInProgress) {
       if (!state.isListening) {
         state.startListening();
       } else {
         state.stopListening();
-        props.onStopSpeaking();
+        onStopSpeaking();
       }
     }
-  };
+  }, [state, taskInProgress, onStopSpeaking]);
 
   useEffect(() => {
-    if (!props.taskInProgress) {
+    if (!taskInProgress) {
       const handleKeyDown = (event: KeyboardEvent) => {
         if (event.code === "Space") {
           event.preventDefault();
@@ -36,7 +39,7 @@ export default function VoiceButton(props: {
       window.addEventListener("keydown", handleKeyDown);
       return () => window.removeEventListener("keydown", handleKeyDown);
     }
-  }, [state.isListening, props.taskInProgress]);
+  }, [taskInProgress, toggleVoiceControl]);
 
   const button = (
     <Button
@@ -45,7 +48,7 @@ export default function VoiceButton(props: {
       }
       onClick={toggleVoiceControl}
       colorScheme={state.isListening ? "red" : "blue"}
-      isDisabled={props.taskInProgress}
+      isDisabled={taskInProgress}
     >
       {state.isListening ? "Stop" : "Start"} Speaking
     </Button>
