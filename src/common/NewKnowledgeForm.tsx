@@ -14,7 +14,12 @@ import {
   Box,
   Heading,
   Switch,
+  InputGroup,
+  InputRightElement,
+  IconButton,
+  HStack,
 } from "@chakra-ui/react";
+import { AddIcon, SmallCloseIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
 import { findActiveTab } from "../helpers/browserUtils";
 import { useAppState } from "../state/store";
@@ -197,6 +202,68 @@ const NewKnowledgeForm = ({
     formik.setFieldValue("rules", updatedRules);
   };
 
+  const renderAnnotationRules = (ruleIndex, annotation, aIndex) => (
+    <>
+      <FormControl key={aIndex}>
+        <FormLabel>selector</FormLabel>
+        <Input
+          name={`rules[${ruleIndex}].annotationRules[${aIndex}].newSelector`}
+          onChange={formik.handleChange}
+          value={annotation.newSelector}
+          placeholder="Enter selector"
+        />
+      </FormControl>
+      <FormControl>
+        <FormLabel>useAttributeAsName</FormLabel>
+        <Input
+          name={`rules[${ruleIndex}].annotationRules[${aIndex}].newAttribute`}
+          onChange={formik.handleChange}
+          value={annotation.newAttribute}
+          placeholder="Enter attribute"
+        />
+      </FormControl>
+      <FormControl>
+        <Flex alignItems="center">
+          <Tooltip label="Allow invisible">
+            <FormLabel>allowInvisible</FormLabel>
+          </Tooltip>
+          <Switch
+            name={`rules[${aIndex}].annotationRules[${aIndex}].allowInvisible`}
+            isChecked={annotation.allowInvisible}
+            onChange={formik.handleChange}
+          />
+        </Flex>
+      </FormControl>
+      <FormControl>
+        <Flex alignItems="center">
+          <Tooltip label="Allow covered">
+            <FormLabel>allowCovered</FormLabel>
+          </Tooltip>
+          <Switch
+            name={`rules[${aIndex}].annotationRules[${aIndex}].allowCovered`}
+            isChecked={annotation.allowCovered}
+            onChange={formik.handleChange}
+          />
+        </Flex>
+      </FormControl>
+      <FormControl>
+        <Flex alignItems="center">
+          <Tooltip label="Allow aria hidden">
+            <FormLabel>allowAriaHidden</FormLabel>
+          </Tooltip>
+          <Switch
+            name={`rules[${aIndex}].annotationRules[${aIndex}].allowAriaHidden`}
+            isChecked={annotation.allowAriaHidden}
+            onChange={formik.handleChange}
+          />
+        </Flex>
+      </FormControl>
+      <Button onClick={() => removeAnnotation(ruleIndex, aIndex)}>
+        Remove Annotation
+      </Button>
+    </>
+  );
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <ModalHeader>New Host Knowledge</ModalHeader>
@@ -218,7 +285,7 @@ const NewKnowledgeForm = ({
         {formik.values.rules.map((rule, ruleIndex) => (
           <Box key={ruleIndex} borderWidth="1px" borderRadius="lg">
             <FormControl isRequired>
-              <FormLabel>Regexes</FormLabel>
+              <FormLabel>regexes</FormLabel>
               <Select
                 name={`rules[${ruleIndex}].regexType`}
                 onChange={formik.handleChange}
@@ -231,126 +298,95 @@ const NewKnowledgeForm = ({
               {rule.regexType === "custom" &&
                 rule.regexes.map((regex, regexIndex) => (
                   <FormControl key={regexIndex}>
-                    <Input
-                      name={`rules[${ruleIndex}].regexes[${regexIndex}]`}
-                      value={regex}
-                      onChange={formik.handleChange}
-                      placeholder="Enter custom regex"
-                    />
-                    <Button
-                      onClick={() => removeCustomRegex(ruleIndex, regexIndex)}
-                    >
-                      Remove Regex
-                    </Button>
+                    <InputGroup size="md">
+                      <Input
+                        name={`rules[${ruleIndex}].regexes[${regexIndex}]`}
+                        value={regex}
+                        onChange={formik.handleChange}
+                        placeholder="Enter custom regex"
+                      />
+                      <InputRightElement width="4.5rem">
+                        <IconButton
+                          variant="ghost"
+                          aria-label="Remove custom regex"
+                          icon={<SmallCloseIcon />}
+                          onClick={() =>
+                            removeCustomRegex(ruleIndex, regexIndex)
+                          }
+                        />
+                      </InputRightElement>
+                    </InputGroup>
                   </FormControl>
                 ))}
 
               {rule.regexType === "custom" && (
-                <Button onClick={() => addCustomRegex(ruleIndex)}>
-                  Add Custom Regex
-                </Button>
+                <IconButton
+                  aria-label="Add custom regex"
+                  icon={<AddIcon />}
+                  onClick={() => addCustomRegex(ruleIndex)}
+                />
               )}
             </FormControl>
 
-            <Heading mt={4} as="h5" size="sm">
+            <Heading as="h5" size="sm">
               Knowledge
             </Heading>
-            <FormLabel>Notes</FormLabel>
-            {rule.newNotes.map((note, noteIndex) => (
-              <FormControl key={noteIndex}>
-                <Input
-                  name={`rules[${ruleIndex}].newNotes[${noteIndex}]`}
-                  value={note}
-                  onChange={formik.handleChange}
-                  placeholder="Enter note"
+            <Box borderWidth="1px" borderRadius="lg">
+              <HStack>
+                <FormLabel>notes</FormLabel>
+                <IconButton
+                  size="sm"
+                  aria-label="Add note"
+                  icon={<AddIcon />}
+                  onClick={() => addNote(ruleIndex)}
                 />
-                <Button mt={2} onClick={() => removeNote(ruleIndex, noteIndex)}>
-                  Remove Note
-                </Button>
-              </FormControl>
-            ))}
-            <Button mt={2} onClick={() => addNote(ruleIndex)}>
-              Add Note
-            </Button>
+              </HStack>
+              {rule.newNotes.map((note, noteIndex) => (
+                <FormControl key={noteIndex}>
+                  <InputGroup size="md">
+                    <Input
+                      name={`rules[${ruleIndex}].newNotes[${noteIndex}]`}
+                      value={note}
+                      onChange={formik.handleChange}
+                      placeholder="Enter note"
+                    />
+                    <InputRightElement width="4.5rem">
+                      <IconButton
+                        variant="ghost"
+                        aria-label="Remove note"
+                        icon={<SmallCloseIcon />}
+                        onClick={() => removeNote(ruleIndex, noteIndex)}
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
+              ))}
 
-            <Heading mt={4} as="h6" size="xs">
-              annotationRules
-            </Heading>
-            {rule.annotationRules.map((annotation, aIndex) => (
-              <>
-                <FormControl key={aIndex}>
-                  <FormLabel>selector</FormLabel>
-                  <Input
-                    name={`rules[${ruleIndex}].annotationRules[${aIndex}].newSelector`}
-                    onChange={formik.handleChange}
-                    value={annotation.newSelector}
-                    placeholder="Enter selector"
+              <Box borderWidth="1px" borderRadius="lg">
+                <HStack>
+                  <Heading as="h6" size="xs">
+                    Annotation Rules
+                  </Heading>
+                  <IconButton
+                    size="sm"
+                    aria-label="Add annotation"
+                    icon={<AddIcon />}
+                    onClick={() => addAnnotation(ruleIndex)}
                   />
-                </FormControl>
-                <FormControl>
-                  <FormLabel>useAttributeAsName</FormLabel>
-                  <Input
-                    name={`rules[${ruleIndex}].annotationRules[${aIndex}].newAttribute`}
-                    onChange={formik.handleChange}
-                    value={annotation.newAttribute}
-                    placeholder="Enter attribute"
-                  />
-                </FormControl>
-                <FormControl>
-                  <Flex alignItems="center">
-                    <Tooltip label="Allow invisible">
-                      <FormLabel>allowInvisible</FormLabel>
-                    </Tooltip>
-                    <Switch
-                      name={`rules[${aIndex}].annotationRules[${aIndex}].allowInvisible`}
-                      isChecked={annotation.allowInvisible}
-                      onChange={formik.handleChange}
-                    />
-                  </Flex>
-                </FormControl>
-                <FormControl>
-                  <Flex alignItems="center">
-                    <Tooltip label="Allow covered">
-                      <FormLabel>allowCovered</FormLabel>
-                    </Tooltip>
-                    <Switch
-                      name={`rules[${aIndex}].annotationRules[${aIndex}].allowCovered`}
-                      isChecked={annotation.allowCovered}
-                      onChange={formik.handleChange}
-                    />
-                  </Flex>
-                </FormControl>
-                <FormControl>
-                  <Flex alignItems="center">
-                    <Tooltip label="Allow aria hidden">
-                      <FormLabel>allowAriaHidden</FormLabel>
-                    </Tooltip>
-                    <Switch
-                      name={`rules[${aIndex}].annotationRules[${aIndex}].allowAriaHidden`}
-                      isChecked={annotation.allowAriaHidden}
-                      onChange={formik.handleChange}
-                    />
-                  </Flex>
-                </FormControl>
-                <Button
-                  mt={2}
-                  onClick={() => removeAnnotation(ruleIndex, aIndex)}
-                >
-                  Remove Annotation
-                </Button>
-              </>
-            ))}
-            <Button mt={2} onClick={() => addAnnotation(ruleIndex)}>
-              Add Annotation
-            </Button>
-            <Button
-              mt={4}
-              colorScheme="red"
-              onClick={() => removeRule(ruleIndex)}
-              isDisabled={formik.values.rules.length <= 1}
-            >
-              Remove Rule
-            </Button>
+                </HStack>
+                {rule.annotationRules.map((annotation, aIndex) =>
+                  renderAnnotationRules(ruleIndex, annotation, aIndex),
+                )}
+              </Box>
+
+              <Button
+                colorScheme="red"
+                onClick={() => removeRule(ruleIndex)}
+                isDisabled={formik.values.rules.length <= 1}
+              >
+                Remove Rule
+              </Button>
+            </Box>
           </Box>
         ))}
         <Button mt={4} onClick={addNewRule} colorScheme="blue">
