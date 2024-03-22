@@ -15,6 +15,8 @@ You can use the following tool:
 
 ${navigateSchemaDescription}
 
+You will have access to more tools as you progress through the task.
+
 You will be given a task to perform.
 This is an example of expected response from you:
 

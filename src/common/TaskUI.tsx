@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import {
   Button,
+  Box,
   HStack,
   Spacer,
   Textarea,
@@ -15,6 +16,7 @@ import RunTaskButton from "./RunTaskButton";
 import VoiceButton from "./VoiceButton";
 import TaskHistory from "./TaskHistory";
 import TaskStatus from "./TaskStatus";
+import RecommendedTasks from "./RecommendedTasks";
 
 function ActionExecutor() {
   const state = useAppState((state) => ({
@@ -30,7 +32,7 @@ function ActionExecutor() {
 }
 `);
   return (
-    <div>
+    <Box mt={4}>
       <Textarea
         value={action}
         onChange={(e) => setAction(e.target.value)}
@@ -48,7 +50,7 @@ function ActionExecutor() {
           Run
         </Button>
       </HStack>
-    </div>
+    </Box>
   );
 }
 
@@ -78,15 +80,16 @@ const TaskUI = () => {
     [toast],
   );
 
-  const runTask = useCallback(() => {
-    state.instructions && state.runTask(toastError);
-    // if (state.instructions) {
-    //   chrome.runtime.sendMessage({
-    //     action: 'runTask',
-    //     task: state.instructions,
-    //   });
-    // }
-  }, [state, toastError]);
+  const runTask = useCallback(
+    (newInstructions: string = "") => {
+      if (newInstructions) {
+        state.setInstructions(newInstructions);
+      }
+      const instructions = newInstructions || state.instructions;
+      instructions && state.runTask(toastError);
+    },
+    [state, toastError],
+  );
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -126,6 +129,9 @@ const TaskUI = () => {
             to stop. WebWand will run the task when you stop speaking.
           </AlertDescription>
         </Alert>
+      )}
+      {!state.voiceMode && !state.instructions && (
+        <RecommendedTasks runTask={runTask} />
       )}
       {debugMode && <ActionExecutor />}
       <TaskHistory />
