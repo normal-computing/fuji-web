@@ -11,27 +11,34 @@ import {
   AccordionPanel,
   AccordionIcon,
 } from "@chakra-ui/react";
-import { type DomainRules, type Rule } from "../helpers/knowledge/type";
 import { useAppState } from "../state/store";
 import NewKnowledgeForm from "./NewKnowledgeForm";
 
-type DomainKnowledgeProps = {
-  domainRules: DomainRules;
-  onRemove: () => void;
+type HostKnowledgeProps = {
+  host: string;
 };
 
-const DomainKnowledge = ({ domainRules, onRemove }: DomainKnowledgeProps) => {
-  const getJson = (domainRules: Rule): string => {
-    return JSON.stringify(domainRules, null, 2);
+const HostKnowledge = ({ host }: HostKnowledgeProps) => {
+  const hostData = useAppState((state) => state.settings.hostData);
+  const updateSettings = useAppState((state) => state.settings.actions.update);
+
+  const getJson = (): string => {
+    return JSON.stringify(hostData[host], null, 2);
+  };
+
+  const handleRemove = () => {
+    const newHostData = { ...hostData };
+    delete newHostData[host];
+    updateSettings({ hostData: newHostData });
   };
 
   return (
     <>
       <Heading as="h4" size="md">
-        {domainRules.domain}
+        {host}
       </Heading>
       <Accordion allowToggle>
-        {domainRules.rules.map((rule, ruleIndex) => (
+        {hostData[host].rules?.map((rule, ruleIndex) => (
           <AccordionItem key={ruleIndex} backgroundColor="white">
             <Heading as="h4" size="xs">
               <AccordionButton>
@@ -40,12 +47,12 @@ const DomainKnowledge = ({ domainRules, onRemove }: DomainKnowledgeProps) => {
               </AccordionButton>
             </Heading>
             <AccordionPanel>
-              <pre style={{ overflowX: "auto" }}>{getJson(rule)}</pre>
+              <pre style={{ overflowX: "auto" }}>{getJson()}</pre>
             </AccordionPanel>
           </AccordionItem>
         ))}
       </Accordion>
-      <Button colorScheme="red" onClick={onRemove} mt={4}>
+      <Button colorScheme="red" onClick={handleRemove}>
         Remove
       </Button>
     </>
@@ -53,25 +60,14 @@ const DomainKnowledge = ({ domainRules, onRemove }: DomainKnowledgeProps) => {
 };
 
 const CustomKnowledgeBase = () => {
-  const domainRules = useAppState((state) => state.settings.domainRules);
-  const updateSettings = useAppState((state) => state.settings.actions.update);
-
-  const removeDomainRule = (domainIndex: number) => {
-    const updatedDomainRules = domainRules.filter(
-      (_, index) => index !== domainIndex,
-    );
-    updateSettings({ domainRules: updatedDomainRules });
-  };
+  const hostData = useAppState((state) => state.settings.hostData);
 
   return (
     <VStack spacing={4}>
-      {domainRules.length > 0 ? (
-        domainRules.map((rules, index) => (
-          <Box key={index} w="full" p={4} borderWidth="1px" borderRadius="lg">
-            <DomainKnowledge
-              domainRules={rules}
-              onRemove={() => removeDomainRule(index)}
-            />
+      {Object.keys(hostData).length > 0 ? (
+        Object.keys(hostData).map((host) => (
+          <Box key={host} w="full" p={4} borderWidth="1px" borderRadius="lg">
+            <HostKnowledge host={host} />
           </Box>
         ))
       ) : (

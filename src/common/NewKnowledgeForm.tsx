@@ -26,14 +26,14 @@ import { findActiveTab } from "../helpers/browserUtils";
 import { useAppState } from "../state/store";
 
 const NewKnowledgeForm = () => {
-  const [defaultDomain, setDefaultDomain] = useState("");
+  const [defaultHost, setDefaultHost] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const updateSettings = useAppState((state) => state.settings.actions.update);
-  const domainRules = useAppState((state) => state.settings.domainRules);
+  const hostData = useAppState((state) => state.settings.hostData);
 
   const formik = useFormik({
     initialValues: {
-      newDomain: defaultDomain,
+      newHost: defaultHost,
       rules: [
         {
           newRegexes: "",
@@ -49,8 +49,8 @@ const NewKnowledgeForm = () => {
       ],
     },
     onSubmit: (values) => {
-      const { newDomain, rules } = values;
-      const domain = newDomain !== "" ? newDomain : defaultDomain;
+      const { newHost, rules } = values;
+      const host = newHost !== "" ? newHost : defaultHost;
       const newRules = rules.map((rule) => {
         let regexes: string[];
         switch (rule.newRegexType) {
@@ -58,7 +58,7 @@ const NewKnowledgeForm = () => {
             regexes = [".*"];
             break;
           case "one":
-            regexes = [`^https?://${domain.replace(/\./g, "\\.")}$`];
+            regexes = [`^https?://${host.replace(/\./g, "\\.")}$`];
             break;
           case "custom":
             regexes = [rule.customRegex];
@@ -84,12 +84,8 @@ const NewKnowledgeForm = () => {
         };
       });
 
-      const newDomainRules = {
-        domain,
-        rules: newRules,
-      };
-
-      updateSettings({ domainRules: [...domainRules, newDomainRules] });
+      const updatedHostData = { ...hostData, [host]: { rules: newRules } };
+      updateSettings({ hostData: updatedHostData });
 
       handleCloseForm();
     },
@@ -120,8 +116,8 @@ const NewKnowledgeForm = () => {
     const tab = await findActiveTab();
     if (tab && tab.url) {
       const url = new URL(tab.url);
-      const domain = url.hostname.replace(/^www\./, "");
-      setDefaultDomain(domain);
+      const host = url.hostname.replace(/^www\./, "");
+      setDefaultHost(host);
     }
     onOpen();
   };
@@ -131,7 +127,7 @@ const NewKnowledgeForm = () => {
 
     formik.resetForm({
       values: {
-        newDomain: defaultDomain,
+        newHost: defaultHost,
         rules: [
           {
             newRegexes: "",
@@ -151,22 +147,22 @@ const NewKnowledgeForm = () => {
 
   return (
     <>
-      <Button onClick={handleOpenNewKnowledgeForm}>Add Domain Knowledge</Button>
+      <Button onClick={handleOpenNewKnowledgeForm}>Add Host Knowledge</Button>
       <Modal isOpen={isOpen} onClose={handleCloseForm}>
         <ModalOverlay />
         <ModalContent>
           <form onSubmit={formik.handleSubmit}>
-            <ModalHeader>New Domain Knowledge</ModalHeader>
+            <ModalHeader>New Host Knowledge</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <FormControl isRequired>
-                <FormLabel>Domain</FormLabel>
+                <FormLabel>Host</FormLabel>
                 <Input
-                  name="newDomain"
+                  name="newHost"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  value={formik.values.newDomain || defaultDomain}
-                  placeholder="Enter domain name"
+                  value={formik.values.newHost || defaultHost}
+                  placeholder="Enter host name"
                 />
               </FormControl>
 
@@ -182,7 +178,7 @@ const NewKnowledgeForm = () => {
                       onChange={formik.handleChange}
                       value={rule.newRegexType}
                     >
-                      <option value="all">Any URL on this domain</option>
+                      <option value="all">Any URL on this host</option>
                       <option value="one">Only this URL</option>
                       <option value="custom">Custom regex</option>
                     </Select>

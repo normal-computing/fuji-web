@@ -18,7 +18,7 @@ export type Knowledge = {
   annotationRules?: AnnotationRule[];
 };
 
-type Data = {
+export type Data = {
   [host: string]: {
     rules?: {
       regexes: string[];
