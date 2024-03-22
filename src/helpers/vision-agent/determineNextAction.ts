@@ -50,6 +50,7 @@ export type Action = {
 
 export async function determineNextActionWithVision(
   taskInstructions: string,
+  url: URL,
   knowledge: Knowledge,
   previousActions: Action[],
   screenshotData: string,
@@ -67,6 +68,7 @@ export async function determineNextActionWithVision(
   const prompt = formatPrompt(
     taskInstructions,
     previousActions,
+    url,
     knowledge,
     labelData,
     viewportPercentage,
@@ -150,6 +152,7 @@ export async function determineNextActionWithVision(
 export function formatPrompt(
   taskInstructions: string,
   previousActions: Action[],
+  url: URL,
   knowledge: Knowledge,
   labelData: LabelData[],
   viewportPercentage: number,
@@ -167,6 +170,11 @@ export function formatPrompt(
       .join("\n\n");
     previousActionsString = `You have already taken the following actions: \n${serializedActions}\n\n`;
   }
+  let urlString = url.href;
+  // do not include search if it's too long
+  if (url.search.length > 100) {
+    urlString = url.origin + url.pathname;
+  }
 
   let result = `The user requests the following task:
 
@@ -175,7 +183,8 @@ ${taskInstructions}
 ${previousActionsString}
 
 Current time: ${new Date().toLocaleString()}
-Current page progress: ${viewportPercentage.toFixed(1)}%
+Current URL: ${urlString}
+Current page scrolling position: ${viewportPercentage.toFixed(1)}%
 `;
 
   if (knowledge.notes != null && knowledge.notes?.length > 0) {
