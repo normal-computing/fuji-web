@@ -51,8 +51,9 @@ const NewKnowledgeForm = ({
             notes: [""],
             annotationRules: [
               {
-                newSelector: "",
-                newAttribute: "",
+                selector: "",
+                useAttributeAsName: "",
+                useStaticName: "",
                 allowInvisible: false,
                 allowCovered: false,
                 allowAriaHidden: false,
@@ -139,8 +140,9 @@ const NewKnowledgeForm = ({
         notes: [""],
         annotationRules: [
           {
-            newSelector: "",
-            newAttribute: "",
+            selector: "",
+            useAttributeAsName: "",
+            useStaticName: "",
             allowInvisible: false,
             allowCovered: false,
             allowAriaHidden: false,
@@ -170,8 +172,9 @@ const NewKnowledgeForm = ({
 
   const addAnnotation = (ruleIndex: number) => {
     const newAnnotationRule = {
-      newSelector: "",
-      newAttribute: "",
+      selector: "",
+      useAttributeAsName: "",
+      useStaticName: "",
       allowInvisible: false,
       allowCovered: false,
       allowAriaHidden: false,
@@ -219,10 +222,10 @@ const NewKnowledgeForm = ({
   const renderAnnotationRules = (ruleIndex, annotation, aIndex) => (
     <Box key={aIndex} borderWidth="1px" borderRadius="lg" p={4} mt={2}>
       <FormControl>
-        <FormLabel>Selector</FormLabel>
+        <FormLabel>selector</FormLabel>
         <Input
-          name={`rules[${ruleIndex}].knowledge.annotationRules[${aIndex}].newSelector`}
-          value={annotation.newSelector}
+          name={`rules[${ruleIndex}].knowledge.annotationRules[${aIndex}].selector`}
+          value={annotation.selector}
           onChange={formik.handleChange}
           placeholder="Enter selector"
         />
@@ -231,10 +234,20 @@ const NewKnowledgeForm = ({
       <FormControl mt={2}>
         <FormLabel>useAttributeAsName</FormLabel>
         <Input
-          name={`rules[${ruleIndex}].knowledge.annotationRules[${aIndex}].newAttribute`}
-          value={annotation.newAttribute}
+          name={`rules[${ruleIndex}].knowledge.annotationRules[${aIndex}].useAttributeAsName`}
+          value={annotation.useAttributeAsName}
           onChange={formik.handleChange}
           placeholder="Enter attribute to use as name"
+        />
+      </FormControl>
+
+      <FormControl mt={2}>
+        <FormLabel>useStaticName</FormLabel>
+        <Input
+          name={`rules[${ruleIndex}].knowledge.annotationRules[${aIndex}].useStaticName`}
+          value={annotation.useStaticName}
+          onChange={formik.handleChange}
+          placeholder="Enter static name"
         />
       </FormControl>
 
@@ -335,7 +348,7 @@ const NewKnowledgeForm = ({
             </FormControl>
 
             <FormControl mt={4}>
-              <FormLabel>Notes</FormLabel>
+              <FormLabel>notes</FormLabel>
               {rule.knowledge.notes.map((note, noteIndex) => (
                 <InputGroup key={noteIndex} size="md" mb={2}>
                   <Input
