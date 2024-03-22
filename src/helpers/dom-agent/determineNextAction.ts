@@ -2,8 +2,10 @@ import OpenAI from "openai";
 import { useAppState } from "../../state/store";
 import { availableActions } from "./availableActions";
 import { ParsedResponseSuccess, parseResponse } from "./parseResponse";
-import { Action, QueryResult } from "../vision-agent/determineNextAction";
+import { QueryResult } from "../vision-agent/determineNextAction";
 import errorChecker from "../errorChecker";
+
+type Action = NonNullable<QueryResult>["action"];
 
 const formattedActions = availableActions
   .map((action, i) => {

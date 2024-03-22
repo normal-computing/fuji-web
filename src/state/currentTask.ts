@@ -4,13 +4,16 @@ import {
   disableIncompatibleExtensions,
   reenableExtensions,
 } from "../helpers/disableExtensions";
+import { determineNextAction } from "../helpers/dom-agent/determineNextAction";
 import {
   determineNextActionWithVision,
-  parseResponse,
   type QueryResult,
-  type Action,
 } from "../helpers/vision-agent/determineNextAction";
-import { determineNextAction } from "../helpers/dom-agent/determineNextAction";
+import { determineNavigateAction } from "../helpers/vision-agent/determineNavigateAction";
+import {
+  type Action,
+  parseResponse,
+} from "../helpers/vision-agent/parseResponse";
 import { callRPCWithTab } from "../helpers/rpc/pageRPC";
 import { getSimplifiedDom } from "../helpers/simplifyDom";
 import { sleep, truthyFilter } from "../helpers/utils";
@@ -97,33 +100,86 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
         // eslint-disable-next-line no-constant-condition
         while (true) {
+          if (wasStopped()) break;
+
           // get latest tab info, since button clicking might have changed it
           const activeTab = await findActiveTab();
           const tabId = activeTab?.id || -1;
           if (!activeTab || !tabId) {
             throw new Error("No active tab found");
           }
+
+          const isVisionModel =
+            get().settings.selectedModel === "gpt-4-vision-preview";
+
+          const performAction = async (
+            query: QueryResult,
+          ): Promise<boolean> => {
+            if (query == null) {
+              set((state) => {
+                state.currentTask.status = "error";
+              });
+              return false;
+            }
+
+            setActionStatus("performing-action");
+            if (voiceMode && "thought" in query.action) {
+              voiceControl.speak(query.action.thought, onError);
+            }
+
+            set((state) => {
+              query &&
+                state.currentTask.history.push({
+                  prompt: query.prompt,
+                  response: query.rawResponse,
+                  action: query.action,
+                  usage: query.usage,
+                });
+            });
+            if (
+              query.action.operation === null ||
+              query.action.operation.name === "finish" ||
+              query.action.operation.name === "fail"
+            ) {
+              return false;
+            }
+            if (isVisionModel) {
+              await operateTool(tabId, query.action.operation);
+            } else {
+              await operateToolWithSimpliedDom(tabId, query.action.operation);
+            }
+            return true;
+          };
+
+          setActionStatus("performing-query");
+          let query: QueryResult | null = null;
+
+          // check if the tab does not allow attaching debugger, e.g. chrome:// pages
+          if (activeTab.url?.startsWith("chrome")) {
+            query = await determineNavigateAction(instructions);
+
+            if (wasStopped()) break;
+
+            const shouldContinue = await performAction(query);
+            if (shouldContinue) {
+              // if navigation was successful, continue the task on the new page
+              setActionStatus("waiting");
+              // sleep 2 seconds. This is pretty arbitrary; we should figure out a better way to determine when the page has settled.
+              await sleep(2000);
+              continue;
+            } else {
+              break;
+            }
+          }
           await attachDebugger(tabId);
+
           set((state) => {
             state.currentTask.tabId = tabId;
           });
-          if (wasStopped()) break;
 
           const previousActions = get()
             .currentTask.history.map((entry) => entry.action)
             .filter(truthyFilter);
-
-          setActionStatus("performing-query");
-
-          let query: QueryResult | null = null;
-
-          const isVisionModel =
-            get().settings.selectedModel === "gpt-4-vision-preview";
-          const viewportPercentage = await callRPCWithTab(
-            tabId,
-            "getViewportPercentage",
-            [],
-          );
 
           if (isVisionModel) {
             const url = new URL(activeTab.url ?? "");
@@ -131,6 +187,11 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             const [imgData, labelData] = await buildAnnotatedScreenshots(
               tabId,
               knowledge,
+            );
+            const viewportPercentage = await callRPCWithTab(
+              tabId,
+              "getViewportPercentage",
+              [],
             );
             if (wasStopped()) break;
             query = await determineNextActionWithVision(
@@ -164,43 +225,11 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             );
           }
 
-          if (query == null) {
-            set((state) => {
-              state.currentTask.status = "error";
-            });
-            break;
-          }
-
           if (wasStopped()) break;
 
-          setActionStatus("performing-action");
-          if (voiceMode && "thought" in query.action) {
-            voiceControl.speak(query.action.thought, onError);
-          }
+          const shouldContinue = await performAction(query);
 
-          set((state) => {
-            query &&
-              state.currentTask.history.push({
-                prompt: query.prompt,
-                response: query.rawResponse,
-                action: query.action,
-                usage: query.usage,
-              });
-          });
-          if (
-            query.action.operation === null ||
-            query.action.operation.name === "finish" ||
-            query.action.operation.name === "fail"
-          ) {
-            break;
-          }
-          if (isVisionModel) {
-            await operateTool(tabId, query.action.operation);
-          } else {
-            await operateToolWithSimpliedDom(tabId, query.action.operation);
-          }
-
-          if (wasStopped()) break;
+          if (wasStopped() || !shouldContinue) break;
 
           // While testing let's automatically stop after 50 actions to avoid
           // infinite loops
