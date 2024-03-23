@@ -80,16 +80,17 @@ const TaskUI = () => {
     [toast],
   );
 
-  const runTask = useCallback(
-    (newInstructions: string = "") => {
-      if (newInstructions) {
-        state.setInstructions(newInstructions);
-      }
-      const instructions = newInstructions || state.instructions;
-      instructions && state.runTask(toastError);
-    },
-    [state, toastError],
-  );
+  const runTask = useCallback(() => {
+    state.instructions && state.runTask(toastError);
+  }, [state, toastError]);
+
+  const runTaskWithNewInstructions = (newInstructions: string = "") => {
+    if (!newInstructions) {
+      return;
+    }
+    state.setInstructions(newInstructions);
+    state.runTask(toastError);
+  };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -131,7 +132,7 @@ const TaskUI = () => {
         </Alert>
       )}
       {!state.voiceMode && !state.instructions && (
-        <RecommendedTasks runTask={runTask} />
+        <RecommendedTasks runTask={runTaskWithNewInstructions} />
       )}
       {debugMode && <ActionExecutor />}
       <TaskHistory />
