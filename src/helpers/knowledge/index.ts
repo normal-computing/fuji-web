@@ -34,7 +34,7 @@ export type LocationInfo = {
 
 export function fetchKnowledge(
   location: LocationInfo,
-  customHostData: Data,
+  customHostData?: Data,
 ): Knowledge {
   // TODO: fetch from a server
   const data = _db as Data;
@@ -53,9 +53,11 @@ export function fetchKnowledge(
     result = mergeKnowledge(result, hostData, location.pathname);
   }
 
-  const customData = customHostData[host];
-  if (customData) {
-    result = mergeKnowledge(result, customData, location.pathname);
+  if (customHostData) {
+    const customData = customHostData[host];
+    if (customData) {
+      result = mergeKnowledge(result, customData, location.pathname);
+    }
   }
 
   return result;
@@ -73,8 +75,14 @@ function mergeKnowledge(
         if (new RegExp(regex, "i").test(pathname)) {
           // merge all matching rules
           result.notes = result.notes?.concat(rule.knowledge.notes ?? []);
+
+          // filter out invalid annotaion rules
+          const filteredAnnotationRules =
+            rule.knowledge.annotationRules?.filter(
+              (rule) => rule.selector !== "",
+            ) ?? [];
           result.annotationRules = result.annotationRules?.concat(
-            rule.knowledge.annotationRules ?? [],
+            filteredAnnotationRules,
           );
         }
       }
