@@ -32,32 +32,50 @@ export type LocationInfo = {
   pathname: string;
 };
 
-export function fetchKnowledge(location: LocationInfo): Knowledge {
+export function fetchKnowledge(
+  location: LocationInfo,
+  customHostData: Data,
+): Knowledge {
   // TODO: fetch from a server
   const data = _db as Data;
   const redirects = _redirects as Redirects;
-  const result: Knowledge = {
+  let result: Knowledge = {
     notes: [],
     annotationRules: [],
   };
 
   const { host, pathname } = location;
   if (redirects[host] != null) {
-    return fetchKnowledge({ host: redirects[host], pathname });
+    return fetchKnowledge({ host: redirects[host], pathname }, customHostData);
   }
   const hostData = data[host];
   if (hostData) {
-    const rules = hostData.rules;
-    if (rules != null) {
-      for (const rule of rules) {
-        for (const regex of rule.regexes) {
-          if (new RegExp(regex, "i").test(pathname)) {
-            // merge all matching rules
-            result.notes = result.notes?.concat(rule.knowledge.notes ?? []);
-            result.annotationRules = result.annotationRules?.concat(
-              rule.knowledge.annotationRules ?? [],
-            );
-          }
+    result = mergeKnowledge(result, hostData, location.pathname);
+  }
+
+  const customData = customHostData[host];
+  if (customData) {
+    result = mergeKnowledge(result, customData, location.pathname);
+  }
+
+  return result;
+}
+
+function mergeKnowledge(
+  result: Knowledge,
+  dataSource: { rules?: { regexes: string[]; knowledge: Knowledge }[] },
+  pathname: string,
+): Knowledge {
+  const rules = dataSource.rules;
+  if (rules != null) {
+    for (const rule of rules) {
+      for (const regex of rule.regexes) {
+        if (new RegExp(regex, "i").test(pathname)) {
+          // merge all matching rules
+          result.notes = result.notes?.concat(rule.knowledge.notes ?? []);
+          result.annotationRules = result.annotationRules?.concat(
+            rule.knowledge.annotationRules ?? [],
+          );
         }
       }
     }

@@ -1,4 +1,3 @@
-// NewKnowledgeForm.tsx
 import React, { useState, useEffect } from "react";
 import {
   Button,
@@ -343,7 +342,7 @@ const NewKnowledgeForm = ({
                   </InputGroup>
                 ))}
               <Button mt={2} onClick={() => addCustomRegex(ruleIndex)}>
-                Add Regex
+                Add Another Regex
               </Button>
             </FormControl>
 
@@ -367,7 +366,7 @@ const NewKnowledgeForm = ({
                 </InputGroup>
               ))}
               <Button mt={2} onClick={() => addNote(ruleIndex)}>
-                Add Note
+                Add Another Note
               </Button>
             </FormControl>
 
@@ -378,7 +377,7 @@ const NewKnowledgeForm = ({
               renderAnnotationRules(ruleIndex, annotation, aIndex),
             )}
             <Button mt={2} onClick={() => addAnnotation(ruleIndex)}>
-              Add Annotation
+              Add Another Annotation
             </Button>
 
             <Button
