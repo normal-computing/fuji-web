@@ -4,14 +4,18 @@
  */
 export async function getUserPermission(): Promise<void> {
   return new Promise((resolve, reject) => {
-    console.log("Getting user permission for microphone access...");
-
     // Using navigator.mediaDevices.getUserMedia to request microphone access
     navigator.mediaDevices
       .getUserMedia({ audio: true })
-      .then(() => {
+      .then((stream) => {
         // Permission granted, handle the stream if needed
         console.log("Microphone access granted");
+
+        // Stop the tracks to prevent the recording indicator from being shown
+        stream.getTracks().forEach(function (track) {
+          track.stop();
+        });
+
         resolve();
       })
       .catch((error) => {
