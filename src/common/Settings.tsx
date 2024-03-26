@@ -3,7 +3,6 @@ import {
   Alert,
   AlertIcon,
   AlertDescription,
-  Heading,
   IconButton,
   HStack,
   FormControl,
@@ -17,8 +16,16 @@ import {
   Flex,
   Spacer,
   useToast,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
 } from "@chakra-ui/react";
-import { ArrowBackIcon, RepeatIcon, EditIcon } from "@chakra-ui/icons";
+import {
+  ArrowBackIcon,
+  RepeatIcon,
+  EditIcon,
+  ChevronRightIcon,
+} from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
 import ModelDropdown from "./ModelDropdown";
 import { callRPC } from "../helpers/rpc/pageRPC";
@@ -43,7 +50,8 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
   const isVisionModel = state.selectedModel === "gpt-4-vision-preview";
 
   const closeSetting = () => setInSettingsView(false);
-  const toggleCKB = () => setShowCKB(!showCKB);
+  const openCKB = () => setShowCKB(true);
+  const backToSettings = () => setShowCKB(false);
 
   async function checkMicrophonePermission(): Promise<PermissionState> {
     if (!navigator.permissions) {
@@ -87,12 +95,21 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
         <IconButton
           variant="outline"
           icon={<ArrowBackIcon />}
-          onClick={closeSetting}
-          aria-label="close settings"
+          onClick={() => (showCKB ? backToSettings() : closeSetting())}
+          aria-label="go back"
         />
-        <Heading as="h4" size="md">
-          Settings
-        </Heading>
+        <Breadcrumb separator={<ChevronRightIcon color="gray.500" />}>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#" onClick={backToSettings}>
+              Settings
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          {showCKB && (
+            <BreadcrumbItem isCurrentPage>
+              <BreadcrumbLink href="#">CKB</BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
+        </Breadcrumb>
       </HStack>
       {showCKB ? (
         <CustomKnowledgeBase />
@@ -173,7 +190,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             <Button
               id="custom-knowledge"
               rightIcon={<EditIcon />}
-              onClick={toggleCKB}
+              onClick={openCKB}
             >
               Edit
             </Button>
