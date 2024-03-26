@@ -15,7 +15,8 @@ import {
   StackDivider,
   Flex,
   Spacer,
- useToast } from "@chakra-ui/react";
+  useToast,
+} from "@chakra-ui/react";
 import { ArrowBackIcon, RepeatIcon } from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
 import React from "react";
