@@ -44,42 +44,12 @@ class VoiceControlManager {
     }
   }
 
-  private async checkMicrophonePermission(): Promise<PermissionState> {
-    if (!navigator.permissions) {
-      return "prompt";
-    }
-    try {
-      const permissionName = "microphone" as PermissionName;
-      const permissionStatus = await navigator.permissions.query({
-        name: permissionName,
-      });
-      return permissionStatus.state;
-    } catch (error) {
-      console.error("Error checking microphone permission:", error);
-      return "denied";
-    }
-  }
-
   public startListening = async (): Promise<void> => {
     if (!this.recognition) {
       console.error("Speech Recognition is not initialized.");
       return;
     }
 
-    const permissionState = await this.checkMicrophonePermission();
-    if (permissionState === "denied") {
-      // TODO: more obvious error handling
-      console.error(
-        "Microphone access was previously denied. Please enable it in your browser settings.",
-      );
-      return;
-    }
-    if (permissionState === "prompt") {
-      // TODO: use offsceen api to handle asking for permission
-      console.log("Ask for permission not on page load");
-    }
-
-    // permission granted
     this.cumulativeTranscript = "";
     this.setTranscription = useAppState.getState().ui.actions.setInstructions;
     this.recognition.start();

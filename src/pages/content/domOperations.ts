@@ -8,6 +8,7 @@ import { drawLabels, removeLabels } from "./drawLabels";
 import ripple from "./ripple";
 import { getDataFromRenderedMarkdown } from "./reverseMarkdown";
 import getViewportPercentage from "./getViewportPercentage";
+import { injectMicrophonePermissionIframe } from "./permission";
 
 export const rpcMethods = {
   getAnnotatedDOM,
@@ -19,6 +20,7 @@ export const rpcMethods = {
   removeLabels,
   getDataFromRenderedMarkdown,
   getViewportPercentage,
+  injectMicrophonePermissionIframe,
 } as const;
 
 export type RPCMethods = typeof rpcMethods;
