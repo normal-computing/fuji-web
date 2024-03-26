@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useAppState } from "../state/store";
 import NewKnowledgeForm from "./NewKnowledgeForm";
-import { type EditingHostData } from "../helpers/knowledge";
+import { type EditingData } from "../helpers/knowledge";
 
 type HostKnowledgeProps = {
   host: string;
@@ -25,17 +25,19 @@ type HostKnowledgeProps = {
 };
 
 const HostKnowledge = ({ host, onEdit }: HostKnowledgeProps) => {
-  const hostData = useAppState((state) => state.settings.hostData);
+  const customKnowledgeBase = useAppState(
+    (state) => state.settings.customKnowledgeBase,
+  );
   const updateSettings = useAppState((state) => state.settings.actions.update);
 
   const getJson = (): string => {
-    return JSON.stringify(hostData[host], null, 2);
+    return JSON.stringify(customKnowledgeBase[host], null, 2);
   };
 
   const handleRemove = () => {
-    const newHostData = { ...hostData };
-    delete newHostData[host];
-    updateSettings({ hostData: newHostData });
+    const newKnowledge = { ...customKnowledgeBase };
+    delete newKnowledge[host];
+    updateSettings({ customKnowledgeBase: newKnowledge });
   };
 
   return (
@@ -44,7 +46,7 @@ const HostKnowledge = ({ host, onEdit }: HostKnowledgeProps) => {
         {host}
       </Heading>
       <Accordion allowToggle>
-        {hostData[host].rules?.map((rule, ruleIndex) => (
+        {customKnowledgeBase[host].rules?.map((rule, ruleIndex) => (
           <AccordionItem key={ruleIndex} backgroundColor="white">
             <Heading as="h4" size="xs">
               <AccordionButton>
@@ -70,19 +72,21 @@ const HostKnowledge = ({ host, onEdit }: HostKnowledgeProps) => {
 
 const CustomKnowledgeBase = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingHostData, setEditingHostData] = useState<
-    EditingHostData | undefined
-  >(undefined);
-  const hostData = useAppState((state) => state.settings.hostData);
+  const [editKnowledge, setEditKnowledge] = useState<EditingData | undefined>(
+    undefined,
+  );
+  const customKnowledgeBase = useAppState(
+    (state) => state.settings.customKnowledgeBase,
+  );
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingHostData(undefined);
+    setEditKnowledge(undefined);
   };
 
   const openEditForm = (host: string) => {
-    const originalRules = hostData[host].rules;
+    const originalRules = customKnowledgeBase[host].rules;
 
     const transformedRules = originalRules?.map((rule) => ({
       ...rule,
@@ -90,7 +94,7 @@ const CustomKnowledgeBase = () => {
     }));
 
     if (transformedRules) {
-      setEditingHostData({
+      setEditKnowledge({
         host,
         rules: transformedRules,
       });
@@ -101,8 +105,8 @@ const CustomKnowledgeBase = () => {
 
   return (
     <VStack spacing={4}>
-      {Object.keys(hostData).length > 0 ? (
-        Object.keys(hostData).map((host) => (
+      {Object.keys(customKnowledgeBase).length > 0 ? (
+        Object.keys(customKnowledgeBase).map((host) => (
           <Box key={host} w="full" p={4} borderWidth="1px" borderRadius="lg">
             <HostKnowledge host={host} onEdit={openEditForm} />
           </Box>
@@ -116,8 +120,8 @@ const CustomKnowledgeBase = () => {
         <ModalContent>
           <ModalCloseButton />
           <NewKnowledgeForm
-            isEditMode={!!editingHostData}
-            editData={editingHostData}
+            isEditMode={!!editKnowledge}
+            editKnowledge={editKnowledge}
             onSaved={closeModal}
           />
         </ModalContent>

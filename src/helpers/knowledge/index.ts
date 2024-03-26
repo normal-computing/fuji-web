@@ -35,7 +35,7 @@ export type EditingRule = Rule & {
 };
 
 // data type used only in editing mode
-export type EditingHostData = {
+export type EditingData = {
   host: string;
   rules: EditingRule[];
 };
@@ -47,7 +47,7 @@ export type LocationInfo = {
 
 export function fetchKnowledge(
   location: LocationInfo,
-  customHostData?: Data,
+  customKnowledgeBase?: Data,
 ): Knowledge {
   // TODO: fetch from a server
   const data = _db as Data;
@@ -59,17 +59,20 @@ export function fetchKnowledge(
 
   const { host, pathname } = location;
   if (redirects[host] != null) {
-    return fetchKnowledge({ host: redirects[host], pathname }, customHostData);
+    return fetchKnowledge(
+      { host: redirects[host], pathname },
+      customKnowledgeBase,
+    );
   }
-  const hostData = data[host];
-  if (hostData) {
-    result = mergeKnowledge(result, hostData, location.pathname);
+  const hostKnowledge = data[host];
+  if (hostKnowledge) {
+    result = mergeKnowledge(result, hostKnowledge, location.pathname);
   }
 
-  if (customHostData) {
-    const customData = customHostData[host];
-    if (customData) {
-      result = mergeKnowledge(result, customData, location.pathname);
+  if (customKnowledgeBase) {
+    const customKnowledge = customKnowledgeBase[host];
+    if (customKnowledge) {
+      result = mergeKnowledge(result, customKnowledge, location.pathname);
     }
   }
 

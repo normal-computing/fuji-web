@@ -19,25 +19,24 @@ import { SmallCloseIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
 import { findActiveTab } from "../helpers/browserUtils";
 import { useAppState } from "../state/store";
-import {
-  type EditingHostData,
-  type AnnotationRule,
-} from "../helpers/knowledge";
+import { type EditingData, type AnnotationRule } from "../helpers/knowledge";
 
 type NewKnowledgeFormProps = {
   isEditMode?: boolean;
-  editData?: EditingHostData;
+  editKnowledge?: EditingData;
   onSaved: () => void;
 };
 
 const NewKnowledgeForm = ({
   isEditMode = false,
-  editData,
+  editKnowledge,
   onSaved,
 }: NewKnowledgeFormProps) => {
   const [defaultHost, setDefaultHost] = useState("");
   const updateSettings = useAppState((state) => state.settings.actions.update);
-  const hostData = useAppState((state) => state.settings.hostData);
+  const customKnowledgeBase = useAppState(
+    (state) => state.settings.customKnowledgeBase,
+  );
 
   const formik = useFormik({
     initialValues: {
@@ -65,8 +64,8 @@ const NewKnowledgeForm = ({
     onSubmit: (values) => {
       const { newHost, rules } = values;
       const host =
-        isEditMode && editData
-          ? editData.host
+        isEditMode && editKnowledge
+          ? editKnowledge.host
           : newHost !== ""
             ? newHost
             : defaultHost;
@@ -98,19 +97,19 @@ const NewKnowledgeForm = ({
         },
       );
 
-      const updatedHostData = {
-        ...hostData,
+      const updatedKnowledge = {
+        ...customKnowledgeBase,
         [host]: { rules: transformedRules },
       };
-      updateSettings({ hostData: updatedHostData });
+      updateSettings({ customKnowledgeBase: updatedKnowledge });
       onSaved();
     },
   });
 
   useEffect(() => {
-    if (isEditMode && editData) {
-      // type EditingHostData may have values that are undefined. handle by setting to default
-      const rulesWithDefaults = editData.rules.map((rule) => ({
+    if (isEditMode && editKnowledge) {
+      // type EditingData may have values that are undefined. handle by setting to default
+      const rulesWithDefaults = editKnowledge.rules.map((rule) => ({
         ...rule,
         knowledge: {
           ...rule.knowledge,
@@ -128,7 +127,7 @@ const NewKnowledgeForm = ({
       }));
 
       formik.setValues({
-        newHost: editData.host,
+        newHost: editKnowledge.host,
         rules: rulesWithDefaults,
       });
     } else {

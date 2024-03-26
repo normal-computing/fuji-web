@@ -183,8 +183,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           if (isVisionModel) {
             const url = new URL(activeTab.url ?? "");
-            const customHostData = get().settings.hostData;
-            const knowledge = await fetchKnowledge(url, customHostData);
+            const customKnowledgeBase = get().settings.customKnowledgeBase;
+            const knowledge = await fetchKnowledge(url, customKnowledgeBase);
             const [imgData, labelData] = await buildAnnotatedScreenshots(
               tabId,
               knowledge,
@@ -281,10 +281,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       if (!activeTab || !tabId) {
         throw new Error("No active tab found");
       }
-      const customHostData = get().settings.hostData;
+      const customKnowledgeBase = get().settings.customKnowledgeBase;
       const knowledge = await fetchKnowledge(
         new URL(activeTab.url ?? ""),
-        customHostData,
+        customKnowledgeBase,
       );
       const [imgData, labelData] = await buildAnnotatedScreenshots(
         tabId,
@@ -299,10 +299,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       if (!activeTab || !tabId) {
         throw new Error("No active tab found");
       }
-      const customHostData = get().settings.hostData;
+      const customKnowledgeBase = get().settings.customKnowledgeBase;
       const knowledge = await fetchKnowledge(
         new URL(activeTab.url ?? ""),
-        customHostData,
+        customKnowledgeBase,
       );
       await callRPCWithTab(tabId, "drawLabels", [knowledge]);
       await sleep(800);
