@@ -54,6 +54,8 @@ const manifest = {
         "assets/fonts/*",
         "icon-128.png",
         "icon-34.png",
+        "src/pages/permission/index.html",
+        "src/pages/permission/requestPermissions.ts",
       ],
       matches: ["*://*/*"],
     },

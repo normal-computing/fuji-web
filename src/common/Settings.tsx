@@ -15,11 +15,13 @@ import {
   StackDivider,
   Flex,
   Spacer,
+  useToast,
 } from "@chakra-ui/react";
 import { ArrowBackIcon, RepeatIcon } from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
 import React from "react";
 import ModelDropdown from "./ModelDropdown";
+import { callRPC } from "../helpers/rpc/pageRPC";
 
 interface SettingsProps {
   setInSettingsView: React.Dispatch<React.SetStateAction<boolean>>;
@@ -32,12 +34,49 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
     voiceMode: state.settings.voiceMode,
     openAIKey: state.settings.openAIKey,
   }));
+  const toast = useToast();
 
   if (!state.openAIKey) return null;
 
   const isVisionModel = state.selectedModel === "gpt-4-vision-preview";
 
   const closeSetting = () => setInSettingsView(false);
+
+  async function checkMicrophonePermission(): Promise<PermissionState> {
+    if (!navigator.permissions) {
+      return "prompt";
+    }
+    try {
+      const permission = await navigator.permissions.query({
+        name: "microphone" as PermissionName,
+      });
+      return permission.state;
+    } catch (error) {
+      console.error("Error checking microphone permission:", error);
+      return "denied";
+    }
+  }
+
+  const handleVoiceMode = async (isEnabled: boolean) => {
+    if (isEnabled) {
+      const permissionState = await checkMicrophonePermission();
+      if (permissionState === "denied") {
+        toast({
+          title: "Error",
+          description:
+            "Microphone access was previously blocked. Please enable it in your browser settings.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      } else if (permissionState === "prompt") {
+        callRPC("injectMicrophonePermissionIframe", []).catch(console.error);
+      } else if (permissionState === "granted") {
+        console.log("Microphone permission granted");
+      }
+    }
+  };
 
   return (
     <>
@@ -104,9 +143,11 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
           <Switch
             id="voice-mode"
             isChecked={state.voiceMode}
-            onChange={(e) =>
-              state.updateSettings({ voiceMode: e.target.checked })
-            }
+            onChange={(e) => {
+              const isEnabled = e.target.checked;
+              handleVoiceMode(isEnabled);
+              state.updateSettings({ voiceMode: isEnabled });
+            }}
           />
         </Flex>
       </FormControl>

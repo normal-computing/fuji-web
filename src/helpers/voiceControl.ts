@@ -44,7 +44,7 @@ class VoiceControlManager {
     }
   }
 
-  public startListening = (): void => {
+  public startListening = async (): Promise<void> => {
     if (!this.recognition) {
       console.error("Speech Recognition is not initialized.");
       return;
