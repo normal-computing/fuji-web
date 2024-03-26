@@ -18,13 +18,26 @@ export type Knowledge = {
   annotationRules?: AnnotationRule[];
 };
 
+export type Rule = {
+  regexes: string[];
+  knowledge: Knowledge;
+};
+
 export type Data = {
   [host: string]: {
-    rules?: {
-      regexes: string[];
-      knowledge: Knowledge;
-    }[];
+    rules?: Rule[];
   };
+};
+
+// rule type used only in editing mode
+export type EditingRule = Rule & {
+  regexType: string;
+};
+
+// data type used only in editing mode
+export type EditingHostData = {
+  host: string;
+  rules: EditingRule[];
 };
 
 export type LocationInfo = {
@@ -65,7 +78,7 @@ export function fetchKnowledge(
 
 function mergeKnowledge(
   result: Knowledge,
-  dataSource: { rules?: { regexes: string[]; knowledge: Knowledge }[] },
+  dataSource: { rules?: Rule[] },
   pathname: string,
 ): Knowledge {
   const rules = dataSource.rules;

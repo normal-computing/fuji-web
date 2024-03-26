@@ -17,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useAppState } from "../state/store";
 import NewKnowledgeForm from "./NewKnowledgeForm";
+import { type EditingHostData } from "../helpers/knowledge";
 
 type HostKnowledgeProps = {
   host: string;
@@ -69,13 +70,15 @@ const HostKnowledge = ({ host, onEdit }: HostKnowledgeProps) => {
 
 const CustomKnowledgeBase = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingHostData, setEditingHostData] = useState(null);
+  const [editingHostData, setEditingHostData] = useState<
+    EditingHostData | undefined
+  >(undefined);
   const hostData = useAppState((state) => state.settings.hostData);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingHostData(null);
+    setEditingHostData(undefined);
   };
 
   const openEditForm = (host: string) => {
@@ -86,10 +89,12 @@ const CustomKnowledgeBase = () => {
       regexType: "custom",
     }));
 
-    setEditingHostData({
-      host,
-      rules: transformedRules,
-    });
+    if (transformedRules) {
+      setEditingHostData({
+        host,
+        rules: transformedRules,
+      });
+    }
 
     openModal();
   };

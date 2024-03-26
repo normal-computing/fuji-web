@@ -19,14 +19,14 @@ import { SmallCloseIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
 import { findActiveTab } from "../helpers/browserUtils";
 import { useAppState } from "../state/store";
+import {
+  type EditingHostData,
+  type AnnotationRule,
+} from "../helpers/knowledge";
 
 type NewKnowledgeFormProps = {
   isEditMode?: boolean;
-  editData?: {
-    host: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rules: any[];
-  };
+  editData?: EditingHostData;
   onSaved: () => void;
 };
 
@@ -109,9 +109,27 @@ const NewKnowledgeForm = ({
 
   useEffect(() => {
     if (isEditMode && editData) {
+      // type EditingHostData may have values that are undefined. handle by setting to default
+      const rulesWithDefaults = editData.rules.map((rule) => ({
+        ...rule,
+        knowledge: {
+          ...rule.knowledge,
+          notes: rule.knowledge.notes || [],
+          annotationRules:
+            rule.knowledge.annotationRules?.map((ar) => ({
+              selector: ar.selector,
+              useAttributeAsName: ar.useAttributeAsName || "",
+              useStaticName: ar.useStaticName || "",
+              allowInvisible: ar.allowInvisible ?? false,
+              allowCovered: ar.allowCovered ?? false,
+              allowAriaHidden: ar.allowAriaHidden ?? false,
+            })) || [],
+        },
+      }));
+
       formik.setValues({
         newHost: editData.host,
-        rules: editData.rules,
+        rules: rulesWithDefaults,
       });
     } else {
       formik.resetForm();
@@ -218,7 +236,11 @@ const NewKnowledgeForm = ({
     { value: "custom", label: "Custom regex" },
   ];
 
-  const renderAnnotationRules = (ruleIndex, annotation, aIndex) => (
+  const renderAnnotationRules = (
+    ruleIndex: number,
+    annotation: AnnotationRule,
+    aIndex: number,
+  ) => (
     <Box key={aIndex} borderWidth="1px" borderRadius="lg" p={4} mt={2}>
       <FormControl>
         <FormLabel>selector</FormLabel>
