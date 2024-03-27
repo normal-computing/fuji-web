@@ -58,25 +58,31 @@ export function fetchKnowledge(
   };
 
   const { host, pathname } = location;
-  if (redirects[host] != null) {
-    return fetchKnowledge(
-      { host: redirects[host], pathname },
-      customKnowledgeBase,
-    );
-  }
-  const hostKnowledge = data[host];
-  if (hostKnowledge) {
-    result = mergeKnowledge(result, hostKnowledge, location.pathname);
-  }
+  const normalizedHosts = getNormalizedHosts(host, redirects);
 
-  if (customKnowledgeBase) {
-    const customKnowledge = customKnowledgeBase[host];
-    if (customKnowledge) {
-      result = mergeKnowledge(result, customKnowledge, location.pathname);
+  for (const searchHost of normalizedHosts) {
+    const hostKnowledge = data[searchHost] || customKnowledgeBase?.[searchHost];
+    if (hostKnowledge) {
+      result = mergeKnowledge(result, hostKnowledge, pathname);
     }
   }
 
   return result;
+}
+
+function getNormalizedHosts(host: string, redirects: Redirects): string[] {
+  const hostWithWww = host.startsWith("www.") ? host : `www.${host}`;
+  const hostWithoutWww = host.startsWith("www.") ? host.slice(4) : host;
+  const redirectedHostWithWww = redirects[hostWithWww] || hostWithWww;
+  const redirectedHostWithoutWww = redirects[hostWithoutWww] || hostWithoutWww;
+  return [
+    ...new Set([
+      hostWithWww,
+      hostWithoutWww,
+      redirectedHostWithWww,
+      redirectedHostWithoutWww,
+    ]),
+  ];
 }
 
 function mergeKnowledge(
