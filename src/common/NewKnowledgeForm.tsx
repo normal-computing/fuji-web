@@ -10,13 +10,13 @@ import {
   ModalFooter,
   Box,
   Heading,
-  Switch,
   InputGroup,
   InputRightElement,
   IconButton,
-  HStack,
+  FormHelperText,
+  // Switch,
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, SmallCloseIcon } from "@chakra-ui/icons";
+import { DeleteIcon, SmallCloseIcon } from "@chakra-ui/icons";
 import { Formik, Form, Field } from "formik";
 import { findActiveTab } from "../helpers/browserUtils";
 import { useAppState } from "../state/store";
@@ -34,6 +34,7 @@ const NewKnowledgeForm = ({
   onSaved,
 }: NewKnowledgeFormProps) => {
   const [defaultHost, setDefaultHost] = useState("");
+  const [currentURL, setCurrentUrl] = useState("");
   const updateSettings = useAppState((state) => state.settings.actions.update);
   const customKnowledgeBase = useAppState(
     (state) => state.settings.customKnowledgeBase,
@@ -43,9 +44,14 @@ const NewKnowledgeForm = ({
     const handleOpenNewKnowledgeForm = async () => {
       const tab = await findActiveTab();
       if (tab && tab.url) {
-        const url = new URL(tab.url);
-        const host = url.hostname.replace(/^www\./, "");
-        setDefaultHost(host);
+        setCurrentUrl(tab.url);
+        if (tab.url.startsWith("chrome")) {
+          setDefaultHost("");
+        } else {
+          const url = new URL(tab.url);
+          const host = url.hostname.replace(/^www\./, "");
+          setDefaultHost(host);
+        }
       }
     };
 
@@ -55,20 +61,20 @@ const NewKnowledgeForm = ({
   }, [isEditMode]);
 
   const regexOptions = [
-    { value: "all", label: "Any URL on this host" },
-    { value: "one", label: "Only this URL" },
-    { value: "custom", label: "Custom regex" },
+    { value: "all", label: "Match any URL on this host" },
+    { value: "one", label: "Match only the current URL" },
+    { value: "custom", label: "Custom pattern" },
   ];
 
   const initialValues = {
-    newHost: isEditMode && editKnowledge ? editKnowledge.host : defaultHost,
+    newHost: isEditMode && editKnowledge ? editKnowledge.host : "",
     rules:
       isEditMode && editKnowledge
         ? editKnowledge.rules
         : [
             {
-              regexType: "all",
-              regexes: [".*"],
+              regexType: "",
+              regexes: [""],
               knowledge: {
                 notes: [""],
                 annotationRules: [
@@ -96,14 +102,24 @@ const NewKnowledgeForm = ({
           ({ regexType, regexes, knowledge }) => {
             let transformedRegexes = regexes;
             switch (regexType) {
-              case "all":
+              case "all": {
                 transformedRegexes = [".*"];
                 break;
-              case "one":
-                transformedRegexes = [
-                  `^https?://${host.replace(/\./g, "\\.")}/?$`,
-                ];
+              }
+              case "one": {
+                let escapedPathname;
+                try {
+                  const urlObj = new URL(currentURL);
+                  escapedPathname = urlObj.pathname.replace(
+                    /[-\\^$*+?.()|[\]{}]/g,
+                    "\\$&",
+                  );
+                  transformedRegexes = [`^${escapedPathname}/?$`];
+                } catch (error) {
+                  console.error("Error parsing URL: ", error);
+                }
                 break;
+              }
               default:
                 break;
             }
@@ -127,6 +143,9 @@ const NewKnowledgeForm = ({
           <ModalBody>
             <FormControl isRequired>
               <FormLabel>Host</FormLabel>
+              <FormHelperText mb={1} fontSize="xs">
+                e.g. github.com
+              </FormHelperText>
               <Input
                 name="newHost"
                 onChange={handleChange}
@@ -136,38 +155,9 @@ const NewKnowledgeForm = ({
             </FormControl>
 
             {/* Rules Section */}
-            <HStack mt={4} mb={3}>
-              <Heading as="h4" size="md">
-                Rules
-              </Heading>
-              <IconButton
-                aria-label="Add another rule"
-                icon={<AddIcon />}
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  const newRule = {
-                    regexType: "all",
-                    regexes: [".*"],
-                    knowledge: {
-                      notes: [""],
-                      annotationRules: [
-                        {
-                          selector: "",
-                          useAttributeAsName: "",
-                          useStaticName: "",
-                          allowInvisible: false,
-                          allowCovered: false,
-                          allowAriaHidden: false,
-                        },
-                      ],
-                    },
-                  };
-                  const updatedRules = values.rules.concat(newRule);
-                  setFieldValue("rules", updatedRules);
-                }}
-              />
-            </HStack>
+            <Heading as="h5" size="sm" mb={3}>
+              Rules
+            </Heading>
             {values.rules.map((rule, ruleIndex) => (
               <Box
                 key={ruleIndex}
@@ -175,41 +165,33 @@ const NewKnowledgeForm = ({
                 borderRadius="lg"
                 p={4}
                 position="relative"
+                mb={2}
               >
-                <IconButton
-                  aria-label="Remove rule"
-                  icon={<DeleteIcon />}
-                  position="absolute"
-                  right={1}
-                  top={1}
-                  size="sm"
-                  colorScheme="red"
-                  variant="ghost"
-                  onClick={() => {
-                    const updatedRules = values.rules.filter(
-                      (_, idx) => idx !== ruleIndex,
-                    );
-                    setFieldValue("rules", updatedRules);
-                  }}
-                />
+                {values.rules.length > 1 && (
+                  <IconButton
+                    aria-label="Remove rule"
+                    icon={<DeleteIcon />}
+                    position="absolute"
+                    right={1}
+                    top={1}
+                    size="sm"
+                    colorScheme="red"
+                    variant="ghost"
+                    onClick={() => {
+                      const updatedRules = values.rules.filter(
+                        (_, idx) => idx !== ruleIndex,
+                      );
+                      setFieldValue("rules", updatedRules);
+                    }}
+                  />
+                )}
                 <FormControl isRequired mb={2}>
-                  <HStack>
-                    <FormLabel>Regexes</FormLabel>
-                    <IconButton
-                      aria-label="Add another regex"
-                      icon={<AddIcon />}
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        const updatedRegexes =
-                          values.rules[ruleIndex].regexes.concat("");
-                        setFieldValue(
-                          `rules[${ruleIndex}].regexes`,
-                          updatedRegexes,
-                        );
-                      }}
-                    />
-                  </HStack>
+                  <FormLabel>URL Matching</FormLabel>
+                  <FormHelperText mb={2} fontSize="xs">
+                    Select a pattern to match URLs. Use &quot;Custom
+                    Pattern&quot; for advanced pathname matching using regular
+                    expressions.
+                  </FormHelperText>
                   <Field
                     as={Select}
                     name={`rules[${ruleIndex}].regexType`}
@@ -229,7 +211,7 @@ const NewKnowledgeForm = ({
                       <Field
                         as={Input}
                         name={`rules[${ruleIndex}].regexes[${regexIndex}]`}
-                        placeholder="Enter regex"
+                        placeholder="Enter regex to match pathname"
                       />
                       <InputRightElement>
                         <IconButton
@@ -250,27 +232,28 @@ const NewKnowledgeForm = ({
                       </InputRightElement>
                     </InputGroup>
                   ))}
+                {rule.regexType === "custom" && (
+                  <Button
+                    aria-label="Add another URL matching pattern"
+                    size="sm"
+                    variant="link"
+                    colorScheme="blue"
+                    onClick={() => {
+                      const updatedRegexes =
+                        values.rules[ruleIndex].regexes.concat("");
+                      setFieldValue(
+                        `rules[${ruleIndex}].regexes`,
+                        updatedRegexes,
+                      );
+                    }}
+                  >
+                    Add more pattern
+                  </Button>
+                )}
 
                 {/* Notes Section */}
                 <FormControl mb={2}>
-                  <HStack>
-                    <FormLabel>Notes</FormLabel>
-                    <IconButton
-                      aria-label="Add another note"
-                      icon={<AddIcon />}
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        const updatedNotes = (
-                          values.rules[ruleIndex].knowledge.notes || []
-                        ).concat("");
-                        setFieldValue(
-                          `rules[${ruleIndex}].knowledge.notes`,
-                          updatedNotes,
-                        );
-                      }}
-                    />
-                  </HStack>
+                  <FormLabel>Notes</FormLabel>
                   {rule.knowledge.notes?.map((note, noteIndex) => (
                     <InputGroup key={noteIndex} size="md">
                       <Field
@@ -299,9 +282,25 @@ const NewKnowledgeForm = ({
                     </InputGroup>
                   ))}
                 </FormControl>
+                <Button
+                  size="sm"
+                  variant="link"
+                  colorScheme="blue"
+                  onClick={() => {
+                    const updatedNotes = (
+                      values.rules[ruleIndex].knowledge.notes || []
+                    ).concat("");
+                    setFieldValue(
+                      `rules[${ruleIndex}].knowledge.notes`,
+                      updatedNotes,
+                    );
+                  }}
+                >
+                  Add more notes
+                </Button>
 
                 {/* Annotation Rules Section */}
-                <HStack>
+                {/* <HStack>
                   <Heading as="h5" size="sm">
                     Annotation Rules
                   </Heading>
@@ -328,8 +327,8 @@ const NewKnowledgeForm = ({
                       );
                     }}
                   />
-                </HStack>
-                {rule.knowledge.annotationRules?.map((annotation, aIndex) => (
+                </HStack> */}
+                {/* {rule.knowledge.annotationRules?.map((annotation, aIndex) => (
                   <Box
                     key={aIndex}
                     borderWidth="1px"
@@ -416,9 +415,37 @@ const NewKnowledgeForm = ({
                       />
                     </FormControl>
                   </Box>
-                ))}
+                ))} */}
               </Box>
             ))}
+            <Button
+              size="sm"
+              variant="link"
+              colorScheme="blue"
+              onClick={() => {
+                const newRule = {
+                  regexType: "all",
+                  regexes: [".*"],
+                  knowledge: {
+                    notes: [""],
+                    annotationRules: [
+                      {
+                        selector: "",
+                        useAttributeAsName: "",
+                        useStaticName: "",
+                        allowInvisible: false,
+                        allowCovered: false,
+                        allowAriaHidden: false,
+                      },
+                    ],
+                  },
+                };
+                const updatedRules = values.rules.concat(newRule);
+                setFieldValue("rules", updatedRules);
+              }}
+            >
+              Add more rules
+            </Button>
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" mr={3} type="submit">

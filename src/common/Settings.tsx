@@ -106,7 +106,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
           </BreadcrumbItem>
           {showCKB && (
             <BreadcrumbItem isCurrentPage>
-              <BreadcrumbLink href="#">CKB</BreadcrumbLink>
+              <BreadcrumbLink href="#">Knowledge</BreadcrumbLink>
             </BreadcrumbItem>
           )}
         </Breadcrumb>
@@ -122,16 +122,13 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
         >
           <Flex alignItems="center">
             <Box>
-              <FormLabel htmlFor="reset-key" mb="0">
-                OpenAI API Key
-              </FormLabel>
+              <FormLabel mb="0">OpenAI API Key</FormLabel>
               <FormHelperText>
                 The API key is stored locally on your device
               </FormHelperText>
             </Box>
             <Spacer />
             <Button
-              id="reset-key"
               onClick={() => state.updateSettings({ openAIKey: "" })}
               rightIcon={<RepeatIcon />}
             >
@@ -140,58 +137,39 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
           </Flex>
 
           <Flex alignItems="center">
-            <FormLabel htmlFor="model-select" mb="0">
-              Select Model
-            </FormLabel>
+            <FormLabel mb="0">Select Model</FormLabel>
             <Spacer />
             <Box w="50%">
               <ModelDropdown />
             </Box>
           </Flex>
+          {!isVisionModel && (
+            <Alert status="warning" borderRadius="lg">
+              <AlertIcon />
+              <AlertDescription fontSize="sm">
+                Most of WebWand&rsquo;s capabilities are based on the GPT-4
+                Vision mode. Non-vision models are available for research
+                purposes.
+              </AlertDescription>
+            </Alert>
+          )}
 
-        <Flex alignItems="center">
-          <FormLabel htmlFor="model-select" mb="0">
-            Select Model
-          </FormLabel>
-          <Spacer />
-          <Box w="50%">
-            <ModelDropdown />
-          </Box>
-        </Flex>
-        {!isVisionModel && (
-          <Alert status="warning" borderRadius="lg">
-            <AlertIcon />
-            <AlertDescription fontSize="sm">
-              Most of WebWand&rsquo;s capabilities are based on the GPT-4 Vision
-              mode. Non-vision models are available for research purposes.
-            </AlertDescription>
-          </Alert>
-        )}
-        <Flex alignItems="center">
-          <FormLabel htmlFor="voice-mode" mb="0">
-            Turn On Voice Mode
-          </FormLabel>
-          <Spacer />
-          <Switch
-            id="voice-mode"
-            isChecked={state.voiceMode}
-            onChange={(e) => {
-              const isEnabled = e.target.checked;
-              handleVoiceMode(isEnabled);
-              state.updateSettings({ voiceMode: isEnabled });
-            }}
-          />
-        </Flex>
           <Flex alignItems="center">
-            <FormLabel htmlFor="custom-knowledge" mb="0">
-              Custom Knowledge Base
-            </FormLabel>
+            <FormLabel mb="0">Turn On Voice Mode</FormLabel>
             <Spacer />
-            <Button
-              id="custom-knowledge"
-              rightIcon={<EditIcon />}
-              onClick={openCKB}
-            >
+            <Switch
+              isChecked={state.voiceMode}
+              onChange={(e) => {
+                const isEnabled = e.target.checked;
+                handleVoiceMode(isEnabled);
+                state.updateSettings({ voiceMode: isEnabled });
+              }}
+            />
+          </Flex>
+          <Flex alignItems="center">
+            <FormLabel mb="0">Custom Knowledge Base</FormLabel>
+            <Spacer />
+            <Button rightIcon={<EditIcon />} onClick={openCKB}>
               Edit
             </Button>
           </Flex>

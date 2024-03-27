@@ -24,72 +24,165 @@ import {
   IconButton,
   Spacer,
 } from "@chakra-ui/react";
-import { DeleteIcon } from "@chakra-ui/icons";
+import { DeleteIcon, CopyIcon, EditIcon } from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
 import NewKnowledgeForm from "./NewKnowledgeForm";
-import { type EditingData } from "../helpers/knowledge";
+import {
+  fetchAllDefaultKnowledge,
+  type EditingData,
+} from "../helpers/knowledge";
 
 type HostKnowledgeProps = {
   host: string;
-  onEdit: (host: string) => void;
+  isDefaultKnowledge: boolean;
+  onEdit?: (host: string) => void;
 };
 
-const HostKnowledge = ({ host, onEdit }: HostKnowledgeProps) => {
+const HostKnowledge = ({
+  host,
+  isDefaultKnowledge,
+  onEdit,
+}: HostKnowledgeProps) => {
   const customKnowledgeBase = useAppState(
     (state) => state.settings.customKnowledgeBase,
   );
+  const defaultKnowledgeBase = fetchAllDefaultKnowledge();
   const updateSettings = useAppState((state) => state.settings.actions.update);
+  const toast = useToast();
+  const knowledgeBase = isDefaultKnowledge
+    ? defaultKnowledgeBase
+    : customKnowledgeBase;
 
   const getJson = (): string => {
-    return JSON.stringify(customKnowledgeBase[host], null, 2);
+    return JSON.stringify(knowledgeBase[host], null, 2);
   };
 
   const handleRemove = () => {
-    const newKnowledge = { ...customKnowledgeBase };
+    const newKnowledge = { ...knowledgeBase };
     delete newKnowledge[host];
     updateSettings({ customKnowledgeBase: newKnowledge });
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(getJson());
+      toast({
+        title: "Copied",
+        description: "Knowledge has been copied to clipboard.",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to copy knowledge to clipboard.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
     <>
       <HStack>
-        <Heading as="h4" size="md">
+        <Heading as="h5" size="sm">
           {host}
         </Heading>
         <Spacer />
-        <IconButton
-          aria-label="Remove knowledge"
-          icon={<DeleteIcon />}
-          size="sm"
-          variant="ghost"
-          onClick={handleRemove}
-        />
+        {!isDefaultKnowledge && (
+          <>
+            <IconButton
+              aria-label="Edit knowledge"
+              icon={<EditIcon />}
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                if (onEdit) onEdit(host);
+              }}
+            />
+            <IconButton
+              aria-label="Copy knowledge"
+              icon={<CopyIcon />}
+              size="sm"
+              variant="ghost"
+              onClick={handleCopy}
+            />
+            <IconButton
+              aria-label="Remove knowledge"
+              icon={<DeleteIcon />}
+              size="sm"
+              variant="ghost"
+              onClick={handleRemove}
+            />
+          </>
+        )}
       </HStack>
       <Accordion allowToggle>
-        {customKnowledgeBase[host].rules?.map((rule, ruleIndex) => (
+        {knowledgeBase[host].rules?.map((rule, ruleIndex) => (
           <AccordionItem key={ruleIndex} backgroundColor="white">
-            <Heading as="h4" size="xs">
+            <h2>
               <AccordionButton>
-                <Box>Rule {ruleIndex + 1}</Box>
+                <Box flex="1" textAlign="left">
+                  Rule {ruleIndex + 1}
+                </Box>
                 <AccordionIcon />
               </AccordionButton>
-            </Heading>
-            <AccordionPanel>
+            </h2>
+            <AccordionPanel pb={4}>
               <pre style={{ overflowX: "auto" }}>{getJson()}</pre>
             </AccordionPanel>
           </AccordionItem>
         ))}
       </Accordion>
-      <Button mt={3} size="sm" onClick={() => onEdit(host)}>
-        Edit
+    </>
+  );
+};
+
+const DefaultKnowledge = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const defaultKnowledgeBase = fetchAllDefaultKnowledge();
+
+  return (
+    <>
+      <Button size="sm" variant="link" colorScheme="blue" onClick={onOpen}>
+        View Default Knowledge
       </Button>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="xl"
+        scrollBehavior="inside"
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Default Knowledge Base</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {Object.keys(defaultKnowledgeBase).map((host) => (
+              <Box
+                key={host}
+                w="full"
+                p={4}
+                borderWidth="1px"
+                borderRadius="lg"
+              >
+                <HostKnowledge host={host} isDefaultKnowledge={true} />
+              </Box>
+            ))}
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={onClose}>Close</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
 
 const CustomKnowledgeBase = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [jsonInput, setJsonInput] = useState("");
   const [editKnowledge, setEditKnowledge] = useState<EditingData | undefined>(
     undefined,
@@ -98,6 +191,7 @@ const CustomKnowledgeBase = () => {
     (state) => state.settings.customKnowledgeBase,
   );
   const updateSettings = useAppState((state) => state.settings.actions.update);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
   const openForm = () => setIsFormOpen(true);
@@ -155,14 +249,19 @@ const CustomKnowledgeBase = () => {
 
   return (
     <VStack spacing={4}>
+      <DefaultKnowledge />
       {Object.keys(customKnowledgeBase).length > 0 ? (
         Object.keys(customKnowledgeBase).map((host) => (
           <Box key={host} w="full" p={4} borderWidth="1px" borderRadius="lg">
-            <HostKnowledge host={host} onEdit={openEditForm} />
+            <HostKnowledge
+              host={host}
+              isDefaultKnowledge={false}
+              onEdit={openEditForm}
+            />
           </Box>
         ))
       ) : (
-        <Text>No knowledge found. Please add your first knowledge.</Text>
+        <Text>No custom knowledge found</Text>
       )}
       <Button onClick={openForm}>Add Host Knowledge</Button>
       <Button onClick={onOpen}>Add Freeform Host Knowledge</Button>

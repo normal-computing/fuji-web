@@ -106,3 +106,7 @@ function mergeKnowledge(
   }
   return result;
 }
+
+export function fetchAllDefaultKnowledge(): Data {
+  return _db as Data;
+}
