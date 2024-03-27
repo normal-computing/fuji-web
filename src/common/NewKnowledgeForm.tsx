@@ -183,6 +183,7 @@ const NewKnowledgeForm = ({
                     size="sm"
                     colorScheme="red"
                     variant="ghost"
+                    zIndex="docked"
                     onClick={() => {
                       const updatedRules = values.rules.filter(
                         (_, idx) => idx !== ruleIndex,
@@ -221,21 +222,23 @@ const NewKnowledgeForm = ({
                           placeholder="Enter regex to match pathname"
                         />
                         <InputRightElement>
-                          <IconButton
-                            aria-label="Remove regex"
-                            icon={<SmallCloseIcon />}
-                            variant="ghost"
-                            onClick={() => {
-                              const updatedRegexes = [
-                                ...values.rules[ruleIndex].regexes,
-                              ];
-                              updatedRegexes.splice(regexIndex, 1);
-                              setFieldValue(
-                                `rules[${ruleIndex}].regexes`,
-                                updatedRegexes,
-                              );
-                            }}
-                          />
+                          {rule.regexes.length > 1 && (
+                            <IconButton
+                              aria-label="Remove regex"
+                              icon={<SmallCloseIcon />}
+                              variant="ghost"
+                              onClick={() => {
+                                const updatedRegexes = [
+                                  ...values.rules[ruleIndex].regexes,
+                                ];
+                                updatedRegexes.splice(regexIndex, 1);
+                                setFieldValue(
+                                  `rules[${ruleIndex}].regexes`,
+                                  updatedRegexes,
+                                );
+                              }}
+                            />
+                          )}
                         </InputRightElement>
                       </InputGroup>
                     </FormControl>
@@ -271,22 +274,25 @@ const NewKnowledgeForm = ({
                         placeholder="Enter note"
                       />
                       <InputRightElement>
-                        <IconButton
-                          aria-label="Remove note"
-                          icon={<SmallCloseIcon />}
-                          variant="ghost"
-                          onClick={() => {
-                            const updatedNotes = [
-                              ...(values.rules[ruleIndex].knowledge.notes ||
-                                []),
-                            ];
-                            updatedNotes.splice(noteIndex, 1);
-                            setFieldValue(
-                              `rules[${ruleIndex}].knowledge.notes`,
-                              updatedNotes,
-                            );
-                          }}
-                        />
+                        {rule.knowledge.notes &&
+                          rule.knowledge.notes.length > 1 && (
+                            <IconButton
+                              aria-label="Remove note"
+                              icon={<SmallCloseIcon />}
+                              variant="ghost"
+                              onClick={() => {
+                                const updatedNotes = [
+                                  ...(values.rules[ruleIndex].knowledge.notes ||
+                                    []),
+                                ];
+                                updatedNotes.splice(noteIndex, 1);
+                                setFieldValue(
+                                  `rules[${ruleIndex}].knowledge.notes`,
+                                  updatedNotes,
+                                );
+                              }}
+                            />
+                          )}
                       </InputRightElement>
                     </InputGroup>
                   ))}

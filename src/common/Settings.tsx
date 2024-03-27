@@ -158,6 +158,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             <FormLabel mb="0">Turn On Voice Mode</FormLabel>
             <Spacer />
             <Switch
+              id="voiceModeSwitch"
               isChecked={state.voiceMode}
               onChange={(e) => {
                 const isEnabled = e.target.checked;
