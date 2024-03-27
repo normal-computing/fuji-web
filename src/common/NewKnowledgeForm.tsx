@@ -233,8 +233,9 @@ const NewKnowledgeForm = ({
                   <Button
                     mt={2}
                     onClick={() => {
-                      const updatedNotes =
-                        values.rules[ruleIndex].knowledge.notes?.concat("");
+                      const updatedNotes = (
+                        values.rules[ruleIndex].knowledge.notes || []
+                      ).concat("");
                       setFieldValue(
                         `rules[${ruleIndex}].knowledge.notes`,
                         updatedNotes,
@@ -345,10 +346,9 @@ const NewKnowledgeForm = ({
                       allowCovered: false,
                       allowAriaHidden: false,
                     };
-                    const updatedAnnotationRules =
-                      values.rules[ruleIndex].knowledge.annotationRules?.concat(
-                        newAnnotationRule,
-                      );
+                    const updatedAnnotationRules = (
+                      values.rules[ruleIndex].knowledge.annotationRules ?? []
+                    ).concat(newAnnotationRule);
                     setFieldValue(
                       `rules[${ruleIndex}].knowledge.annotationRules`,
                       updatedAnnotationRules,

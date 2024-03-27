@@ -13,7 +13,13 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
+  ModalFooter,
+  ModalBody,
+  ModalHeader,
   ModalCloseButton,
+  Textarea,
+  useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { useAppState } from "../state/store";
 import NewKnowledgeForm from "./NewKnowledgeForm";
@@ -71,18 +77,23 @@ const HostKnowledge = ({ host, onEdit }: HostKnowledgeProps) => {
 };
 
 const CustomKnowledgeBase = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [jsonInput, setJsonInput] = useState("");
   const [editKnowledge, setEditKnowledge] = useState<EditingData | undefined>(
     undefined,
   );
   const customKnowledgeBase = useAppState(
     (state) => state.settings.customKnowledgeBase,
   );
+  const updateSettings = useAppState((state) => state.settings.actions.update);
+  const toast = useToast();
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const openForm = () => setIsFormOpen(true);
+
+  const closeForm = () => {
     setEditKnowledge(undefined);
+    setIsFormOpen(false);
   };
 
   const openEditForm = (host: string) => {
@@ -100,7 +111,35 @@ const CustomKnowledgeBase = () => {
       });
     }
 
-    openModal();
+    openForm();
+  };
+
+  const validateJSON = () => {
+    try {
+      const parsedJson = JSON.parse(jsonInput);
+      Object.keys(parsedJson).forEach((host) => {
+        const hostData = parsedJson[host];
+        // Basic validation for the structure
+        if (!hostData.rules || !Array.isArray(hostData.rules)) {
+          throw new Error(`Invalid structure for host: ${host}`);
+        }
+        // Further validation can be added here, e.g., checking if regex is valid, checking each rule's structure
+      });
+
+      const newKnowledge = { ...customKnowledgeBase, ...parsedJson };
+      updateSettings({ customKnowledgeBase: newKnowledge });
+      setJsonInput("");
+      onClose();
+    } catch (error) {
+      console.error("Failed to save JSON", error);
+      toast({
+        title: "Error",
+        description: `"Failed to save JSON: ${error}`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
@@ -114,16 +153,39 @@ const CustomKnowledgeBase = () => {
       ) : (
         <Text>No knowledge found. Please add your first knowledge.</Text>
       )}
-      <Button onClick={openModal}>Add Host Knowledge</Button>
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
+      <Button onClick={openForm}>Add Host Knowledge</Button>
+      <Button onClick={onOpen}>Add Freeform Host Knowledge</Button>
+      {/* New knowledge form modal */}
+      <Modal isOpen={isFormOpen} onClose={closeForm}>
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
           <NewKnowledgeForm
             isEditMode={!!editKnowledge}
             editKnowledge={editKnowledge}
-            onSaved={closeModal}
+            onSaved={closeForm}
           />
+        </ModalContent>
+      </Modal>
+      {/* JSON input modal */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalHeader>New Host Knowledge</ModalHeader>
+          <ModalBody>
+            <Textarea
+              value={jsonInput}
+              onChange={(e) => setJsonInput(e.target.value)}
+              placeholder="Enter knowledge in the correct JSON format"
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={validateJSON}>
+              Save
+            </Button>
+            <Button onClick={onClose}>Cancel</Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </VStack>
