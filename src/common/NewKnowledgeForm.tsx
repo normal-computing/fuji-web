@@ -14,6 +14,7 @@ import {
   InputRightElement,
   IconButton,
   FormHelperText,
+  Skeleton,
   // Switch,
 } from "@chakra-ui/react";
 import { DeleteIcon, SmallCloseIcon } from "@chakra-ui/icons";
@@ -34,6 +35,7 @@ const NewKnowledgeForm = ({
   onSaved,
 }: NewKnowledgeFormProps) => {
   const [defaultHost, setDefaultHost] = useState("");
+  const [isDefaultHostLoaded, setIsDefaultHostLoaded] = useState(false);
   const [currentURL, setCurrentUrl] = useState("");
   const updateSettings = useAppState((state) => state.settings.actions.update);
   const customKnowledgeBase = useAppState(
@@ -52,11 +54,15 @@ const NewKnowledgeForm = ({
           const host = url.hostname.replace(/^www\./, "");
           setDefaultHost(host);
         }
+        setIsDefaultHostLoaded(true);
       }
     };
 
     if (!isEditMode) {
       handleOpenNewKnowledgeForm();
+    } else {
+      // set flag in edit mode to skip defaultHost loading
+      setIsDefaultHostLoaded(true);
     }
   }, [isEditMode]);
 
@@ -67,7 +73,7 @@ const NewKnowledgeForm = ({
   ];
 
   const initialValues = {
-    newHost: isEditMode && editKnowledge ? editKnowledge.host : "",
+    newHost: isEditMode && editKnowledge ? editKnowledge.host : defaultHost,
     rules:
       isEditMode && editKnowledge
         ? editKnowledge.rules
@@ -92,7 +98,7 @@ const NewKnowledgeForm = ({
           ],
   };
 
-  return (
+  return isDefaultHostLoaded ? (
     <Formik
       initialValues={initialValues}
       onSubmit={(values) => {
@@ -141,7 +147,7 @@ const NewKnowledgeForm = ({
         <Form>
           <ModalHeader>New Host Knowledge</ModalHeader>
           <ModalBody>
-            <FormControl isRequired>
+            <FormControl isRequired mb={4}>
               <FormLabel>Host</FormLabel>
               <FormHelperText mb={1} fontSize="xs">
                 e.g. github.com
@@ -149,13 +155,13 @@ const NewKnowledgeForm = ({
               <Input
                 name="newHost"
                 onChange={handleChange}
-                value={values.newHost || defaultHost}
+                value={values.newHost}
                 placeholder="Enter host name"
               />
             </FormControl>
 
             {/* Rules Section */}
-            <Heading as="h5" size="sm" mb={3}>
+            <Heading as="h5" size="sm" mb={2}>
               Rules
             </Heading>
             {values.rules.map((rule, ruleIndex) => (
@@ -207,30 +213,32 @@ const NewKnowledgeForm = ({
 
                 {rule.regexType === "custom" &&
                   rule.regexes.map((regex, regexIndex) => (
-                    <InputGroup key={regexIndex} size="md">
-                      <Field
-                        as={Input}
-                        name={`rules[${ruleIndex}].regexes[${regexIndex}]`}
-                        placeholder="Enter regex to match pathname"
-                      />
-                      <InputRightElement>
-                        <IconButton
-                          aria-label="Remove regex"
-                          icon={<SmallCloseIcon />}
-                          variant="ghost"
-                          onClick={() => {
-                            const updatedRegexes = [
-                              ...values.rules[ruleIndex].regexes,
-                            ];
-                            updatedRegexes.splice(regexIndex, 1);
-                            setFieldValue(
-                              `rules[${ruleIndex}].regexes`,
-                              updatedRegexes,
-                            );
-                          }}
+                    <FormControl key={regexIndex} isRequired>
+                      <InputGroup size="md" mb={1}>
+                        <Field
+                          as={Input}
+                          name={`rules[${ruleIndex}].regexes[${regexIndex}]`}
+                          placeholder="Enter regex to match pathname"
                         />
-                      </InputRightElement>
-                    </InputGroup>
+                        <InputRightElement>
+                          <IconButton
+                            aria-label="Remove regex"
+                            icon={<SmallCloseIcon />}
+                            variant="ghost"
+                            onClick={() => {
+                              const updatedRegexes = [
+                                ...values.rules[ruleIndex].regexes,
+                              ];
+                              updatedRegexes.splice(regexIndex, 1);
+                              setFieldValue(
+                                `rules[${ruleIndex}].regexes`,
+                                updatedRegexes,
+                              );
+                            }}
+                          />
+                        </InputRightElement>
+                      </InputGroup>
+                    </FormControl>
                   ))}
                 {rule.regexType === "custom" && (
                   <Button
@@ -238,6 +246,7 @@ const NewKnowledgeForm = ({
                     size="sm"
                     variant="link"
                     colorScheme="blue"
+                    mb={2}
                     onClick={() => {
                       const updatedRegexes =
                         values.rules[ruleIndex].regexes.concat("");
@@ -255,7 +264,7 @@ const NewKnowledgeForm = ({
                 <FormControl mb={2}>
                   <FormLabel>Notes</FormLabel>
                   {rule.knowledge.notes?.map((note, noteIndex) => (
-                    <InputGroup key={noteIndex} size="md">
+                    <InputGroup key={noteIndex} size="md" mb={1}>
                       <Field
                         as={Input}
                         name={`rules[${ruleIndex}].knowledge.notes[${noteIndex}]`}
@@ -456,6 +465,10 @@ const NewKnowledgeForm = ({
         </Form>
       )}
     </Formik>
+  ) : (
+    <ModalBody>
+      <Skeleton height="30em" />
+    </ModalBody>
   );
 };
 

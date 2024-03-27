@@ -43,14 +43,13 @@ const HostKnowledge = ({
   isDefaultKnowledge,
   onEdit,
 }: HostKnowledgeProps) => {
+  const toast = useToast();
+  const updateSettings = useAppState((state) => state.settings.actions.update);
   const customKnowledgeBase = useAppState(
     (state) => state.settings.customKnowledgeBase,
   );
-  const defaultKnowledgeBase = fetchAllDefaultKnowledge();
-  const updateSettings = useAppState((state) => state.settings.actions.update);
-  const toast = useToast();
   const knowledgeBase = isDefaultKnowledge
-    ? defaultKnowledgeBase
+    ? fetchAllDefaultKnowledge()
     : customKnowledgeBase;
 
   const getJson = (): string => {
@@ -167,6 +166,7 @@ const DefaultKnowledge = () => {
                 p={4}
                 borderWidth="1px"
                 borderRadius="lg"
+                mb={3}
               >
                 <HostKnowledge host={host} isDefaultKnowledge={true} />
               </Box>
