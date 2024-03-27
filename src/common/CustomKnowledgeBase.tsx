@@ -20,7 +20,11 @@ import {
   Textarea,
   useDisclosure,
   useToast,
+  HStack,
+  IconButton,
+  Spacer,
 } from "@chakra-ui/react";
+import { DeleteIcon } from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
 import NewKnowledgeForm from "./NewKnowledgeForm";
 import { type EditingData } from "../helpers/knowledge";
@@ -48,9 +52,19 @@ const HostKnowledge = ({ host, onEdit }: HostKnowledgeProps) => {
 
   return (
     <>
-      <Heading as="h4" size="md">
-        {host}
-      </Heading>
+      <HStack>
+        <Heading as="h4" size="md">
+          {host}
+        </Heading>
+        <Spacer />
+        <IconButton
+          aria-label="Remove knowledge"
+          icon={<DeleteIcon />}
+          size="sm"
+          variant="ghost"
+          onClick={handleRemove}
+        />
+      </HStack>
       <Accordion allowToggle>
         {customKnowledgeBase[host].rules?.map((rule, ruleIndex) => (
           <AccordionItem key={ruleIndex} backgroundColor="white">
@@ -66,10 +80,7 @@ const HostKnowledge = ({ host, onEdit }: HostKnowledgeProps) => {
           </AccordionItem>
         ))}
       </Accordion>
-      <Button colorScheme="red" onClick={handleRemove}>
-        Remove
-      </Button>
-      <Button colorScheme="blue" onClick={() => onEdit(host)}>
+      <Button mt={3} size="sm" onClick={() => onEdit(host)}>
         Edit
       </Button>
     </>
@@ -178,6 +189,8 @@ const CustomKnowledgeBase = () => {
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
               placeholder="Enter knowledge in the correct JSON format"
+              height="auto"
+              rows={20}
             />
           </ModalBody>
           <ModalFooter>
