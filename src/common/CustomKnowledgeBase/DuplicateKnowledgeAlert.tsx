@@ -10,16 +10,18 @@ import {
 } from "@chakra-ui/react";
 
 type DuplicateKnowledgeAlertProps = {
+  host: string;
   isOpen: boolean;
   onSave: () => void;
   onClose: () => void;
 };
 
-export default function DuplicateKnowledgeAlert({
+const DuplicateKnowledgeAlert = ({
+  host,
   isOpen,
   onSave,
   onClose,
-}: DuplicateKnowledgeAlertProps) {
+}: DuplicateKnowledgeAlertProps) => {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   return (
@@ -36,8 +38,8 @@ export default function DuplicateKnowledgeAlert({
           </AlertDialogHeader>
 
           <AlertDialogBody fontSize="md">
-            This knowledge already exists. Saving will overwrite it. Do you want
-            to proceed?
+            {host} already exists in the knowledge base. Saving will overwrite
+            it. Do you want to proceed?
           </AlertDialogBody>
 
           <AlertDialogFooter>
@@ -52,4 +54,6 @@ export default function DuplicateKnowledgeAlert({
       </AlertDialogOverlay>
     </AlertDialog>
   );
-}
+};
+
+export default DuplicateKnowledgeAlert;

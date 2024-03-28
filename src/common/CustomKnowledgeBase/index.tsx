@@ -1,0 +1,78 @@
+import React, { useState } from "react";
+import { Button, Text, VStack, Box, useDisclosure } from "@chakra-ui/react";
+import { useAppState } from "@root/src/state/store";
+import NewKnowledgeForm from "./NewKnowledgeForm";
+import { type EditingData } from "../../helpers/knowledge";
+import DefaultKnowledge from "./DefaultKnowledge";
+import HostKnowledge from "./HostKnowledge";
+import NewKnowledgeJson from "./NewKnowledgeJson";
+
+const CustomKnowledgeBase = () => {
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editKnowledge, setEditKnowledge] = useState<EditingData | undefined>(
+    undefined,
+  );
+  const customKnowledgeBase = useAppState(
+    (state) => state.settings.customKnowledgeBase,
+  );
+  const {
+    isOpen: isJsonInputOpen,
+    onOpen: openJsonInput,
+    onClose: closeJsonInput,
+  } = useDisclosure();
+
+  const openForm = () => setIsFormOpen(true);
+
+  const closeForm = () => {
+    setEditKnowledge(undefined);
+    setIsFormOpen(false);
+  };
+
+  const openEditForm = (host: string) => {
+    const originalRules = customKnowledgeBase[host].rules;
+
+    const transformedRules = originalRules?.map((rule) => ({
+      ...rule,
+      regexType: "custom",
+    }));
+
+    if (transformedRules) {
+      setEditKnowledge({
+        host,
+        rules: transformedRules,
+      });
+    }
+
+    openForm();
+  };
+
+  return (
+    <VStack spacing={4}>
+      <DefaultKnowledge />
+      {Object.keys(customKnowledgeBase).length > 0 ? (
+        Object.keys(customKnowledgeBase).map((host) => (
+          <Box key={host} w="full" p={4} borderWidth="1px" borderRadius="lg">
+            <HostKnowledge
+              host={host}
+              isDefaultKnowledge={false}
+              onEdit={openEditForm}
+            />
+          </Box>
+        ))
+      ) : (
+        <Text>No custom knowledge found</Text>
+      )}
+      <Button onClick={openForm}>Add Host Knowledge with Form</Button>
+      <Button onClick={openJsonInput}>Add Host Knowledge with JSON</Button>
+      <NewKnowledgeForm
+        isOpen={isFormOpen}
+        isEditMode={!!editKnowledge}
+        editKnowledge={editKnowledge}
+        closeForm={closeForm}
+      />
+      <NewKnowledgeJson isOpen={isJsonInputOpen} onClose={closeJsonInput} />
+    </VStack>
+  );
+};
+
+export default CustomKnowledgeBase;
