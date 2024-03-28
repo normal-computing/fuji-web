@@ -51,6 +51,7 @@ When loading the extension, you will need to load the `dist` folder created by t
 ## Roadmap
 
 - Expose API for easy integration with browser automation frameworks (e.g. Puppeteer, Playwright, Selenium)
+- Evaluate the performance of the WebWand in real-world scenarios
 - Add support for more complex & cross-tab workflows
 - Add support for more AI Models
 - Add support for more browsering behaviors (select from dropdown, extract text etc.)
