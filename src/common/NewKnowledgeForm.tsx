@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Button,
   Input,
@@ -21,22 +21,24 @@ import { DeleteIcon, SmallCloseIcon } from "@chakra-ui/icons";
 import { Formik, Form, Field } from "formik";
 import { findActiveTab } from "../helpers/browserUtils";
 import { useAppState } from "../state/store";
-import { type EditingData } from "../helpers/knowledge";
+import { type EditingData, type EditingRule } from "../helpers/knowledge";
+import DuplicateKnowledgeAlert from "./DuplicateKnowledgeAlert";
 
 type NewKnowledgeFormProps = {
   isEditMode?: boolean;
   editKnowledge?: EditingData;
-  onSaved: () => void;
+  closeForm: () => void;
 };
 
 const NewKnowledgeForm = ({
   isEditMode = false,
   editKnowledge,
-  onSaved,
+  closeForm,
 }: NewKnowledgeFormProps) => {
   const [defaultHost, setDefaultHost] = useState("");
   const [isDefaultHostLoaded, setIsDefaultHostLoaded] = useState(false);
   const [currentURL, setCurrentUrl] = useState("");
+  const [showDuplicateAlert, setShowDuplicateAlert] = useState(false);
   const updateSettings = useAppState((state) => state.settings.actions.update);
   const customKnowledgeBase = useAppState(
     (state) => state.settings.customKnowledgeBase,
@@ -72,6 +74,12 @@ const NewKnowledgeForm = ({
     { value: "custom", label: "Custom pattern" },
   ];
 
+  const normalizedHostName = (originalHostName: string): string => {
+    let host = originalHostName !== "" ? originalHostName : defaultHost;
+    host = host.startsWith("www.") ? host.slice(4) : host;
+    return host;
+  };
+
   const initialValues = {
     newHost: isEditMode && editKnowledge ? editKnowledge.host : defaultHost,
     rules:
@@ -98,53 +106,77 @@ const NewKnowledgeForm = ({
           ],
   };
 
-  return isDefaultHostLoaded ? (
+  const performSave = useCallback(
+    (host: string, rules: EditingRule[]) => {
+      const transformedRules = rules.map(
+        ({ regexType, regexes, knowledge }) => {
+          let transformedRegexes = regexes;
+          switch (regexType) {
+            case "all": {
+              transformedRegexes = [".*"];
+              break;
+            }
+            case "one": {
+              let escapedPathname;
+              try {
+                const urlObj = new URL(currentURL);
+                escapedPathname = urlObj.pathname.replace(
+                  /[-\\^$*+?.()|[\]{}]/g,
+                  "\\$&",
+                );
+                transformedRegexes = [`^${escapedPathname}/?$`];
+              } catch (error) {
+                console.error("Error parsing URL: ", error);
+              }
+              break;
+            }
+            default:
+              break;
+          }
+          return {
+            regexes: transformedRegexes,
+            knowledge,
+          };
+        },
+      );
+      const updatedKnowledge = {
+        ...customKnowledgeBase,
+        [host]: { rules: transformedRules },
+      };
+      updateSettings({ customKnowledgeBase: updatedKnowledge });
+      closeForm();
+    },
+    [customKnowledgeBase, updateSettings, closeForm, currentURL],
+  );
+
+  return !isDefaultHostLoaded ? (
+    <ModalBody>
+      <Skeleton height="30em" />
+    </ModalBody>
+  ) : (
     <Formik
       initialValues={initialValues}
       onSubmit={(values) => {
         const { newHost, rules } = values;
-        const host = newHost !== "" ? newHost : defaultHost;
-        const transformedRules = rules.map(
-          ({ regexType, regexes, knowledge }) => {
-            let transformedRegexes = regexes;
-            switch (regexType) {
-              case "all": {
-                transformedRegexes = [".*"];
-                break;
-              }
-              case "one": {
-                let escapedPathname;
-                try {
-                  const urlObj = new URL(currentURL);
-                  escapedPathname = urlObj.pathname.replace(
-                    /[-\\^$*+?.()|[\]{}]/g,
-                    "\\$&",
-                  );
-                  transformedRegexes = [`^${escapedPathname}/?$`];
-                } catch (error) {
-                  console.error("Error parsing URL: ", error);
-                }
-                break;
-              }
-              default:
-                break;
-            }
-            return {
-              regexes: transformedRegexes,
-              knowledge,
-            };
-          },
-        );
-        const updatedKnowledge = {
-          ...customKnowledgeBase,
-          [host]: { rules: transformedRules },
-        };
-        updateSettings({ customKnowledgeBase: updatedKnowledge });
-        onSaved();
+        const host = normalizedHostName(newHost);
+        if (!isEditMode && normalizedHostName(host) in customKnowledgeBase) {
+          setShowDuplicateAlert(true);
+        } else {
+          performSave(host, rules);
+        }
       }}
     >
       {({ values, handleChange, setFieldValue }) => (
         <Form>
+          <DuplicateKnowledgeAlert
+            isOpen={showDuplicateAlert}
+            onSave={() => {
+              const host = normalizedHostName(values.newHost);
+              performSave(host, values.rules);
+              setShowDuplicateAlert(false);
+            }}
+            onClose={() => setShowDuplicateAlert(false)}
+          />
           <ModalHeader>New Host Knowledge</ModalHeader>
           <ModalBody>
             <FormControl isRequired mb={4}>
@@ -157,6 +189,7 @@ const NewKnowledgeForm = ({
                 onChange={handleChange}
                 value={values.newHost}
                 placeholder="Enter host name"
+                disabled={isEditMode}
               />
             </FormControl>
 
@@ -466,15 +499,11 @@ const NewKnowledgeForm = ({
             <Button colorScheme="blue" mr={3} type="submit">
               Save
             </Button>
-            <Button onClick={onSaved}>Cancel</Button>
+            <Button onClick={closeForm}>Cancel</Button>
           </ModalFooter>
         </Form>
       )}
     </Formik>
-  ) : (
-    <ModalBody>
-      <Skeleton height="30em" />
-    </ModalBody>
   );
 };
 

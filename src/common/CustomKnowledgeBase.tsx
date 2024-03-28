@@ -20,9 +20,9 @@ import {
   Textarea,
   useDisclosure,
   useToast,
-  HStack,
   IconButton,
-  Spacer,
+  Tooltip,
+  Flex,
 } from "@chakra-ui/react";
 import { DeleteIcon, CopyIcon, EditIcon } from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
@@ -52,7 +52,7 @@ const HostKnowledge = ({
     ? fetchAllDefaultKnowledge()
     : customKnowledgeBase;
 
-  const getJson = (): string => {
+  const getJsonString = (): string => {
     return JSON.stringify(knowledgeBase[host], null, 2);
   };
 
@@ -64,7 +64,7 @@ const HostKnowledge = ({
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(getJson());
+      await navigator.clipboard.writeText(getJsonString());
       toast({
         title: "Copied",
         description: "Knowledge has been copied to clipboard.",
@@ -85,39 +85,44 @@ const HostKnowledge = ({
 
   return (
     <>
-      <HStack>
-        <Heading as="h5" size="sm">
+      <Flex alignItems="flex-start">
+        <Heading as="h5" size="sm" flex="1" overflowWrap="anywhere">
+          {!isDefaultKnowledge && (
+            <Box position="relative" style={{ float: "right" }}>
+              <Tooltip label="Edit knowledge">
+                <IconButton
+                  aria-label="Edit knowledge"
+                  icon={<EditIcon />}
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    if (onEdit) onEdit(host);
+                  }}
+                />
+              </Tooltip>
+              <Tooltip label="Copy knowledge">
+                <IconButton
+                  aria-label="Copy knowledge"
+                  icon={<CopyIcon />}
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleCopy}
+                />
+              </Tooltip>
+              <Tooltip label="Remove knowledge">
+                <IconButton
+                  aria-label="Remove knowledge"
+                  icon={<DeleteIcon />}
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleRemove}
+                />
+              </Tooltip>
+            </Box>
+          )}
           {host}
         </Heading>
-        <Spacer />
-        {!isDefaultKnowledge && (
-          <>
-            <IconButton
-              aria-label="Edit knowledge"
-              icon={<EditIcon />}
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                if (onEdit) onEdit(host);
-              }}
-            />
-            <IconButton
-              aria-label="Copy knowledge"
-              icon={<CopyIcon />}
-              size="sm"
-              variant="ghost"
-              onClick={handleCopy}
-            />
-            <IconButton
-              aria-label="Remove knowledge"
-              icon={<DeleteIcon />}
-              size="sm"
-              variant="ghost"
-              onClick={handleRemove}
-            />
-          </>
-        )}
-      </HStack>
+      </Flex>
       <Accordion allowToggle>
         {knowledgeBase[host].rules?.map((rule, ruleIndex) => (
           <AccordionItem key={ruleIndex} backgroundColor="white">
@@ -130,7 +135,7 @@ const HostKnowledge = ({
               </AccordionButton>
             </h2>
             <AccordionPanel pb={4}>
-              <pre style={{ overflowX: "auto" }}>{getJson()}</pre>
+              <pre style={{ overflowX: "auto" }}>{getJsonString()}</pre>
             </AccordionPanel>
           </AccordionItem>
         ))}
@@ -263,8 +268,8 @@ const CustomKnowledgeBase = () => {
       ) : (
         <Text>No custom knowledge found</Text>
       )}
-      <Button onClick={openForm}>Add Host Knowledge</Button>
-      <Button onClick={onOpen}>Add Freeform Host Knowledge</Button>
+      <Button onClick={openForm}>Add Host Knowledge with Form</Button>
+      <Button onClick={onOpen}>Add Host Knowledge with JSON</Button>
       {/* New knowledge form modal */}
       <Modal isOpen={isFormOpen} onClose={closeForm}>
         <ModalOverlay />
@@ -273,7 +278,7 @@ const CustomKnowledgeBase = () => {
           <NewKnowledgeForm
             isEditMode={!!editKnowledge}
             editKnowledge={editKnowledge}
-            onSaved={closeForm}
+            closeForm={closeForm}
           />
         </ModalContent>
       </Modal>
@@ -287,7 +292,7 @@ const CustomKnowledgeBase = () => {
             <Textarea
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
-              placeholder="Enter knowledge in the correct JSON format"
+              placeholder="Enter knowledge in JSON format"
               height="auto"
               rows={20}
             />
