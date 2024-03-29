@@ -18,13 +18,26 @@ export type Knowledge = {
   annotationRules?: AnnotationRule[];
 };
 
-type Data = {
+export type Rule = {
+  regexes: string[];
+  knowledge: Knowledge;
+};
+
+export type Data = {
   [host: string]: {
-    rules?: {
-      regexes: string[];
-      knowledge: Knowledge;
-    }[];
+    rules?: Rule[];
   };
+};
+
+// rule type used only in editing mode
+export type EditingRule = Rule & {
+  regexType: string;
+};
+
+// data type used only in editing mode
+export type EditingData = {
+  host: string;
+  rules: EditingRule[];
 };
 
 export type LocationInfo = {
@@ -32,35 +45,74 @@ export type LocationInfo = {
   pathname: string;
 };
 
-export function fetchKnowledge(location: LocationInfo): Knowledge {
+export function fetchKnowledge(
+  location: LocationInfo,
+  customKnowledgeBase?: Data,
+): Knowledge {
   // TODO: fetch from a server
   const data = _db as Data;
   const redirects = _redirects as Redirects;
-  const result: Knowledge = {
+  let result: Knowledge = {
     notes: [],
     annotationRules: [],
   };
 
   const { host, pathname } = location;
-  if (redirects[host] != null) {
-    return fetchKnowledge({ host: redirects[host], pathname });
+  const normalizedHosts = getNormalizedHosts(host, redirects);
+
+  for (const searchHost of normalizedHosts) {
+    const hostKnowledge = data[searchHost] || customKnowledgeBase?.[searchHost];
+    if (hostKnowledge) {
+      result = mergeKnowledge(result, hostKnowledge, pathname);
+    }
   }
-  const hostData = data[host];
-  if (hostData) {
-    const rules = hostData.rules;
-    if (rules != null) {
-      for (const rule of rules) {
-        for (const regex of rule.regexes) {
-          if (new RegExp(regex, "i").test(pathname)) {
-            // merge all matching rules
-            result.notes = result.notes?.concat(rule.knowledge.notes ?? []);
-            result.annotationRules = result.annotationRules?.concat(
-              rule.knowledge.annotationRules ?? [],
-            );
-          }
+
+  return result;
+}
+
+function getNormalizedHosts(host: string, redirects: Redirects): string[] {
+  const hostWithWww = host.startsWith("www.") ? host : `www.${host}`;
+  const hostWithoutWww = host.startsWith("www.") ? host.slice(4) : host;
+  const redirectedHostWithWww = redirects[hostWithWww] || hostWithWww;
+  const redirectedHostWithoutWww = redirects[hostWithoutWww] || hostWithoutWww;
+  return [
+    ...new Set([
+      hostWithWww,
+      hostWithoutWww,
+      redirectedHostWithWww,
+      redirectedHostWithoutWww,
+    ]),
+  ];
+}
+
+function mergeKnowledge(
+  result: Knowledge,
+  dataSource: { rules?: Rule[] },
+  pathname: string,
+): Knowledge {
+  const rules = dataSource.rules;
+  if (rules != null) {
+    for (const rule of rules) {
+      for (const regex of rule.regexes) {
+        if (new RegExp(regex, "i").test(pathname)) {
+          // merge all matching rules
+          result.notes = result.notes?.concat(rule.knowledge.notes ?? []);
+
+          // filter out invalid annotaion rules
+          const filteredAnnotationRules =
+            rule.knowledge.annotationRules?.filter(
+              (rule) => rule.selector !== "",
+            ) ?? [];
+          result.annotationRules = result.annotationRules?.concat(
+            filteredAnnotationRules,
+          );
         }
       }
     }
   }
   return result;
+}
+
+export function fetchAllDefaultKnowledge(): Data {
+  return _db as Data;
 }

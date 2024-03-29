@@ -31,6 +31,7 @@
     "@emotion/styled": "^11.11.0",
     "@types/dom-speech-recognition": "^0.0.4",
     "construct-style-sheets-polyfill": "3.1.0",
+    "formik": "^2.4.5",
     "immer": "^10.0.3",
     "lodash": "^4.17.21",
     "openai": "^4.16.1",

@@ -40,6 +40,7 @@ export const useAppState = create<StoreType>()(
           openAIKey: state.settings.openAIKey,
           selectedModel: state.settings.selectedModel,
           voiceMode: state.settings.voiceMode,
+          customKnowledgeBase: state.settings.customKnowledgeBase,
         },
       }),
       merge: (persistedState, currentState) =>
