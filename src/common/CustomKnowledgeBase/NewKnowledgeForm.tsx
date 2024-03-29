@@ -75,11 +75,19 @@ const NewKnowledgeForm = ({
     }
   }, [isEditMode]);
 
-  const regexOptions = [
-    { value: "all", label: "Match any URL on this host" },
-    { value: "one", label: "Match only the current URL" },
-    { value: "custom", label: "Custom pattern" },
-  ];
+  const regexOptions = (newHost: string) => {
+    const options = [
+      { value: "all", label: "Match any URL on this host" },
+      { value: "custom", label: "Custom pattern" },
+    ];
+    if (!isEditMode && newHost === defaultHost) {
+      options.splice(1, 0, {
+        value: "one",
+        label: "Match only the current URL",
+      });
+    }
+    return options;
+  };
 
   const normalizedHostName = (originalHostName: string): string => {
     let host = originalHostName !== "" ? originalHostName : defaultHost;
@@ -115,46 +123,20 @@ const NewKnowledgeForm = ({
 
   const saveKnowledge = useCallback(
     (host: string, rules: EditingRule[]) => {
-      const transformedRules = rules.map(
-        ({ regexType, regexes, knowledge }) => {
-          let transformedRegexes = regexes;
-          switch (regexType) {
-            case "all": {
-              transformedRegexes = [".*"];
-              break;
-            }
-            case "one": {
-              let escapedPathname;
-              try {
-                const urlObj = new URL(currentURL);
-                escapedPathname = urlObj.pathname.replace(
-                  /[-\\^$*+?.()|[\]{}]/g,
-                  "\\$&",
-                );
-                transformedRegexes = [`^${escapedPathname}/?$`];
-              } catch (error) {
-                console.error("Error parsing URL: ", error);
-              }
-              break;
-            }
-            default:
-              break;
-          }
-          return {
-            regexes: transformedRegexes,
-            knowledge,
-          };
-        },
-      );
+      const transformedRules = rules.map(({ regexes, knowledge }) => {
+        return {
+          regexes,
+          knowledge,
+        };
+      });
       const updatedKnowledge = {
         ...customKnowledgeBase,
         [host]: { rules: transformedRules },
       };
       updateSettings({ customKnowledgeBase: updatedKnowledge });
-      setIsDefaultHostLoaded(false);
       closeForm();
     },
-    [customKnowledgeBase, updateSettings, closeForm, currentURL],
+    [customKnowledgeBase, updateSettings, closeForm],
   );
 
   // const renderAnnotationRules = () => (
@@ -360,57 +342,101 @@ const NewKnowledgeForm = ({
                           }}
                         />
                       )}
-                      <FormControl isRequired mb={2}>
-                        <FormLabel>URL Matching</FormLabel>
-                        <FormHelperText mb={2} fontSize="xs">
-                          Select a pattern to match URLs. Use &quot;Custom
-                          Pattern&quot; for advanced pathname matching using
-                          regular expressions.
-                        </FormHelperText>
-                        <Field
-                          as={Select}
-                          name={`rules[${ruleIndex}].regexType`}
-                          placeholder="Select a matching pattern"
-                        >
-                          {regexOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </Field>
-                      </FormControl>
-
-                      {rule.regexType === "custom" &&
-                        rule.regexes.map((regex, regexIndex) => (
-                          <FormControl key={regexIndex} isRequired>
-                            <InputGroup size="md" mb={1}>
-                              <Field
-                                as={Input}
-                                name={`rules[${ruleIndex}].regexes[${regexIndex}]`}
-                                placeholder="Enter regex to match pathname"
-                              />
-                              <InputRightElement>
-                                {rule.regexes.length > 1 && (
-                                  <IconButton
-                                    aria-label="Remove regex"
-                                    icon={<SmallCloseIcon />}
-                                    variant="ghost"
-                                    onClick={() => {
-                                      const updatedRegexes = [
-                                        ...values.rules[ruleIndex].regexes,
-                                      ];
-                                      updatedRegexes.splice(regexIndex, 1);
-                                      setFieldValue(
-                                        `rules[${ruleIndex}].regexes`,
-                                        updatedRegexes,
-                                      );
-                                    }}
-                                  />
-                                )}
-                              </InputRightElement>
-                            </InputGroup>
-                          </FormControl>
-                        ))}
+                      {!isEditMode && (
+                        <FormControl isRequired mb={2}>
+                          <FormLabel>URL Matching</FormLabel>
+                          <FormHelperText mb={2} fontSize="xs">
+                            Select a pattern to match URLs. Use &quot;Custom
+                            Pattern&quot; for advanced pathname matching using
+                            regular expressions.
+                          </FormHelperText>
+                          <Field
+                            as={Select}
+                            name={`rules[${ruleIndex}].regexType`}
+                            placeholder="Select a matching pattern"
+                            onChange={(
+                              e: React.ChangeEvent<HTMLSelectElement>,
+                            ) => {
+                              const value = e.target.value;
+                              setFieldValue(
+                                `rules[${ruleIndex}].regexType`,
+                                value,
+                              );
+                              switch (value) {
+                                case "all":
+                                  setFieldValue(
+                                    `rules[${ruleIndex}].regexes[0]`,
+                                    ".*",
+                                  );
+                                  break;
+                                case "one": {
+                                  let pathname;
+                                  try {
+                                    pathname = new URL(
+                                      currentURL,
+                                    ).pathname.replace(
+                                      /[-\\^$*+?.()|[\]{}]/g,
+                                      "\\$&",
+                                    );
+                                  } catch (error) {
+                                    console.error("Error parsing URL: ", error);
+                                  }
+                                  setFieldValue(
+                                    `rules[${ruleIndex}].regexes[0]`,
+                                    `^${pathname}/?$`,
+                                  );
+                                  break;
+                                }
+                                case "custom":
+                                  setFieldValue(
+                                    `rules[${ruleIndex}].regexes[0]`,
+                                    "",
+                                  );
+                                  break;
+                                default:
+                                  break;
+                              }
+                            }}
+                          >
+                            {regexOptions(values.newHost).map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </Field>
+                        </FormControl>
+                      )}
+                      {rule.regexes.map((regex, regexIndex) => (
+                        <FormControl key={regexIndex} isRequired>
+                          <InputGroup size="md" mb={1}>
+                            <Field
+                              as={Input}
+                              name={`rules[${ruleIndex}].regexes[${regexIndex}]`}
+                              placeholder="Enter regex to match pathname"
+                              isDisabled={rule.regexType !== "custom"}
+                            />
+                            <InputRightElement>
+                              {rule.regexes.length > 1 && (
+                                <IconButton
+                                  aria-label="Remove regex"
+                                  icon={<SmallCloseIcon />}
+                                  variant="ghost"
+                                  onClick={() => {
+                                    const updatedRegexes = [
+                                      ...values.rules[ruleIndex].regexes,
+                                    ];
+                                    updatedRegexes.splice(regexIndex, 1);
+                                    setFieldValue(
+                                      `rules[${ruleIndex}].regexes`,
+                                      updatedRegexes,
+                                    );
+                                  }}
+                                />
+                              )}
+                            </InputRightElement>
+                          </InputGroup>
+                        </FormControl>
+                      ))}
                       {rule.regexType === "custom" && (
                         <Button
                           aria-label="Add another URL matching pattern"
