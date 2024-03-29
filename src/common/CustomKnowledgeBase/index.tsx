@@ -6,6 +6,7 @@ import { type EditingData } from "../../helpers/knowledge";
 import DefaultKnowledge from "./DefaultKnowledge";
 import HostKnowledge from "./HostKnowledge";
 import NewKnowledgeJson from "./NewKnowledgeJson";
+import { findActiveTab } from "../../helpers/browserUtils";
 
 const CustomKnowledgeBase = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -20,8 +21,23 @@ const CustomKnowledgeBase = () => {
     onOpen: openJsonInput,
     onClose: closeJsonInput,
   } = useDisclosure();
+  const [defaultHost, setDefaultHost] = useState("");
+  const [currentURL, setCurrentUrl] = useState("");
 
-  const openForm = () => setIsFormOpen(true);
+  const openForm = async () => {
+    const tab = await findActiveTab();
+    if (tab && tab.url) {
+      setCurrentUrl(tab.url);
+      if (tab.url.startsWith("chrome")) {
+        setDefaultHost("");
+      } else {
+        const url = new URL(tab.url);
+        const host = url.hostname.replace(/^www\./, "");
+        setDefaultHost(host);
+      }
+    }
+    setIsFormOpen(true);
+  };
 
   const closeForm = () => {
     setEditKnowledge(undefined);
@@ -69,6 +85,8 @@ const CustomKnowledgeBase = () => {
         isEditMode={!!editKnowledge}
         editKnowledge={editKnowledge}
         closeForm={closeForm}
+        defaultHost={defaultHost}
+        currentURL={currentURL}
       />
       <NewKnowledgeJson isOpen={isJsonInputOpen} onClose={closeJsonInput} />
     </VStack>
