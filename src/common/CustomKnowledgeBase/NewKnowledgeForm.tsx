@@ -18,8 +18,6 @@ import {
   ModalOverlay,
   ModalContent,
   ModalCloseButton,
-  // HStack,
-  // Switch,
 } from "@chakra-ui/react";
 import { DeleteIcon, SmallCloseIcon } from "@chakra-ui/icons";
 import { Formik, Form, Field } from "formik";
@@ -264,7 +262,9 @@ const NewKnowledgeForm = ({
                 }}
                 onClose={() => setShowDuplicateAlert(false)}
               />
-              <ModalHeader>New Host Knowledge</ModalHeader>
+              <ModalHeader>
+                {isEditMode ? "Edit" : "New"} Host Knowledge
+              </ModalHeader>
               <ModalBody>
                 <FormControl isRequired mb={4}>
                   <FormLabel>Host</FormLabel>
