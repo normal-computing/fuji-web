@@ -16,7 +16,9 @@ import TaskUI from "./TaskUI";
 import Settings from "./Settings";
 
 const App = () => {
-  const openAIKey = useAppState((state) => state.settings.openAIKey);
+  const hasAPIKey = useAppState(
+    (state) => state.settings.anthropicKey || state.settings.openAIKey,
+  );
   const [inSettingsView, setInSettingsView] = useState(false);
 
   return (
@@ -26,20 +28,22 @@ const App = () => {
           <Heading as="h1" size="lg" flex={1}>
             WebWand 🪄
           </Heading>
-          <IconButton
-            icon={<SettingsIcon />}
-            onClick={() => setInSettingsView(true)}
-            aria-label="open settings"
-          />
+          {hasAPIKey && (
+            <IconButton
+              icon={<SettingsIcon />}
+              onClick={() => setInSettingsView(true)}
+              aria-label="open settings"
+            />
+          )}
         </HStack>
-        {openAIKey ? (
+        {hasAPIKey ? (
           inSettingsView ? (
             <Settings setInSettingsView={setInSettingsView} />
           ) : (
             <TaskUI />
           )
         ) : (
-          <SetAPIKey />
+          <SetAPIKey asInitializerView />
         )}
       </Box>
       <Box

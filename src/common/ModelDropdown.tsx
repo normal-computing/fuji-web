@@ -1,5 +1,12 @@
 import { Select } from "@chakra-ui/react";
 import { useAppState } from "../state/store";
+import {
+  SupportedModels,
+  DisplayName,
+  isOpenAIModel,
+  isAnthropicModel,
+} from "../helpers/aiSdkUtils";
+import { enumValues } from "../helpers/utils";
 
 const ModelDropdown = () => {
   const { selectedModel, updateSettings } = useAppState((state) => ({
@@ -7,22 +14,35 @@ const ModelDropdown = () => {
     updateSettings: state.settings.actions.update,
   }));
 
-  const { openAIKey } = useAppState((state) => ({
+  const { openAIKey, anthropicKey } = useAppState((state) => ({
     openAIKey: state.settings.openAIKey,
+    anthropicKey: state.settings.anthropicKey,
   }));
+  console.log(enumValues(SupportedModels));
 
-  if (!openAIKey) return null;
+  const isModelSupported = (model: SupportedModels) => {
+    if (isOpenAIModel(model)) {
+      return !!openAIKey;
+    }
+    if (isAnthropicModel(model)) {
+      return !!anthropicKey;
+    }
+    return false;
+  };
 
   return (
     <Select
       id="model-select"
       value={selectedModel || ""}
-      onChange={(e) => updateSettings({ selectedModel: e.target.value })}
+      onChange={(e) =>
+        updateSettings({ selectedModel: e.target.value as SupportedModels })
+      }
     >
-      <option value="gpt-3.5-turbo-16k">GPT-3.5 Turbo (16k)</option>
-      <option value="gpt-4">GPT-4</option>
-      <option value="gpt-4-turbo-preview">GPT-4 Turbo (Preview)</option>
-      <option value="gpt-4-vision-preview">GPT-4 Vision (Preview)</option>
+      {enumValues(SupportedModels).map((model) => (
+        <option key={model} value={model} disabled={!isModelSupported(model)}>
+          {DisplayName[model]}
+        </option>
+      ))}
     </Select>
   );
 };

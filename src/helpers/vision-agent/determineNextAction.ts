@@ -4,6 +4,7 @@ import { useAppState } from "../../state/store";
 import { allToolsDescriptions } from "./tools";
 import { type Knowledge } from "../knowledge";
 import errorChecker from "../errorChecker";
+import { fetchResponseFromModel } from "../aiSdkUtils";
 import { type Action, parseResponse } from "./parseResponse";
 
 const systemMessage = `
@@ -51,11 +52,6 @@ export async function determineNextActionWithVision(
   maxAttempts = 3,
   notifyError?: (error: string) => void,
 ): Promise<QueryResult> {
-  const key = useAppState.getState().settings.openAIKey;
-  if (!key) {
-    notifyError?.("No OpenAI key found");
-    return null;
-  }
   const model = useAppState.getState().settings.selectedModel;
   const prompt = formatPrompt(
     taskInstructions,
@@ -66,46 +62,16 @@ export async function determineNextActionWithVision(
     viewportPercentage,
   );
 
-  const openai = new OpenAI({
-    apiKey: key,
-    dangerouslyAllowBrowser: true, // user provides the key
-  });
-
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      const completion = await openai.chat.completions.create({
-        model: model,
-        // does not work for vision model yet
-        // response_format: {
-        //   type: 'json_object',
-        // },
-        messages: [
-          {
-            role: "system",
-            content: systemMessage,
-          },
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: prompt,
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  // detail: 'low',
-                  url: screenshotData, // this is already base64 encoded
-                },
-              },
-            ],
-          },
-        ],
-        max_tokens: 1000,
-        temperature: 0,
+      const completion = await fetchResponseFromModel(model, {
+        systemMessage,
+        prompt,
+        imageData: screenshotData,
+        jsonMode: true,
       });
 
-      const rawResponse = completion.choices[0].message?.content?.trim() ?? "";
+      const rawResponse = completion.rawResponse;
       let action = null;
       try {
         action = parseResponse(rawResponse);

@@ -1,9 +1,11 @@
 import { type Data } from "../helpers/knowledge/index";
 import { MyStateCreator } from "./store";
+import { SupportedModels } from "../helpers/aiSdkUtils";
 
 export type SettingsSlice = {
-  openAIKey: string | null;
-  selectedModel: string;
+  openAIKey: string | undefined;
+  anthropicKey: string | undefined;
+  selectedModel: SupportedModels;
   voiceMode: boolean;
   customKnowledgeBase: Data;
   actions: {
@@ -11,8 +13,9 @@ export type SettingsSlice = {
   };
 };
 export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
-  openAIKey: null,
-  selectedModel: "gpt-4-vision-preview",
+  openAIKey: undefined,
+  anthropicKey: undefined,
+  selectedModel: SupportedModels.Gpt4VisionPreview,
   voiceMode: false,
   customKnowledgeBase: {},
   actions: {
