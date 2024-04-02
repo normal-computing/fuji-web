@@ -19,7 +19,6 @@ export const DisplayName = {
 };
 
 export function hasVisionSupport(model: SupportedModels) {
-  console.log(model, SupportedModels.Gpt4VisionPreview);
   return (
     model === SupportedModels.Gpt4VisionPreview ||
     model === SupportedModels.Claude3Sonnet
