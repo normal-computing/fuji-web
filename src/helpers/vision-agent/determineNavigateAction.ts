@@ -22,6 +22,7 @@ This is an example of expected response from you:
 
 {
   "thought": "To find latest news on AI, I am navigating to Google.",
+  "speak": "To find latest news on AI, I am navigating to Google.",
   "action": {
     "name": "navigate",
     "args": {
@@ -30,7 +31,7 @@ This is an example of expected response from you:
   }
 }
 
-Your response must always be in JSON format and must include string "thought" and object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
+Your response must always be in JSON format and must include string "thought", string "speak", and object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
 `;
 
 export async function determineNavigateAction(
