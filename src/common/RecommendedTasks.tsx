@@ -3,7 +3,7 @@ import { useAppState } from "../state/store";
 
 const tasks = [
   'Post on twitter.com with content "an automated post from WebWand!" If I\'m not logged in, stop and wait for me to log in.',
-  "Find a book about AI and add it to cart on Amazon.com",
+  "Find a book about AI and add it to cart on Amazon.com. Pick the cheaper one from papaerback and hardcover.",
 ];
 
 const RecommendedTasks = ({

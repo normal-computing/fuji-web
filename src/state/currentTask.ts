@@ -26,6 +26,7 @@ import { MyStateCreator } from "./store";
 import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
 import { voiceControl } from "../helpers/voiceControl";
 import { fetchKnowledge } from "../helpers/knowledge";
+import { hasVisionSupport } from "../helpers/aiSdkUtils";
 
 export type TaskHistoryEntry = {
   prompt: string;
@@ -109,8 +110,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             throw new Error("No active tab found");
           }
 
-          const isVisionModel =
-            get().settings.selectedModel === "gpt-4-vision-preview";
+          const isVisionModel = hasVisionSupport(get().settings.selectedModel);
 
           const performAction = async (
             query: QueryResult,

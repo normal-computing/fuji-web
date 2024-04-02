@@ -1,9 +1,9 @@
-import OpenAI from "openai";
 import { useAppState } from "../../state/store";
 import { availableActions } from "./availableActions";
 import { ParsedResponseSuccess, parseResponse } from "./parseResponse";
 import { QueryResult } from "../vision-agent/determineNextAction";
 import errorChecker from "../errorChecker";
+import { fetchResponseFromModel } from "../aiSdkUtils";
 
 type Action = NonNullable<QueryResult>["action"];
 
@@ -51,38 +51,19 @@ export async function determineNextAction(
   maxAttempts = 3,
   notifyError?: (error: string) => void,
 ): Promise<QueryResult> {
-  const key = useAppState.getState().settings.openAIKey;
-  if (!key) {
-    notifyError?.("No OpenAI key found");
-    return null;
-  }
   const model = useAppState.getState().settings.selectedModel;
   const prompt = formatPrompt(taskInstructions, previousActions, simplifiedDOM);
 
-  const openai = new OpenAI({
-    apiKey: key,
-    dangerouslyAllowBrowser: true, // user provides the key
-  });
-
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      const completion = await openai.chat.completions.create({
-        model: model,
-        // response_format: {
-        //   type: 'json_object',
-        // },
-        messages: [
-          {
-            role: "system",
-            content: systemMessage,
-          },
-          { role: "user", content: prompt },
-        ],
-        max_tokens: 1000,
-        temperature: 0,
+      const completion = await fetchResponseFromModel(model, {
+        systemMessage,
+        prompt,
+        jsonMode: true,
       });
 
-      const rawResponse = completion.choices[0].message?.content?.trim() || "";
+      const rawResponse = completion.rawResponse;
+
       try {
         const parsed = await parseResponse(rawResponse);
         if ("error" in parsed) {

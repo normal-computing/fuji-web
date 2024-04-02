@@ -38,6 +38,7 @@ export const useAppState = create<StoreType>()(
         },
         settings: {
           openAIKey: state.settings.openAIKey,
+          anthropicKey: state.settings.anthropicKey,
           selectedModel: state.settings.selectedModel,
           voiceMode: state.settings.voiceMode,
           customKnowledgeBase: state.settings.customKnowledgeBase,

@@ -1,3 +1,4 @@
+import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { debugMode } from "../constants";
 
@@ -32,6 +33,30 @@ export default function errorChecker(
     if (err instanceof OpenAI.APIConnectionError) {
       log(
         "There is a problem with the network connection to the OpenAI API. Please check your network connection and try again later.",
+        err,
+      );
+      return true;
+    }
+    // other API errors are not recoverable
+    return false;
+  } else if (err instanceof Anthropic.APIError) {
+    if (err instanceof Anthropic.InternalServerError) {
+      log(
+        "There is a problem with the Anthropic API server. Please check its status page https://status.anthropic.com/ and try again later.",
+        err,
+      );
+      return false;
+    }
+    if (
+      err instanceof Anthropic.AuthenticationError ||
+      err instanceof Anthropic.PermissionDeniedError
+    ) {
+      log("The Anthropic API key you provided might not be valid", err);
+      return false;
+    }
+    if (err instanceof Anthropic.APIConnectionError) {
+      log(
+        "There is a problem with the network connection to the Anthropic API. Please check your network connection and try again later.",
         err,
       );
       return true;

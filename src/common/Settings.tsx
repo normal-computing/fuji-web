@@ -20,38 +20,39 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
 } from "@chakra-ui/react";
-import {
-  ArrowBackIcon,
-  RepeatIcon,
-  EditIcon,
-  ChevronRightIcon,
-} from "@chakra-ui/icons";
+import { ArrowBackIcon, EditIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
 import ModelDropdown from "./ModelDropdown";
 import { callRPC } from "../helpers/rpc/pageRPC";
 import CustomKnowledgeBase from "./CustomKnowledgeBase";
+import SetAPIKey from "./SetAPIKey";
+import { hasVisionSupport } from "../helpers/aiSdkUtils";
+import { debugMode } from "../constants";
 
 type SettingsProps = {
   setInSettingsView: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const Settings = ({ setInSettingsView }: SettingsProps) => {
-  const [showCKB, setShowCKB] = useState(false);
+  const [view, setView] = useState<"settings" | "knowledge" | "api">(
+    "settings",
+  );
   const state = useAppState((state) => ({
     selectedModel: state.settings.selectedModel,
     updateSettings: state.settings.actions.update,
     voiceMode: state.settings.voiceMode,
     openAIKey: state.settings.openAIKey,
+    anthropicKey: state.settings.anthropicKey,
   }));
   const toast = useToast();
 
-  if (!state.openAIKey) return null;
+  if (!state.openAIKey && !state.anthropicKey) return null;
 
-  const isVisionModel = state.selectedModel === "gpt-4-vision-preview";
+  const isVisionModel = hasVisionSupport(state.selectedModel);
 
   const closeSetting = () => setInSettingsView(false);
-  const openCKB = () => setShowCKB(true);
-  const backToSettings = () => setShowCKB(false);
+  const openCKB = () => setView("knowledge");
+  const backToSettings = () => setView("settings");
 
   async function checkMicrophonePermission(): Promise<PermissionState> {
     if (!navigator.permissions) {
@@ -95,7 +96,9 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
         <IconButton
           variant="outline"
           icon={<ArrowBackIcon />}
-          onClick={() => (showCKB ? backToSettings() : closeSetting())}
+          onClick={() =>
+            view === "settings" ? closeSetting() : backToSettings()
+          }
           aria-label="go back"
         />
         <Breadcrumb separator={<ChevronRightIcon color="gray.500" />}>
@@ -104,16 +107,28 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
               Settings
             </BreadcrumbLink>
           </BreadcrumbItem>
-          {showCKB && (
+          {view === "knowledge" && (
             <BreadcrumbItem isCurrentPage>
               <BreadcrumbLink href="#">Knowledge</BreadcrumbLink>
             </BreadcrumbItem>
           )}
+          {view === "api" && (
+            <BreadcrumbItem isCurrentPage>
+              <BreadcrumbLink href="#">API</BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
         </Breadcrumb>
       </HStack>
-      {showCKB ? (
-        <CustomKnowledgeBase />
-      ) : (
+      {view === "knowledge" && <CustomKnowledgeBase />}
+      {view === "api" && (
+        <SetAPIKey
+          asInitializerView={false}
+          initialAnthropicKey={state.anthropicKey}
+          initialOpenAIKey={state.openAIKey}
+          onClose={backToSettings}
+        />
+      )}
+      {view === "settings" && (
         <FormControl
           as={VStack}
           divider={<StackDivider borderColor="gray.200" />}
@@ -122,19 +137,30 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
         >
           <Flex alignItems="center">
             <Box>
-              <FormLabel mb="0">OpenAI API Key</FormLabel>
+              <FormLabel mb="0">API Settings</FormLabel>
               <FormHelperText>
                 The API key is stored locally on your device
               </FormHelperText>
             </Box>
             <Spacer />
-            <Button
-              onClick={() => state.updateSettings({ openAIKey: "" })}
-              rightIcon={<RepeatIcon />}
-            >
-              Reset
+            <Button onClick={() => setView("api")} rightIcon={<EditIcon />}>
+              Edit
             </Button>
           </Flex>
+
+          {debugMode && (
+            <Button
+              onClick={() => {
+                state.updateSettings({
+                  openAIKey: "",
+                  anthropicKey: "",
+                });
+              }}
+              colorScheme="red"
+            >
+              Clear API Keys
+            </Button>
+          )}
 
           <Flex alignItems="center">
             <FormLabel mb="0">Select Model</FormLabel>
@@ -162,6 +188,16 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
               isChecked={state.voiceMode}
               onChange={(e) => {
                 const isEnabled = e.target.checked;
+                if (isEnabled && !state.openAIKey) {
+                  toast({
+                    title: "Error",
+                    description: "Voice Mode requires an OpenAI API key.",
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                  });
+                  return;
+                }
                 handleVoiceMode(isEnabled);
                 state.updateSettings({ voiceMode: isEnabled });
               }}

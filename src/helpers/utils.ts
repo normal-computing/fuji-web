@@ -63,3 +63,13 @@ export async function waitTillStable(
     timeout / interval,
   );
 }
+
+export function enumKeys<O extends object, K extends keyof O = keyof O>(
+  obj: O,
+): K[] {
+  return Object.keys(obj) as K[];
+}
+
+export function enumValues<O extends object>(obj: O): O[keyof O][] {
+  return enumKeys(obj).map((key) => obj[key]);
+}
