@@ -18,7 +18,6 @@ const ModelDropdown = () => {
     openAIKey: state.settings.openAIKey,
     anthropicKey: state.settings.anthropicKey,
   }));
-  console.log(enumValues(SupportedModels));
 
   const isModelSupported = (model: SupportedModels) => {
     if (isOpenAIModel(model)) {
