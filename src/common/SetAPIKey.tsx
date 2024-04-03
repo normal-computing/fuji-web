@@ -1,5 +1,8 @@
 import {
+  AbsoluteCenter,
+  Box,
   Button,
+  Divider,
   Input,
   VStack,
   Text,
@@ -24,20 +27,32 @@ const SetAPIKey = ({
   initialAnthropicKey = "",
   onClose,
 }: SetAPIKeyProps) => {
-  const { updateSettings } = useAppState((state) => ({
-    updateSettings: state.settings.actions.update,
-  }));
+  const { updateSettings, initialOpenAIBaseUrl, initialAnthropicBaseUrl } =
+    useAppState((state) => ({
+      initialOpenAIBaseUrl: state.settings.openAIBaseUrl,
+      initialAnthropicBaseUrl: state.settings.anthropicBaseUrl,
+      updateSettings: state.settings.actions.update,
+    }));
 
   const [openAIKey, setOpenAIKey] = React.useState(initialOpenAIKey || "");
   const [anthropicKey, setAnthropicKey] = React.useState(
     initialAnthropicKey || "",
   );
+  const [openAIBaseUrl, setOpenAIBaseUrl] = React.useState(
+    initialOpenAIBaseUrl || "",
+  );
+  const [anthropicBaseUrl, setAnthropicBaseUrl] = React.useState(
+    initialAnthropicBaseUrl || "",
+  );
+
   const [showPassword, setShowPassword] = React.useState(false);
 
   const onSave = () => {
     updateSettings({
       openAIKey,
+      openAIBaseUrl,
       anthropicKey,
+      anthropicBaseUrl,
     });
     onClose && onClose();
   };
@@ -69,6 +84,12 @@ const SetAPIKey = ({
         WebWand stores your API keys locally on your device, and they are only
         used to communicate with the OpenAI API and/or the Anthropic API.
       </Text>
+      <Box position="relative" py="2" w="full">
+        <Divider />
+        <AbsoluteCenter bg="white" px="4">
+          OpenAI
+        </AbsoluteCenter>
+      </Box>
       <FormControl>
         <FormLabel>OpenAI API Key</FormLabel>
         <HStack w="full">
@@ -88,6 +109,24 @@ const SetAPIKey = ({
           )}
         </HStack>
       </FormControl>
+      {!asInitializerView && (
+        <FormControl>
+          <FormLabel>Base Url (opitional)</FormLabel>
+          <Input
+            placeholder="Set Base Url"
+            value={openAIBaseUrl}
+            onChange={(event) => setOpenAIBaseUrl(event.target.value)}
+            type="text"
+          />
+        </FormControl>
+      )}
+
+      <Box position="relative" py={2} w="full">
+        <Divider />
+        <AbsoluteCenter bg="white" px="4">
+          Anthropic
+        </AbsoluteCenter>
+      </Box>
       <FormControl>
         <FormLabel>Anthropic API Key</FormLabel>
         <HStack w="full">
@@ -107,13 +146,24 @@ const SetAPIKey = ({
           )}
         </HStack>
       </FormControl>
+      {!asInitializerView && (
+        <FormControl>
+          <FormLabel>Base Url (opitional)</FormLabel>
+          <Input
+            placeholder="Set Base Url"
+            value={anthropicBaseUrl}
+            onChange={(event) => setAnthropicBaseUrl(event.target.value)}
+            type="text"
+          />
+        </FormControl>
+      )}
       <Button
         onClick={onSave}
         w="full"
         isDisabled={!openAIKey && !anthropicKey}
         colorScheme="blue"
       >
-        Save Key
+        Save
       </Button>
     </VStack>
   );
