@@ -2,6 +2,7 @@ import { toolSchemaUnion, type ToolOperation } from "./tools";
 
 export type Action = {
   thought: string;
+  speak?: string;
   operation: ToolOperation;
 };
 
@@ -38,8 +39,16 @@ export function parseResponse(rawResponse: string): Action {
     throw new Error("Invalid response: Thought and Action are required");
   }
   const operation = toolSchemaUnion.parse(response.action);
-  return {
-    thought: response.thought,
-    operation,
-  };
+  if ("speak" in response) {
+    return {
+      thought: response.thought,
+      speak: response.speak,
+      operation,
+    };
+  } else {
+    return {
+      thought: response.thought,
+      operation,
+    };
+  }
 }

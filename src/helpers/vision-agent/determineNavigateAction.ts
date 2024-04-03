@@ -8,7 +8,7 @@ import { schemaToDescription, navigateSchema } from "./tools";
 
 const navigateSchemaDescription = schemaToDescription(navigateSchema);
 
-const systemMessage = `
+const systemMessage = (voiceMode: boolean) => `
 You are a browser automation assistant.
 
 You can use the following tool:
@@ -21,7 +21,12 @@ You will be given a task to perform.
 This is an example of expected response from you:
 
 {
-  "thought": "To find latest news on AI, I am navigating to Google.",
+  "thought": "To find latest news on AI, I am navigating to Google.",${
+    voiceMode
+      ? `,
+  "speak": "To find the latest news on AI, I am navigating to Google."`
+      : ""
+  }
   "action": {
     "name": "navigate",
     "args": {
@@ -30,7 +35,9 @@ This is an example of expected response from you:
   }
 }
 
-Your response must always be in JSON format and must include string "thought" and object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
+Your response must always be in JSON format and must include string "thought"${
+  voiceMode ? ', string "speak",' : ""
+} and object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
 `;
 
 export async function determineNavigateAction(
@@ -39,12 +46,13 @@ export async function determineNavigateAction(
   notifyError?: (error: string) => void,
 ): Promise<QueryResult> {
   const model = useAppState.getState().settings.selectedModel;
+  const voiceMode = useAppState.getState().settings.voiceMode;
   const prompt = formatPrompt(taskInstructions);
 
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const completion = await fetchResponseFromModel(model, {
-        systemMessage,
+        systemMessage: systemMessage(voiceMode),
         prompt,
         jsonMode: true,
       });
