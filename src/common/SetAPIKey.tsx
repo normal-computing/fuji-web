@@ -10,11 +10,6 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { useAppState } from "../state/store";
-import {
-  SupportedModels,
-  isAnthropicModel,
-  isOpenAIModel,
-} from "../helpers/aiSdkUtils";
 
 type SetAPIKeyProps = {
   asInitializerView?: boolean;
@@ -29,9 +24,8 @@ const SetAPIKey = ({
   initialAnthropicKey = "",
   onClose,
 }: SetAPIKeyProps) => {
-  const { updateSettings, selectedModel } = useAppState((state) => ({
+  const { updateSettings } = useAppState((state) => ({
     updateSettings: state.settings.actions.update,
-    selectedModel: state.settings.selectedModel,
   }));
 
   const [openAIKey, setOpenAIKey] = React.useState(initialOpenAIKey || "");
@@ -41,22 +35,10 @@ const SetAPIKey = ({
   const [showPassword, setShowPassword] = React.useState(false);
 
   const onSave = () => {
-    const settings: Parameters<typeof updateSettings>[0] = {
+    updateSettings({
       openAIKey,
       anthropicKey,
-    };
-    // set default model based on the API key
-    if (!openAIKey && anthropicKey && !isAnthropicModel(selectedModel)) {
-      settings.selectedModel = SupportedModels.Claude3Sonnet;
-    } else if (openAIKey && !anthropicKey && !isOpenAIModel(selectedModel)) {
-      settings.selectedModel = SupportedModels.Gpt4VisionPreview;
-    }
-    // voice model current relies on OpenAI API key
-    if (!openAIKey) {
-      settings.voiceMode = false;
-    }
-
-    updateSettings(settings);
+    });
     onClose && onClose();
   };
 
