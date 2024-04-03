@@ -20,7 +20,7 @@ We do NOT record your screen or collect browsing information or your prompts. It
 
 ### Download and Install the extension in your browser
 
-1. Go to the [releases page](https://github.com/normal-computing/web-wand/releases), find the latest version of the extension and download "artifact.zip".
+1. Go to the [releases page](https://github.com/normal-computing/web-wand/releases), find the latest version of the extension and download "webwand.zip".
 2. Unzip the file.
 3. Load your extension on Chrome by doing the following:
    1. Navigate to `chrome://extensions/`
