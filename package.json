@@ -90,7 +90,7 @@
     "ts-loader": "9.5.0",
     "tslib": "2.6.2",
     "typescript": "5.2.2",
-    "vite": "5.1.6",
+    "vite": "5.1.7",
     "ws": "8.16.0"
   },
   "lint-staged": {
