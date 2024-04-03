@@ -319,15 +319,13 @@ function getLabelData(
     }
 
     const { visibleText, ariaLabel } = traverseDom(elem, selector);
-    // if the element already has visible text, just use it as label and skip
-    // TODO: detect and avoid duplication
-    if (visibleText !== "") {
-      addLabel(visibleText, elem);
+    // use aria-label as name, otherwise use visible text
+    if (ariaLabel !== "") {
+      addLabel(ariaLabel, elem);
       return;
     }
-    addLabel(ariaLabel, elem);
+    addLabel(visibleText, elem);
   });
-
   return data;
 }
 
