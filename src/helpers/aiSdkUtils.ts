@@ -64,7 +64,7 @@ export async function fetchResponseFromModelOpenAI(
   const baseURL = useAppState.getState().settings.openAIBaseUrl;
   const openai = new OpenAI({
     apiKey: key,
-    baseURL,
+    baseURL: baseURL ? baseURL : undefined, // explicitly set to undefined because empty string would cause an error
     dangerouslyAllowBrowser: true, // user provides the key
   });
   const messages: OpenAI.ChatCompletionMessageParam[] = [];
@@ -123,7 +123,7 @@ export async function fetchResponseFromModelAnthropic(
   const baseURL = useAppState.getState().settings.anthropicBaseUrl;
   const anthropic = new Anthropic({
     apiKey: key,
-    baseURL,
+    baseURL: baseURL ? baseURL : undefined, // explicitly set to undefined because empty string would cause an error
   });
   const content: Anthropic.MessageParam["content"] = [
     {
