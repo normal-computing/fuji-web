@@ -13,6 +13,10 @@ styleElem.innerHTML = `
   z-index: 99999999;
   top: 0;
   left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: unset;
+  border: none;
 }
 ._label_overlay_2 {
   position: absolute;
@@ -294,6 +298,8 @@ function getLabelData(
     }
   }
   elements.forEach((elem) => {
+    // skip if the element is disabled
+    if (elem.getAttribute("disabled") != null) return;
     // skip specialElements
     if (elem.hasAttribute(WEB_WAND_LABEL_ATTRIBUTE_NAME)) return;
     // skip if the element is already touched
@@ -329,10 +335,13 @@ export function addLabelsToDom(data: LabelDataWithElement[]) {
   // wrapper element
   const wrapper = document.createElement("div");
   wrapper.classList.add("_label_overlay_wrapper");
+  wrapper.popover = "manual";
   data.forEach(({ element, label }, index) => {
     drawLabel(wrapper, element, label, baseZIndex + data.length - index);
   });
   document.body.appendChild(wrapper);
+  // this does not exist on Firefox yet
+  wrapper.togglePopover && wrapper.togglePopover();
 }
 
 export function removeLabels() {
