@@ -1,6 +1,10 @@
 import { type Data } from "../helpers/knowledge/index";
 import { MyStateCreator } from "./store";
-import { SupportedModels } from "../helpers/aiSdkUtils";
+import {
+  SupportedModels,
+  isAnthropicModel,
+  isOpenAIModel,
+} from "../helpers/aiSdkUtils";
 
 export type SettingsSlice = {
   openAIKey: string | undefined;
@@ -21,7 +25,26 @@ export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
   actions: {
     update: (values) => {
       set((state) => {
-        state.settings = { ...state.settings, ...values };
+        const newSettings: SettingsSlice = { ...state.settings, ...values };
+        // set default model based on the API key
+        if (
+          !newSettings.openAIKey &&
+          newSettings.anthropicKey &&
+          !isAnthropicModel(newSettings.selectedModel)
+        ) {
+          newSettings.selectedModel = SupportedModels.Claude3Sonnet;
+        } else if (
+          newSettings.openAIKey &&
+          !newSettings.anthropicKey &&
+          !isOpenAIModel(newSettings.selectedModel)
+        ) {
+          newSettings.selectedModel = SupportedModels.Gpt4VisionPreview;
+        }
+        // voice model current relies on OpenAI API key
+        if (!newSettings.openAIKey) {
+          newSettings.voiceMode = false;
+        }
+        state.settings = newSettings;
       });
     },
   },
