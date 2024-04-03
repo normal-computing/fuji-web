@@ -111,7 +111,7 @@ const SetAPIKey = ({
       </FormControl>
       {!asInitializerView && (
         <FormControl>
-          <FormLabel>Base Url (opitional)</FormLabel>
+          <FormLabel>Base Url (optional)</FormLabel>
           <Input
             placeholder="Set Base Url"
             value={openAIBaseUrl}
@@ -148,7 +148,7 @@ const SetAPIKey = ({
       </FormControl>
       {!asInitializerView && (
         <FormControl>
-          <FormLabel>Base Url (opitional)</FormLabel>
+          <FormLabel>Base Url (optional)</FormLabel>
           <Input
             placeholder="Set Base Url"
             value={anthropicBaseUrl}

@@ -118,7 +118,7 @@ export async function fetchResponseFromModelAnthropic(
 ): Promise<Response> {
   const key = useAppState.getState().settings.anthropicKey;
   if (!key) {
-    throw new Error("No OpenAI key found");
+    throw new Error("No Anthropic key found");
   }
   const baseURL = useAppState.getState().settings.anthropicBaseUrl;
   const anthropic = new Anthropic({
