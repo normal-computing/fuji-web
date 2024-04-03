@@ -61,8 +61,10 @@ export async function fetchResponseFromModelOpenAI(
   if (!key) {
     throw new Error("No OpenAI key found");
   }
+  const baseURL = useAppState.getState().settings.openAIBaseUrl;
   const openai = new OpenAI({
     apiKey: key,
+    baseURL,
     dangerouslyAllowBrowser: true, // user provides the key
   });
   const messages: OpenAI.ChatCompletionMessageParam[] = [];
@@ -118,8 +120,10 @@ export async function fetchResponseFromModelAnthropic(
   if (!key) {
     throw new Error("No OpenAI key found");
   }
+  const baseURL = useAppState.getState().settings.anthropicBaseUrl;
   const anthropic = new Anthropic({
     apiKey: key,
+    baseURL,
   });
   const content: Anthropic.MessageParam["content"] = [
     {

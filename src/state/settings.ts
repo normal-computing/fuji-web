@@ -9,6 +9,8 @@ import {
 export type SettingsSlice = {
   openAIKey: string | undefined;
   anthropicKey: string | undefined;
+  openAIBaseUrl: string | undefined;
+  anthropicBaseUrl: string | undefined;
   selectedModel: SupportedModels;
   voiceMode: boolean;
   customKnowledgeBase: Data;
@@ -19,6 +21,8 @@ export type SettingsSlice = {
 export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
   openAIKey: undefined,
   anthropicKey: undefined,
+  openAIBaseUrl: undefined,
+  anthropicBaseUrl: undefined,
   selectedModel: SupportedModels.Gpt4VisionPreview,
   voiceMode: false,
   customKnowledgeBase: {},
