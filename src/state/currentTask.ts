@@ -123,8 +123,12 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             }
 
             setActionStatus("performing-action");
-            if (voiceMode && "speak" in query.action && query.action.speak) {
-              voiceControl.speak(query.action.speak, onError);
+            if (voiceMode) {
+              if ("speak" in query.action && query.action.speak) {
+                voiceControl.speak(query.action.speak, onError);
+              } else if ("thought" in query.action && query.action.thought) {
+                voiceControl.speak(query.action.thought, onError);
+              }
             }
 
             set((state) => {

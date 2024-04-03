@@ -18,7 +18,7 @@ You will be given a task to perform, and an image. The image will contain two pa
 You will also be given previous actions that you have taken. You may retry a failed action up to one time.
 You will also be given additional information of annotations.
 
-There are two examples of expected responses from you:
+This is one example of expected response from you:
 
 {
   "thought": "I am clicking the add to cart button",${
@@ -35,27 +35,35 @@ There are two examples of expected responses from you:
   }
 }
 
+If the given task asks for the current website content, ${
+  voiceMode ? "speak" : "thought"
+} string should contain the description of the current website content.
+For example:
+${
+  voiceMode
+    ? `
 {
-  "thought": "I am reading the tweets visible on the screen.",${
-    voiceMode
-      ? `
-  "speak": "Here is one tweet currently visible on the screen: The tweet is by Normal Computing, who posted about open sourcing WebWand with a screenshot of the WebWand github repository. The tweet has 10 replies, 100 retweets, and 1000 likes.",`
-      : ""
-  }
+  "thought": "I am reading the tweets visible on the screen.",
+  "speak": "Here is one tweet currently visible on the screen: The tweet is by Normal Computing, who posted about open sourcing WebWand with a screenshot of the WebWand github repository. The tweet has 10 replies, 100 retweets, and 1000 likes.",
   "action": {
     "name": "finish",
   }
+}
+`
+    : `
+{
+  "thought": "Here is one tweet currently visible on the screen: The tweet is by Normal Computing, who posted about open sourcing WebWand with a screenshot of the WebWand github repository. The tweet has 10 replies, 100 retweets, and 1000 likes.",
+  "action": {
+    "name": "finish",
+  }
+}
+`
 }
 
 Your response must always be in JSON format and must include string "thought"${
   voiceMode ? ', string "speak",' : ""
 } and object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
 When finish, use the "finish" action and include a brief summary of the task in "thought"; if user is seeking an answer, also include the answer in "thought".
-${
-  voiceMode
-    ? 'If the given task requires reading the current website content the "speak" string should contain the description of the current website content.'
-    : ""
-}
 `;
 
 export type QueryResult = {
