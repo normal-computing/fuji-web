@@ -86,5 +86,20 @@
         }
       }
     ]
+  },
+  "github.com": {
+    "rules": [
+      {
+        "regexes": [
+          ".*"
+        ],
+        "knowledge": {
+          "notes": [
+            "You can open the account menu by clicking the user's avatar on the top right. You can find and manage current user's profile, repositories, projects, organizations, etc. in the menu.",
+            "To invite a member to an organization or a team, you need to first click \"Invite member\" or \"Invite someone\". When you see the dialog, type in the input to search by username or email, then click the button appear under the input that says \"[name] invite to [org]\". Please note that this does not actually send the invite: it only adds the user to the selection. You must then click the green \"Invite\" button to send the invitation."
+          ]
+        }
+      }
+    ]
   }
 }
