@@ -90,7 +90,7 @@ export async function determineNextActionWithVision(
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const completion = await fetchResponseFromModel(model, {
-        systemMessage(voiceMode),
+        systemMessage: systemMessage(voiceMode),
         prompt,
         imageData: screenshotData,
         jsonMode: true,

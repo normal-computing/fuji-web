@@ -52,7 +52,7 @@ export async function determineNavigateAction(
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const completion = await fetchResponseFromModel(model, {
-        systemMessage(voiceMode),
+        systemMessage: systemMessage(voiceMode),
         prompt,
         jsonMode: true,
       });
