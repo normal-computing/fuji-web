@@ -353,6 +353,7 @@ export function removeLabels() {
 const clickableRoles = [
   "button",
   "checkbox",
+  "combobox",
   "gridcell",
   "link",
   "menuitem",
