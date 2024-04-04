@@ -18,6 +18,7 @@ import {
   ModalOverlay,
   ModalContent,
   ModalCloseButton,
+  Textarea,
 } from "@chakra-ui/react";
 import { DeleteIcon, SmallCloseIcon } from "@chakra-ui/icons";
 import { Formik, Form, Field } from "formik";
@@ -433,7 +434,7 @@ const NewKnowledgeForm = ({
                       {rule.knowledge.notes?.map((note, noteIndex) => (
                         <InputGroup key={noteIndex} size="md" mb={1}>
                           <Field
-                            as={Input}
+                            as={Textarea}
                             name={`rules[${ruleIndex}].knowledge.notes[${noteIndex}]`}
                             placeholder="Enter note"
                           />
