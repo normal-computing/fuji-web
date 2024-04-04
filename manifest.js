@@ -18,7 +18,6 @@ const manifest = {
     "clipboardWrite",
     "debugger",
     "management",
-    "audioCapture",
   ],
   host_permissions: ["<all_urls>"],
   side_panel: {
