@@ -45,6 +45,9 @@ function isElementNode(node: Node): node is Element {
 function isInputElement(node: Node): node is HTMLInputElement {
   return isElementNode(node) && node.tagName === "INPUT";
 }
+function isTextAreaElement(node: Node): node is HTMLTextAreaElement {
+  return isElementNode(node) && node.tagName === "TEXTAREA";
+}
 
 function isTopElement(elem: Element, rect: DOMRect) {
   let topEl = document.elementFromPoint(
@@ -231,6 +234,10 @@ type LabelDataWithElement = {
   name: string;
   tagName: string;
   role?: string;
+  // for input elements
+  currentValue?: string;
+  placeholder?: string;
+  active?: boolean;
 };
 
 export type LabelData = Omit<LabelDataWithElement, "element"> & {
@@ -255,6 +262,11 @@ function getLabelData(
       tagName: elem.tagName,
       element: elem,
     };
+    if (isInputElement(elem) || isTextAreaElement(elem)) {
+      item.currentValue = elem.value;
+      item.placeholder = elem.placeholder;
+      item.active = document.activeElement === elem;
+    }
     if (elem.hasAttribute("role")) {
       item.role = elem.getAttribute("role") ?? "unknown";
     }
@@ -309,14 +321,6 @@ function getLabelData(
     if (elem.getAttribute("aria-hidden") === "true") return;
     // if the element is not visible, skip it
     if (!isVisible(elem, true, true)) return;
-    // if the element is an input, hopefully the value or the placeholder is visible
-    if (isInputElement(elem)) {
-      const visibleTextOnInput = removeEmojis(
-        elem.value || elem.placeholder || "",
-      );
-      addLabel(visibleTextOnInput, elem);
-      return;
-    }
 
     const { visibleText, ariaLabel } = traverseDom(elem, selector);
     // use aria-label as name, otherwise use visible text
