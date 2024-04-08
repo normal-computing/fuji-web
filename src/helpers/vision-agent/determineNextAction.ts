@@ -148,8 +148,13 @@ export function formatPrompt(
   labelData: LabelData[],
   viewportPercentage: number,
 ) {
-  let previousActionsString = "";
+  // 1. task instructions
+  let result = `The user requests the following task:
 
+  ${taskInstructions}`;
+
+  // 2. previous actions
+  let previousActionsString = "";
   if (previousActions.length > 0) {
     const serializedActions = previousActions
       .map(
@@ -161,38 +166,51 @@ export function formatPrompt(
       .join("\n\n");
     previousActionsString = `You have already taken the following actions: \n${serializedActions}\n\n`;
   }
+  result += `\n${previousActionsString}\n`;
+
+  // 3. current time + current URL + current page scrolling position
   let urlString = url.href;
   // do not include search if it's too long
   if (url.search.length > 100) {
     urlString = url.origin + url.pathname;
   }
-
-  let result = `The user requests the following task:
-
-${taskInstructions}
-
-${previousActionsString}
-
+  result += `
 Current time: ${new Date().toLocaleString()}
 Current URL: ${urlString}
 Current page scrolling position: ${viewportPercentage.toFixed(1)}%
 `;
 
+  // 4. knowledge
   if (knowledge.notes != null && knowledge.notes?.length > 0) {
     result += `
 Notes regarding the current website:
 ${knowledge.notes.map((k) => `  - ${k}`).join("\n")}`;
   }
+
+  // 5. label data from HTML
   result += `
 
 Use the following data as a reference of the annotated elements (using \`===\` as a delimiter between each annotation):
 
-${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}`;
+${labelData.map((item) => tomlLikeStringifyObject(item)).join("\n===\n")}
+`;
+  // 6. active element
+  const currentActiveItem = labelData.find((item) => item.active);
+  if (currentActiveItem != null) {
+    result += `
+This ${currentActiveItem.tagName.toLocaleLowerCase()} currently has focus:
+${tomlLikeStringifyObject(currentActiveItem)}
+`;
+  }
   return result;
 }
 
 function tomlLikeStringifyObject(obj: Record<string, unknown>): string {
   return Object.entries(obj)
-    .map(([key, value]) => `${key} = ${JSON.stringify(value)}`)
+    .map(([key, value]) =>
+      // only include string values
+      typeof value === "string" ? `${key} = ${value}` : null,
+    )
+    .filter((v) => v != null)
     .join("\n");
 }
