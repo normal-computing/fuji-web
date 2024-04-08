@@ -22,11 +22,12 @@ export const setValueSchema = z.object({
     value: z.string(),
   }),
 });
-export const setValueAndSubmitSchema = z.object({
-  name: z.literal("setValueAndSubmit"),
+
+export const setValueAndEnterSchema = z.object({
+  name: z.literal("setValueAndEnter"),
   description: z
     .literal(
-      'Like "setValue", except then it presses ENTER to submit the form.',
+      'Like "setValue", except then it presses ENTER. Use this tool can submit the form when there\'s no "submit" button.',
     )
     .optional(),
   args: z.object({
@@ -86,7 +87,7 @@ export const failSchema = z.object({
 export const toolSchemaUnion = z.discriminatedUnion("name", [
   clickSchema,
   setValueSchema,
-  setValueAndSubmitSchema,
+  setValueAndEnterSchema,
   navigateSchema,
   scrollSchema,
   waitSchema,

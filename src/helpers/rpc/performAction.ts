@@ -179,7 +179,7 @@ function createOperateTool(
         }
         break;
       }
-      case "setValueAndSubmit": {
+      case "setValueAndEnter": {
         const success = await setValue(
           domActions,
           action.args.label,
