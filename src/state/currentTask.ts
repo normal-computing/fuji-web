@@ -16,11 +16,12 @@ import {
 } from "../helpers/vision-agent/parseResponse";
 import { callRPCWithTab } from "../helpers/rpc/pageRPC";
 import { getSimplifiedDom } from "../helpers/simplifyDom";
-import { sleep, truthyFilter } from "../helpers/utils";
+import { sleep, truthyFilter, waitFor } from "../helpers/utils";
 import {
   operateTool,
   operateToolWithSimpliedDom,
 } from "../helpers/rpc/performAction";
+import { waitTillHTMLRendered } from "../helpers/rpc/utils";
 import { findActiveTab } from "../helpers/browserUtils";
 import { MyStateCreator } from "./store";
 import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
@@ -103,11 +104,23 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         while (true) {
           if (wasStopped()) break;
 
-          // get latest tab info, since button clicking might have changed it
-          const activeTab = await findActiveTab();
+          // always get latest tab info, since actions such as button clicking might have changed it
+          let activeTab = await findActiveTab();
           const tabId = activeTab?.id || -1;
           if (!activeTab || !tabId) {
             throw new Error("No active tab found");
+          }
+          if (activeTab.status === "loading") {
+            // wait for tab to be loaded
+            await waitFor(
+              async () => {
+                // findActiveTab give a new reference to activeTab every time
+                activeTab = await findActiveTab();
+                return activeTab?.status === "complete";
+              },
+              200, // check every 200ms
+              100, // wait for up to 20 seconds (100*200ms)
+            );
           }
 
           const isVisionModel = hasVisionSupport(get().settings.selectedModel);
@@ -168,14 +181,13 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             if (shouldContinue) {
               // if navigation was successful, continue the task on the new page
               setActionStatus("waiting");
-              // sleep 2 seconds. This is pretty arbitrary; we should figure out a better way to determine when the page has settled.
-              await sleep(2000);
               continue;
             } else {
               break;
             }
           }
           await attachDebugger(tabId);
+          await waitTillHTMLRendered(tabId);
 
           set((state) => {
             state.currentTask.tabId = tabId;
@@ -243,9 +255,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           }
 
           setActionStatus("waiting");
-          // sleep 2 seconds. This is pretty arbitrary; we should figure out a better way to determine when the page has settled.
-          await sleep(2000);
-        }
+        } // end of while loop
         set((state) => {
           state.currentTask.status = "success";
         });

@@ -4,7 +4,7 @@ import { scrollScriptString } from "./runtimeFunctionStrings";
 import { sleep, waitFor, waitTillStable } from "../utils";
 
 const DEFAULT_INTERVAL = 500;
-const DEFAULT_TIMEOUT = 0;
+const DEFAULT_TIMEOUT = 10000; // 10 seconds
 
 export class DomActions {
   static delayBetweenClicks = 500; // Set this value to control the delay between clicks
