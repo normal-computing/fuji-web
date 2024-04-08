@@ -1,3 +1,4 @@
+import { getAccessibleName } from "accname";
 import {
   VISIBLE_TEXT_ATTRIBUTE_NAME,
   ARIA_LABEL_ATTRIBUTE_NAME,
@@ -120,37 +121,6 @@ function isTouchedElement(elem: Element) {
   );
 }
 
-function getAriaLabel(elem: Element): string {
-  // aria-labelledby has higher priority than aria-label
-  // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-labelledby
-  if (elem.hasAttribute("aria-labelledby")) {
-    // use Set to dedupe
-    const ids = new Set<string>(
-      elem.getAttribute("aria-labelledby")?.split(" ") ?? [],
-    );
-
-    const label = Array.from(ids)
-      .map((id: string) => {
-        const labelElem = document.getElementById(id);
-        if (labelElem) {
-          if (isInputElement(labelElem)) {
-            // for input elements, use the value as the label
-            return labelElem.value;
-          }
-          // doesn't matter if the text is visible or not
-          return labelElem.textContent ?? "";
-        }
-      })
-      .join(" ")
-      .trim();
-
-    if (label.length > 0) {
-      return label;
-    }
-  }
-  return elem.getAttribute("aria-label") ?? "";
-}
-
 // find the visible text and best-match aria-label of the element
 // note that this function has a side effect of writing the attributes in the DOM
 function traverseDom(node: Node, selector: string): DomAttrs {
@@ -166,7 +136,7 @@ function traverseDom(node: Node, selector: string): DomAttrs {
     }
 
     let visibleText = "";
-    let ariaLabel = getAriaLabel(node);
+    let ariaLabel = getAccessibleName(node);
 
     // skip children of SVGs because they have their own visibility rules
     if (node.tagName.toLocaleLowerCase() !== "svg") {
@@ -293,7 +263,7 @@ function getLabelData(
         }
         // fallback to use aria-label
         if (label.length === 0) {
-          label = getAriaLabel(elem);
+          label = getAccessibleName(elem);
         }
         // fallback to use text content
         if (label.length === 0) {

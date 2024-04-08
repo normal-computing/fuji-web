@@ -31,6 +31,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@types/dom-speech-recognition": "^0.0.4",
+    "accname": "^1.1.0",
     "construct-style-sheets-polyfill": "3.1.0",
     "formik": "^2.4.5",
     "immer": "^10.0.3",
