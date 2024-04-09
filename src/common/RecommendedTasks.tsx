@@ -2,7 +2,7 @@ import { Button, VStack, Text } from "@chakra-ui/react";
 import { useAppState } from "../state/store";
 
 const tasks = [
-  'Post on twitter.com with content "an automated post from WebWand by @NormalComputing" If I\'m not logged in, fail the task and wait for me to log in.',
+  'Post on twitter.com with content "an automated post from WebWand by @NormalComputing! :)" If I\'m not logged in, fail the task and wait for me to log in.',
   "Find a book about AI and add a physical copy to cart on Amazon.com. Pick the cheaper one from papaerback and hardcover.",
 ];
 
@@ -39,7 +39,7 @@ const RecommendedTasks = ({
         </Text>
         <Text fontWeight={400} noOfLines={1} color="gray">
           with content &quot;an automated post from WebWand by
-          @NormalComputing&quot;
+          @NormalComputing!&quot;
         </Text>
       </Button>
       <Button

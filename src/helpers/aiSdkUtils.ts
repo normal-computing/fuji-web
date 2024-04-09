@@ -1,26 +1,36 @@
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { useAppState } from "../state/store";
+import { enumValues } from "./utils";
 
 export enum SupportedModels {
   Gpt35Turbo16k = "gpt-3.5-turbo-16k",
   Gpt4 = "gpt-4",
   Gpt4TurboPreview = "gpt-4-turbo-preview",
   Gpt4VisionPreview = "gpt-4-vision-preview",
+  Gpt4Turbo = "gpt-4-turbo",
   Claude3Sonnet = "claude-3-sonnet-20240229",
 }
+
+function isSupportedModel(value: string): value is SupportedModels {
+  return enumValues(SupportedModels).includes(value as SupportedModels);
+}
+
+export const DEFAULT_MODEL = SupportedModels.Gpt4Turbo;
 
 export const DisplayName = {
   [SupportedModels.Gpt35Turbo16k]: "GPT-3.5 Turbo (16k)",
   [SupportedModels.Gpt4]: "GPT-4",
   [SupportedModels.Gpt4TurboPreview]: "GPT-4 Turbo (Preview)",
   [SupportedModels.Gpt4VisionPreview]: "GPT-4 Vision (Preview)",
+  [SupportedModels.Gpt4Turbo]: "GPT-4 Turbo",
   [SupportedModels.Claude3Sonnet]: "Claude 3 Sonnet",
 };
 
 export function hasVisionSupport(model: SupportedModels) {
   return (
     model === SupportedModels.Gpt4VisionPreview ||
+    model === SupportedModels.Gpt4Turbo ||
     model === SupportedModels.Claude3Sonnet
   );
 }
@@ -39,6 +49,26 @@ export function isOpenAIModel(model: SupportedModels) {
 }
 export function isAnthropicModel(model: SupportedModels) {
   return chooseSDK(model) === "Anthropic";
+}
+
+export function findBestMatchingModel(
+  selectedModel: string,
+  openAIKey: string | undefined,
+  anthropicKey: string | undefined,
+): SupportedModels {
+  let result: SupportedModels = DEFAULT_MODEL;
+  // verify the string value is a supported model
+  // this is to handle the case when we drop support for a model
+  if (isSupportedModel(selectedModel)) {
+    result = selectedModel;
+  }
+  // ensure the provider's API key is available
+  if (!openAIKey && anthropicKey && !isAnthropicModel(result)) {
+    result = SupportedModels.Claude3Sonnet;
+  } else if (openAIKey && !anthropicKey && !isOpenAIModel(result)) {
+    result = SupportedModels.Gpt4Turbo;
+  }
+  return result;
 }
 
 export type CommonMessageCreateParams = {
@@ -92,20 +122,22 @@ export async function fetchResponseFromModelOpenAI(
     role: "user",
     content,
   });
-  // this trick does not work for GPT-4
-  // if (params.jsonMode) {
-  //   messages.push({
-  //     role: "assistant",
-  //     content: "{",
-  //   });
-  // }
+  if (params.jsonMode) {
+    messages.push({
+      role: "assistant",
+      content: "{",
+    });
+  }
   const completion = await openai.chat.completions.create({
     model: model,
     messages,
     max_tokens: 1000,
     temperature: 0,
   });
-  const rawResponse = completion.choices[0].message?.content?.trim() ?? "";
+  let rawResponse = completion.choices[0].message?.content?.trim() ?? "";
+  if (params.jsonMode && !rawResponse.startsWith("{")) {
+    rawResponse = "{" + rawResponse;
+  }
   return {
     usage: completion.usage,
     rawResponse,
