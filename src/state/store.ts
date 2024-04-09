@@ -5,6 +5,7 @@ import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { createCurrentTaskSlice, CurrentTaskSlice } from "./currentTask";
 import { createUiSlice, UiSlice } from "./ui";
 import { createSettingsSlice, SettingsSlice } from "./settings";
+import { findBestMatchingModel } from "../helpers/aiSdkUtils";
 
 export type StoreType = {
   currentTask: CurrentTaskSlice;
@@ -46,8 +47,15 @@ export const useAppState = create<StoreType>()(
           customKnowledgeBase: state.settings.customKnowledgeBase,
         },
       }),
-      merge: (persistedState, currentState) =>
-        merge(currentState, persistedState),
+      merge: (persistedState, currentState) => {
+        const result = merge(currentState, persistedState);
+        result.settings.selectedModel = findBestMatchingModel(
+          result.settings.selectedModel,
+          result.settings.openAIKey,
+          result.settings.anthropicKey,
+        );
+        return result;
+      },
     },
   ),
 );

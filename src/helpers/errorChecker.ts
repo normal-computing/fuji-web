@@ -64,7 +64,7 @@ export default function errorChecker(
     // other API errors are not recoverable
     return false;
   }
-  log("Error:", err);
+  log("Error: " + err.message, err);
   // retry everything else (e.g. network errors, syntax error, timeout)
   return true;
 }

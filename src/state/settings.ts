@@ -1,10 +1,6 @@
 import { type Data } from "../helpers/knowledge/index";
 import { MyStateCreator } from "./store";
-import {
-  SupportedModels,
-  isAnthropicModel,
-  isOpenAIModel,
-} from "../helpers/aiSdkUtils";
+import { SupportedModels, findBestMatchingModel } from "../helpers/aiSdkUtils";
 
 export type SettingsSlice = {
   openAIKey: string | undefined;
@@ -23,27 +19,18 @@ export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
   anthropicKey: undefined,
   openAIBaseUrl: undefined,
   anthropicBaseUrl: undefined,
-  selectedModel: SupportedModels.Gpt4VisionPreview,
+  selectedModel: SupportedModels.Gpt4Turbo,
   voiceMode: false,
   customKnowledgeBase: {},
   actions: {
     update: (values) => {
       set((state) => {
         const newSettings: SettingsSlice = { ...state.settings, ...values };
-        // set default model based on the API key
-        if (
-          !newSettings.openAIKey &&
-          newSettings.anthropicKey &&
-          !isAnthropicModel(newSettings.selectedModel)
-        ) {
-          newSettings.selectedModel = SupportedModels.Claude3Sonnet;
-        } else if (
-          newSettings.openAIKey &&
-          !newSettings.anthropicKey &&
-          !isOpenAIModel(newSettings.selectedModel)
-        ) {
-          newSettings.selectedModel = SupportedModels.Gpt4VisionPreview;
-        }
+        newSettings.selectedModel = findBestMatchingModel(
+          newSettings.selectedModel,
+          newSettings.openAIKey,
+          newSettings.anthropicKey,
+        );
         // voice model current relies on OpenAI API key
         if (!newSettings.openAIKey) {
           newSettings.voiceMode = false;
