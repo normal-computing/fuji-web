@@ -20,9 +20,6 @@ dependencies:
   '@emotion/styled':
     specifier: ^11.11.0
     version: 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.37)(react@18.2.0)
-  '@types/dom-speech-recognition':
-    specifier: ^0.0.4
-    version: 0.0.4
   accname:
     specifier: ^1.1.0
     version: 1.1.0
@@ -41,9 +38,6 @@ dependencies:
   openai:
     specifier: ^4.16.1
     version: 4.16.1
-  postcss:
-    specifier: ^8.4.31
-    version: 8.4.31
   react:
     specifier: 18.2.0
     version: 18.2.0
@@ -94,6 +88,9 @@ devDependencies:
   '@types/chrome':
     specifier: 0.0.251
     version: 0.0.251
+  '@types/dom-speech-recognition':
+    specifier: ^0.0.4
+    version: 0.0.4
   '@types/jest':
     specifier: 29.5.7
     version: 29.5.7
@@ -172,6 +169,9 @@ devDependencies:
   npm-run-all:
     specifier: 4.1.5
     version: 4.1.5
+  postcss:
+    specifier: ^8.4.31
+    version: 8.4.31
   prettier:
     specifier: 3.2.5
     version: 3.2.5
@@ -2782,7 +2782,7 @@ packages:
 
   /@types/dom-speech-recognition@0.0.4:
     resolution: {integrity: sha512-zf2GwV/G6TdaLwpLDcGTIkHnXf8JEf/viMux+khqKQKDa8/8BAUtXXZS563GnvJ4Fg0PBLGAaFf2GekEVSZ6GQ==}
-    dev: false
+    dev: true
 
   /@types/eslint-scope@3.7.7:
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
