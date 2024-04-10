@@ -61,7 +61,7 @@ When loading the extension, you will need to load the `dist` folder created by t
 
 ## Troubleshooting
 
-Check out our [Troubleshooting Guide](TROUBLESHOOTING.md) for help with common problems and solutions.
+Check out our [Troubleshooting Guide](TROUBLESHOOTING.md) for help with common problems.
 
 ## Contributing
 
