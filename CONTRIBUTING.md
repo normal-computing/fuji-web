@@ -11,7 +11,9 @@ If you love WebWand, you can make a big difference by telling others about it. W
 
 ### Reporting Bugs
 
-If you encounter a bug while using WebWand, please report it by creating an issue in our GitHub repository. Be sure to include:
+Before reporting a new bug, please ensure that the issue has not already been reported. You can do this by searching through the existing issues in our GitHub repository. 
+
+If you encounter a bug while using WebWand and it has not been reported yet, please report it by creating a new issue. Be sure to include:
 
 - A clear and descriptive title
 - A detailed description of the bug, including steps to reproduce it
@@ -23,6 +25,8 @@ If you encounter a bug while using WebWand, please report it by creating an issu
 We're always looking for ways to improve WebWand. If you have an idea for a new feature or an enhancement to an existing one, please submit it as an issue, using a clear and concise title and description. Explain why this enhancement would be useful, and if possible, include examples of how it could be implemented.
 
 ### Contributing Code
+
+Confirm alignment on the proposed work. For small fixes or minor enhancements, make sure there is an open and accepted issue. For larger contributions, a design or plan should have been reviewed and agreed upon by the maintainers.
 
 Before submitting your first code contribution, please make sure to:
 
