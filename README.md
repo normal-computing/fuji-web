@@ -59,6 +59,10 @@ When loading the extension, you will need to load the `dist` folder created by t
 - Add support for sharing workflows & knowledge with others
 - Create wikipedia-like knowledge base where users can work together to create knowledge that can improve the WebWand's performance
 
+## Contributing
+
+Interested in contributing to WebWand? We'd love your help! Check out our [Contribution Guide](CONTRIBUTING.md) for guidelines on how to contribute, report bugs, suggest enhancements, and more. 
+
 ## Credits
 
 - WebWand's image annotation method was inspired by Microsoft's [UFO paper](https://arxiv.org/abs/2402.07939).
