@@ -10,41 +10,41 @@ This guide aims to help you diagnose and resolve common problems you might encou
 **Symptom**: The WebWand extension doesn't appear in your browser or won't load.
 
 **Solutions**:
-1. **Check Browser Compatibility**: Ensure your browser is compatible with WebWand. Currently, WebWand supports Chrome.
-2. **Developer Mode**: Verify that `Developer mode` is enabled in `chrome://extensions/`
-3. **Correct Folder**: Make sure you've loaded the extension from the `dist` folder after building WebWand.
-4. **Conflict with Other Extensions**: Disable other extensions to identify if there's a conflict causing the issue.
+1. Ensure your browser is compatible with WebWand. Currently, WebWand supports Chrome.
+2. Verify that `Developer mode` is enabled in `chrome://extensions/`
+3. Make sure you've loaded the extension from the `dist` folder after building WebWand.
+4. Disable other extensions to identify if there's a conflict causing the issue.
 
 ### API Key Problems
 
 **Symptom**: Issues related to the OpenAI API key, such as authentication errors or features not working due to key issues. e.g. 404 The model `gpt-4-vision-preview` does not exist or you do not have access to it.
 
 **Solutions**:
-1. **Verify API Key**: Make sure you entered a valid OpenAI API key.
-2. **API Key Permissions**: Ensure that your OpenAI API key has the necessary permissions for the tasks you're trying to perform.
-3. **Regenerate API Key**: If you suspect your API key might have been compromised or isn't working for an unknown reason, consider regenerating a new key from the [OpenAI API dashboard](https://platform.openai.com/account/api-keys).
+1. Make sure you entered a valid OpenAI API key.
+2. Ensure that your OpenAI API key has the necessary permissions.
+3. If you suspect your API key might have been compromised or isn't working for an unknown reason, consider regenerating a new key from the [OpenAI API dashboard](https://platform.openai.com/account/api-keys).
 
 ### Dom Actions Problems
 
 **Symptom**: WebWand did not perform dom actions properly.
 
 **Solutions**:
-1. **No Background Running**: Currently WebWand does not support running in background. If you open a new tab or navigating away from the website that webwand is working on, some actions may fail.
+1. Currently WebWand does not support running in background. If you open a new tab or navigating away from the website that webwand is working on, some actions may fail. Please stay on the website where you exectute WebWand. 
 
 ### Custom Knowledge Base Problems
 
 **Symptom**: After adding a custom knowledge, WebWand crashed or did not perform corresponding to the new knowledge about the active tab.
 
 **Solutions**:
-1. **Knowledge Entry Validation**: Currently Webwand only supports basic entry validation of custom knowledge. Make sure you entered correct host name and correct regular expressions if using custom URL Matching Pattern. 
+1. Currently Webwand only supports basic entry validation of custom knowledge. Make sure you entered correct host name and correct regular expressions if using custom URL Matching Pattern. 
 
 ### Voice mode Problems
 
-**Symptom**: Webwand did not capture my speech.
+**Symptom**: Webwand did not capture the speech.
 
 **Solutions**:
-1. **Check Microphone Access**: Check if Webwand has microphone access to the browser. When you turn on the voice mode in settings, the microphone access dialog should popup on the browser, please select "allow".
-2. **Manually Allow Microphone Access**: If the dialog didn't popup, right click the webwand icon in the extensions group and select "View Web Permissions", then select "Allow" for Microphone.
+1. Check if Webwand has microphone access to the browser. When you turn on the voice mode in settings, the microphone access dialog should popup on the browser, please select "allow".
+2. If the dialog didn't popup, right click the webwand icon in the extensions group and select "View Web Permissions". Then select "Allow" for Microphone.
 
 
 ## Reporting New Issues
