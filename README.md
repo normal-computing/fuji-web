@@ -67,6 +67,8 @@ Check out our [Troubleshooting Guide](TROUBLESHOOTING.md) for help with common p
 
 Interested in contributing to WebWand? We'd love your help! Check out our [Contribution Guide](CONTRIBUTING.md) for guidelines on how to contribute, report bugs, suggest enhancements, and more. 
 
+We encourage everyone in the community to add new knowledge to the "Prior Knowledge Augmentation" system. Check out the default knowledge file ["db.json"](src/helpers/knowledge).
+
 ## Credits
 
 - WebWand's image annotation method was inspired by Microsoft's [UFO paper](https://arxiv.org/abs/2402.07939).
