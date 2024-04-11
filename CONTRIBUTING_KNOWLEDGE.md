@@ -44,6 +44,7 @@ Once you've tested various knowledge inputs and are satisfied with the new knowl
        ]
      }
    }
+   ```
 3. Please ensure your contributions are clear and concise, with `regexes` and `selector` accurately defined.
 
 ## Submitting Your Contribution
