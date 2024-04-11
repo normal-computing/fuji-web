@@ -40,7 +40,7 @@ We do NOT record your screen or collect browsing information or your prompts. It
 
 If you want to build the extension from source, follow these instructions:
 
-1. Ensure you have [Node.js](https://nodejs.org/). The developement was done on Node v20 but it should work with some lower versions.
+1. Ensure you have [Node.js](https://nodejs.org/). The development was done on Node v20 but it should work with some lower versions.
 2. Clone this repository
 3. Install `pnpm` globally: `npm install -g pnpm`
 4. Run `pnpm install` 
@@ -54,7 +54,7 @@ When loading the extension, you will need to load the `dist` folder created by t
 - Evaluate the performance of the WebWand in real-world scenarios
 - Add support for more complex & cross-tab workflows
 - Add support for more AI Models
-- Add support for more browsering behaviors (select from dropdown, extract text etc.)
+- Add support for more browsing behaviors (select from dropdown, extract text etc.)
 - Add support for saving workflows
 - Add support for sharing workflows & knowledge with others
 - Create wikipedia-like knowledge base where users can work together to create knowledge that can improve the WebWand's performance
@@ -66,6 +66,6 @@ Interested in contributing to WebWand? We'd love your help! Check out our [Contr
 ## Credits
 
 - WebWand's image annotation method was inspired by Microsoft's [UFO paper](https://arxiv.org/abs/2402.07939).
-- Web Agent as a tool that lives in browser sidepanel was inspired by [TaxyAI's browser extension](https://github.com/TaxyAI/browser-extension). We also used some of its UI code.
+- Web Agent as a tool that lives in the browser sidepanel was inspired by [TaxyAI's browser extension](https://github.com/TaxyAI/browser-extension). We also used some of its UI code.
 - The Chrome extension set-up leveraged an awesome boilerplate project [Jonghakseo/chrome-extension-boilerplate-react-vite](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite).
 - The WebWand logo was designed by [Mengdi](https://twitter.com/mengdi_en).
