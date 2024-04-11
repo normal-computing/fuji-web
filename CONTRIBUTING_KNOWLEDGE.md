@@ -28,7 +28,7 @@ Once you've tested various knowledge inputs and are satisfied with the new knowl
      "example.com": {
        "rules": [
          {
-           "regexes": ["some-page-regex"],
+           "regexes": ["regular expression to match pathname (not host name)"],
            "knowledge": {
              "notes": ["Your insights or notes about this page or action"],
              "annotationRules": [
@@ -44,7 +44,7 @@ Once you've tested various knowledge inputs and are satisfied with the new knowl
        ]
      }
    }
-3. Please ensure your contributions are clear and concise, with regexes and selectors accurately defined.
+3. Please ensure your contributions are clear and concise, with `regexes` and `selector` accurately defined.
 
 ## Submitting Your Contribution
 
