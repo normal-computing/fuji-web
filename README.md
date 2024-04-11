@@ -59,9 +59,15 @@ When loading the extension, you will need to load the `dist` folder created by t
 - Add support for sharing workflows & knowledge with others
 - Create wikipedia-like knowledge base where users can work together to create knowledge that can improve the WebWand's performance
 
+## Troubleshooting
+
+Check out our [Troubleshooting Guide](TROUBLESHOOTING.md) for help with common problems.
+
 ## Contributing
 
 Interested in contributing to WebWand? We'd love your help! Check out our [Contribution Guide](CONTRIBUTING.md) for guidelines on how to contribute, report bugs, suggest enhancements, and more. 
+
+We encourage everyone in the community to add new knowledge to the "Prior Knowledge Augmentation" system. Check out the default knowledge file ["db.json"](src/helpers/knowledge/db.json).
 
 ## Credits
 
