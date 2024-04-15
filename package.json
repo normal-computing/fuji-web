@@ -63,7 +63,7 @@
     "@types/ws": "8.5.10",
     "@typescript-eslint/eslint-plugin": "6.10.0",
     "@typescript-eslint/parser": "6.9.1",
-    "@vitejs/plugin-react": "4.2.0",
+    "@vitejs/plugin-react": "4.2.1",
     "autoprefixer": "^10.4.16",
     "chokidar": "3.6.0",
     "cross-env": "7.0.3",
