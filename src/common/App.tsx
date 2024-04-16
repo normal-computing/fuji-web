@@ -54,7 +54,8 @@ const App = () => {
         zIndex={2}
         as="footer"
         backdropFilter="auto"
-        backdropBlur="8px"
+        backdropBlur="6px"
+        backgroundColor="rgba(255, 255, 255, 0.6)"
       >
         <HStack
           columnGap="1.5rem"
