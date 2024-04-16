@@ -8,8 +8,8 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { SettingsIcon } from "@chakra-ui/icons";
-import { FaDiscord } from "react-icons/fa6";
-import React, { useState } from "react";
+import { FaDiscord, FaGithub } from "react-icons/fa6";
+import { useState } from "react";
 import { useAppState } from "../state/store";
 import SetAPIKey from "./SetAPIKey";
 import TaskUI from "./TaskUI";
@@ -66,11 +66,20 @@ const App = () => {
           shouldWrapChildren
           wrap="wrap"
         >
-          <Link href="https://discord.gg/yfMjZ8udb5" isExternal>
-            Join Our Discord <Icon verticalAlign="text-bottom" as={FaDiscord} />
+          <Link
+            href="https://github.com/normal-computing/web-wand#readme"
+            isExternal
+          >
+            About this project
           </Link>
           <Link href="https://forms.gle/isLeGyUvoKGiqT8W8" isExternal>
-            Leave Feedbacks
+            Leave Feedback
+          </Link>
+          <Link href="https://github.com/normal-computing/web-wand" isExternal>
+            GitHub <Icon verticalAlign="text-bottom" as={FaGithub} />
+          </Link>
+          <Link href="https://discord.gg/yfMjZ8udb5" isExternal>
+            Join Our Discord <Icon verticalAlign="text-bottom" as={FaDiscord} />
           </Link>
         </HStack>
       </Box>
