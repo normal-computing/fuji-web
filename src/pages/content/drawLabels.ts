@@ -14,8 +14,10 @@ styleElem.innerHTML = `
   z-index: 99999999;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
   background: unset;
   border: none;
 }
@@ -311,8 +313,11 @@ export function addLabelsToDom(data: LabelDataWithElement[]) {
   data.forEach(({ element, label }, index) => {
     drawLabel(wrapper, element, label, baseZIndex + data.length - index);
   });
-  document.body.appendChild(wrapper);
-  // this does not exist on Firefox yet
+  // set wrapper's width and height to match body
+  wrapper.style.width = `${document.documentElement.scrollWidth}px`;
+  wrapper.style.height = `${document.documentElement.scrollHeight}px`;
+  document.documentElement.appendChild(wrapper);
+  // this method does not exist on Firefox yet (this code only runs on Chrome, but just in case)
   wrapper.togglePopover && wrapper.togglePopover();
 }
 
