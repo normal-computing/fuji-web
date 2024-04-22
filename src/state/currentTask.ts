@@ -39,7 +39,6 @@ export type TaskHistoryEntry = {
 export type CurrentTaskSlice = {
   tabId: number;
   isListening: boolean;
-  instructions: string | null;
   history: TaskHistoryEntry[];
   status: "idle" | "running" | "success" | "error" | "interrupted";
   actionStatus:
@@ -91,7 +90,6 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
       if (!instructions || get().currentTask.status === "running") return;
 
       set((state) => {
-        state.currentTask.instructions = instructions;
         state.currentTask.history = [];
         state.currentTask.status = "running";
         state.currentTask.actionStatus = "attaching-debugger";
