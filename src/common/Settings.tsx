@@ -109,7 +109,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
           </BreadcrumbItem>
           {view === "knowledge" && (
             <BreadcrumbItem isCurrentPage>
-              <BreadcrumbLink href="#">Knowledge</BreadcrumbLink>
+              <BreadcrumbLink href="#">Instructions</BreadcrumbLink>
             </BreadcrumbItem>
           )}
           {view === "api" && (
@@ -204,7 +204,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             />
           </Flex>
           <Flex alignItems="center">
-            <FormLabel mb="0">Custom Knowledge Base</FormLabel>
+            <FormLabel mb="0">Custom Instructions</FormLabel>
             <Spacer />
             <Button rightIcon={<EditIcon />} onClick={openCKB}>
               Edit

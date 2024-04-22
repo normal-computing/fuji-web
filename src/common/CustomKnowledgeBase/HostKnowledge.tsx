@@ -1,4 +1,4 @@
-import { DeleteIcon, CopyIcon, EditIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Heading,
   Accordion,
@@ -9,11 +9,25 @@ import {
   IconButton,
   Tooltip,
   Flex,
-  useToast,
   Box,
+  UnorderedList,
+  ListItem,
 } from "@chakra-ui/react";
 import { fetchAllDefaultKnowledge } from "../../helpers/knowledge";
 import { useAppState } from "@root/src/state/store";
+
+function Notes({ notes }: { notes: string[] | undefined }) {
+  if (!notes || notes.length === 0) {
+    return null;
+  }
+  return (
+    <UnorderedList fontSize="0.8rem" styleType="circle">
+      {notes.map((note, index) => (
+        <ListItem key={index}>{note}</ListItem>
+      ))}
+    </UnorderedList>
+  );
+}
 
 type HostKnowledgeProps = {
   host: string;
@@ -26,7 +40,6 @@ const HostKnowledge = ({
   isDefaultKnowledge,
   onEdit,
 }: HostKnowledgeProps) => {
-  const toast = useToast();
   const updateSettings = useAppState((state) => state.settings.actions.update);
   const customKnowledgeBase = useAppState(
     (state) => state.settings.customKnowledgeBase,
@@ -35,14 +48,16 @@ const HostKnowledge = ({
     ? fetchAllDefaultKnowledge()
     : customKnowledgeBase;
 
-  const getJsonString = (): string => {
-    return JSON.stringify(knowledgeBase[host], null, 2);
-  };
-
   const handleRemove = () => {
     const newKnowledge = { ...knowledgeBase };
     delete newKnowledge[host];
     updateSettings({ customKnowledgeBase: newKnowledge });
+  };
+
+  // temporarily disable copy feature
+  /*
+  const getJsonString = (): string => {
+    return JSON.stringify(knowledgeBase[host], null, 2);
   };
 
   const handleCopy = async () => {
@@ -65,13 +80,23 @@ const HostKnowledge = ({
       });
     }
   };
+  */
 
   return (
     <>
-      <Flex alignItems="flex-start">
-        <Heading as="h5" size="sm" flex="1" overflowWrap="anywhere">
+      <Flex alignItems="flex-start" mb="2">
+        <Heading
+          as="h5"
+          size="sm"
+          flex="1"
+          overflowWrap="anywhere"
+          lineHeight="1.5rem"
+        >
           {!isDefaultKnowledge && (
-            <Box position="relative" style={{ float: "right" }}>
+            <Box
+              position="relative"
+              style={{ float: "right", marginTop: "-4px" }}
+            >
               <Tooltip label="Edit knowledge">
                 <IconButton
                   aria-label="Edit knowledge"
@@ -81,15 +106,6 @@ const HostKnowledge = ({
                   onClick={() => {
                     if (onEdit) onEdit(host);
                   }}
-                />
-              </Tooltip>
-              <Tooltip label="Copy knowledge">
-                <IconButton
-                  aria-label="Copy knowledge"
-                  icon={<CopyIcon />}
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleCopy}
                 />
               </Tooltip>
               <Tooltip label="Remove knowledge">
@@ -112,13 +128,13 @@ const HostKnowledge = ({
             <h2>
               <AccordionButton>
                 <Box flex="1" textAlign="left">
-                  Rule {ruleIndex + 1}
+                  Instructions Set {ruleIndex + 1}
                 </Box>
                 <AccordionIcon />
               </AccordionButton>
             </h2>
             <AccordionPanel pb={4}>
-              <pre style={{ overflowX: "auto" }}>{getJsonString()}</pre>
+              <Notes notes={rule.knowledge.notes} />
             </AccordionPanel>
           </AccordionItem>
         ))}

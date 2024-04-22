@@ -23,7 +23,7 @@ const App = () => {
 
   return (
     <ChakraProvider>
-      <Box p="8" pb="16" fontSize="lg" w="full">
+      <Box p="8" pb="24" fontSize="lg" w="full">
         <HStack mb={4} alignItems="center">
           <Heading as="h1" size="lg" flex={1}>
             WebWand 🪄
