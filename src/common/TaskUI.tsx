@@ -62,6 +62,7 @@ const TaskUI = () => {
     instructions: state.ui.instructions,
     setInstructions: state.ui.actions.setInstructions,
     voiceMode: state.settings.voiceMode,
+    isListening: state.currentTask.isListening,
   }));
   const taskInProgress = state.taskStatus === "running";
 
@@ -106,7 +107,7 @@ const TaskUI = () => {
         autoFocus
         placeholder="Try telling WebWand to do something..."
         value={state.instructions || ""}
-        disabled={taskInProgress || state.voiceMode}
+        disabled={taskInProgress || state.isListening}
         onChange={(e) => state.setInstructions(e.target.value)}
         mb={2}
         onKeyDown={onKeyDown}
@@ -127,7 +128,8 @@ const TaskUI = () => {
           <AlertIcon />
           <AlertDescription fontSize="sm">
             In Voice Mode, you can press Space to start speaking and Space again
-            to stop. WebWand will run the task when you stop speaking.
+            to stop. WebWand will run the task when you stop speaking. To turn
+            off Voice Mode, click the Setting icon in the top right corner.
           </AlertDescription>
         </Alert>
       )}
