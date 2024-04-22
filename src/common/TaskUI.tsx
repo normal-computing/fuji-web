@@ -17,6 +17,7 @@ import VoiceButton from "./VoiceButton";
 import TaskHistory from "./TaskHistory";
 import TaskStatus from "./TaskStatus";
 import RecommendedTasks from "./RecommendedTasks";
+import AutosizeTextarea from "./AutosizeTextarea";
 
 function ActionExecutor() {
   const state = useAppState((state) => ({
@@ -102,12 +103,12 @@ const TaskUI = () => {
 
   return (
     <>
-      <Textarea
+      <AutosizeTextarea
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         placeholder="Try telling WebWand to do something..."
         value={state.instructions || ""}
-        disabled={taskInProgress || state.isListening}
+        isDisabled={taskInProgress || state.isListening}
         onChange={(e) => state.setInstructions(e.target.value)}
         mb={2}
         onKeyDown={onKeyDown}
