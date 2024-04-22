@@ -26,7 +26,7 @@ import { findActiveTab } from "../helpers/browserUtils";
 import { MyStateCreator } from "./store";
 import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
 import { voiceControl } from "../helpers/voiceControl";
-import { fetchKnowledge } from "../helpers/knowledge";
+import { fetchKnowledge, type Knowledge } from "../helpers/knowledge";
 import { hasVisionSupport } from "../helpers/aiSdkUtils";
 
 export type TaskHistoryEntry = {
@@ -41,6 +41,7 @@ export type CurrentTaskSlice = {
   isListening: boolean;
   history: TaskHistoryEntry[];
   status: "idle" | "running" | "success" | "error" | "interrupted";
+  knowledgeInUse: Knowledge | null;
   actionStatus:
     | "idle"
     | "attaching-debugger"
@@ -67,10 +68,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 ) => ({
   tabId: -1,
   isListening: false,
-  instructions: null,
   history: [],
   status: "idle",
   actionStatus: "idle",
+  knowledgeInUse: null,
   actions: {
     runTask: async (onError) => {
       const voiceMode = get().settings.voiceMode;
@@ -199,6 +200,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             const url = new URL(activeTab.url ?? "");
             const customKnowledgeBase = get().settings.customKnowledgeBase;
             const knowledge = await fetchKnowledge(url, customKnowledgeBase);
+            set((state) => {
+              state.currentTask.knowledgeInUse = knowledge;
+            });
+
             const [imgData, labelData] = await buildAnnotatedScreenshots(
               tabId,
               knowledge,
