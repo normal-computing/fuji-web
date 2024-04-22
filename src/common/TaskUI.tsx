@@ -94,7 +94,7 @@ const TaskUI = () => {
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
       runTask();
     }
