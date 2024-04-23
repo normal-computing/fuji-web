@@ -37,10 +37,11 @@ const HostKnowledge = ({
   if (knowledgeBase[host] === undefined) {
     return null;
   }
-  if (knowledgeBase[host].rules === undefined) {
+  const rules = knowledgeBase[host].rules;
+  if (rules === undefined) {
     return null;
   }
-  const hasNotes = knowledgeBase[host].rules.some(
+  const hasNotes = rules.some(
     (rule) => (rule.knowledge?.notes?.length ?? 0) > 0,
   );
   // skip if no notes
@@ -123,7 +124,7 @@ const HostKnowledge = ({
         </Heading>
       </Flex>
       <Accordion allowToggle>
-        {knowledgeBase[host].rules.map((rule, ruleIndex) => {
+        {rules.map((rule, ruleIndex) => {
           // Skip rules without notes
           if (
             rule.knowledge === undefined ||
