@@ -16,7 +16,12 @@ import HostKnowledge from "./HostKnowledge";
 const DefaultKnowledge = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const defaultKnowledgeBase = fetchAllDefaultKnowledge();
-
+  // some default knowledge may not have notes, filter them out
+  const hosts = Object.keys(defaultKnowledgeBase).filter((host) =>
+    defaultKnowledgeBase[host]?.rules?.some(
+      (rule) => (rule.knowledge?.notes?.length ?? 0) > 0,
+    ),
+  );
   return (
     <>
       <Button size="sm" variant="link" colorScheme="blue" onClick={onOpen}>
@@ -33,7 +38,7 @@ const DefaultKnowledge = () => {
           <ModalHeader>Default Instructions</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {Object.keys(defaultKnowledgeBase).map((host) => (
+            {hosts.map((host) => (
               <Box
                 key={host}
                 w="full"
