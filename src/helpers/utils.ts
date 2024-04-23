@@ -10,6 +10,7 @@ export async function waitFor(
   predicate: () => Promise<boolean>,
   interval: number,
   _maxChecks: number,
+  rejectOnTimeout = true,
 ): Promise<void> {
   // special case for 0 maxChecks (wait forever)
   const maxChecks = _maxChecks === 0 ? Infinity : _maxChecks;
@@ -23,7 +24,11 @@ export async function waitFor(
         checkCount++;
         if (checkCount >= maxChecks) {
           clearInterval(intervalId);
-          reject("Timed out waiting for condition");
+          if (rejectOnTimeout) {
+            reject(new Error("Timed out waiting for condition"));
+          } else {
+            resolve();
+          }
         }
       }
     }, interval);
@@ -34,6 +39,7 @@ export async function waitTillStable(
   getSize: () => Promise<number>,
   interval: number,
   timeout: number,
+  rejectOnTimeout = false, // default to assuming stable after timeout
 ): Promise<void> {
   let lastSize = 0;
   let countStableSizeIterations = 0;
@@ -61,6 +67,7 @@ export async function waitTillStable(
     },
     interval,
     timeout / interval,
+    rejectOnTimeout,
   );
 }
 

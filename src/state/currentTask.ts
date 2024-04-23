@@ -119,6 +119,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               },
               200, // check every 200ms
               100, // wait for up to 20 seconds (100*200ms)
+              false, // assume page fully loaded on timeout
             );
           }
 
