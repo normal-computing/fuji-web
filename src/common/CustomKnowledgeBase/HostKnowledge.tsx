@@ -41,13 +41,6 @@ const HostKnowledge = ({
   if (rules === undefined) {
     return null;
   }
-  const hasNotes = rules.some(
-    (rule) => (rule.knowledge?.notes?.length ?? 0) > 0,
-  );
-  // skip if no notes
-  if (!hasNotes) {
-    return null;
-  }
 
   const handleRemove = () => {
     const newKnowledge = { ...knowledgeBase };
