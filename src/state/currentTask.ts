@@ -46,7 +46,7 @@ export type CurrentTaskSlice = {
     | "idle"
     | "attaching-debugger"
     | "pulling-dom"
-    | "annotating-dom"
+    | "annotating-web"
     | "fetching-knoweldge"
     | "generating-action"
     | "performing-action"
@@ -207,7 +207,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               state.currentTask.knowledgeInUse = knowledge;
             });
 
-            setActionStatus("annotating-dom");
+            setActionStatus("annotating-web");
             const [imgData, labelData] = await buildAnnotatedScreenshots(
               tabId,
               knowledge,
