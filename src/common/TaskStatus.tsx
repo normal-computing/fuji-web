@@ -17,7 +17,7 @@ export default function TaskStatus() {
     idle: "💤 Idle",
     "attaching-debugger": "🔗 Attaching Debugger",
     "pulling-dom": "🌐 Understanding Website",
-    "annotating-web": "🌐 Understanding Website",
+    "annotating-page": "🌐 Understanding Website",
     "fetching-knoweldge": "🧠 Getting Instructions",
     "generating-action": "🤔 Thinking and planning",
     "performing-action": "🚀 Performing Action",
