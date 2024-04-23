@@ -18,7 +18,6 @@ import TaskHistory from "./TaskHistory";
 import TaskStatus from "./TaskStatus";
 import RecommendedTasks from "./RecommendedTasks";
 import AutosizeTextarea from "./AutosizeTextarea";
-import MatchedNotes from "./CustomKnowledgeBase/MatchedNotes";
 
 function ActionExecutor() {
   const state = useAppState((state) => ({
@@ -127,7 +126,7 @@ const TaskUI = () => {
       {state.voiceMode && (
         <Alert status="info" borderRadius="lg">
           <AlertIcon />
-          <AlertDescription fontSize="sm">
+          <AlertDescription fontSize="sm" lineHeight="5">
             In Voice Mode, you can press Space to start speaking and Space again
             to stop. WebWand will run the task when you stop speaking. To turn
             off Voice Mode, click the Setting icon in the top right corner.
@@ -138,7 +137,6 @@ const TaskUI = () => {
         <RecommendedTasks runTask={runTaskWithNewInstructions} />
       )}
       {debugMode && <ActionExecutor />}
-      <MatchedNotes />
       <TaskStatus />
       <TaskHistory />
     </>
