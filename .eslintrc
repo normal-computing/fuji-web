@@ -35,6 +35,7 @@
     }
   },
   "rules": {
+    "no-throw-literal": "error",
     "react/react-in-jsx-scope": "off",
     "import/no-unresolved": "off"
   },
