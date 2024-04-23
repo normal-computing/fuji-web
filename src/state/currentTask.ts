@@ -46,8 +46,9 @@ export type CurrentTaskSlice = {
     | "idle"
     | "attaching-debugger"
     | "pulling-dom"
-    | "transforming-dom"
-    | "performing-query"
+    | "annotating-dom"
+    | "fetching-knoweldge"
+    | "generating-action"
     | "performing-action"
     | "waiting";
   actions: {
@@ -168,11 +169,11 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             return true;
           };
 
-          setActionStatus("performing-query");
           let query: QueryResult | null = null;
 
           // check if the tab does not allow attaching debugger, e.g. chrome:// pages
           if (activeTab.url?.startsWith("chrome")) {
+            setActionStatus("generating-action");
             query = await determineNavigateAction(instructions);
 
             if (wasStopped()) break;
@@ -198,6 +199,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             .filter(truthyFilter);
 
           if (isVisionModel) {
+            setActionStatus("fetching-knoweldge");
             const url = new URL(activeTab.url ?? "");
             const customKnowledgeBase = get().settings.customKnowledgeBase;
             const knowledge = await fetchKnowledge(url, customKnowledgeBase);
@@ -205,6 +207,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               state.currentTask.knowledgeInUse = knowledge;
             });
 
+            setActionStatus("annotating-dom");
             const [imgData, labelData] = await buildAnnotatedScreenshots(
               tabId,
               knowledge,
@@ -215,6 +218,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               [],
             );
             if (wasStopped()) break;
+            setActionStatus("generating-action");
             query = await determineNextActionWithVision(
               instructions,
               url,
@@ -237,6 +241,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             }
 
             if (wasStopped()) break;
+            setActionStatus("generating-action");
             query = await determineNextAction(
               instructions,
               previousActions,

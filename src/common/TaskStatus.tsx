@@ -14,17 +14,18 @@ export default function TaskStatus() {
   }
 
   const displayedStatus: Record<CurrentTaskSlice["actionStatus"], string> = {
-    idle: "Idle",
-    "attaching-debugger": "Attaching Debugger",
-    "pulling-dom": "Reading Page",
-    "transforming-dom": "Reading Page",
-    "performing-query": "Running GPT",
-    "performing-action": "Performing Action",
-    waiting: "Waiting",
+    idle: "💤 Idle",
+    "attaching-debugger": "🔗 Attaching Debugger",
+    "pulling-dom": "🌐 Understanding Website",
+    "annotating-dom": "🌐 Understanding Website",
+    "fetching-knoweldge": "🧠 Getting Instructions",
+    "generating-action": "🤔 Thinking and planning",
+    "performing-action": "🚀 Performing Action",
+    waiting: "⏳ Waiting",
   };
 
   return (
-    <Box textColor="gray.500" textAlign="center" mb={8} fontSize="sm">
+    <Box textColor="gray.500" textAlign="center" mt={4} mb={-4} fontSize="sm">
       {displayedStatus[actionStatus]}
     </Box>
   );
