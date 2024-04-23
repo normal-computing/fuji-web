@@ -16,7 +16,7 @@ It also features a unique "Prior Knowledge Augmentation" system that allows WebW
 
 We do NOT record your screen or collect browsing information or your prompts. It lives in your browser and uses your OpenAI key. 
 
-<img src="public/webwand_screenshot.png" alt="Screenshot of annotated website" width="100"/>
+<img src="public/webwand_screenshot.png" alt="Screenshot of annotated website" width="50%" style="display: block; margin: 0 auto"/>
 
 ## Installing and Running
 
