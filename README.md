@@ -14,7 +14,7 @@ WebWand leverages the power of multi-modal Large Language Model, DOM state aware
 
 It also features a unique "Prior Knowledge Augmentation" system that allows WebWand to navigate websites with the wisdom of collective past experiences, crowdsourced from WebWand users. 
 
-We do NOT record your screen or collect browsing information or your prompts. It lives in your browser and uses your OpenAI key. 
+We do NOT collect your screenshots, browsing information or your prompts. It lives in your browser and is directly sent to the LLM API of your choice.
 
 <img src="public/webwand_screenshot.png" alt="Screenshot of annotated website" width="50%" style="display: block; margin: 0 auto"/>
 
