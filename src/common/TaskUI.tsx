@@ -18,6 +18,7 @@ import TaskHistory from "./TaskHistory";
 import TaskStatus from "./TaskStatus";
 import RecommendedTasks from "./RecommendedTasks";
 import AutosizeTextarea from "./AutosizeTextarea";
+import MatchedNotes from "./CustomKnowledgeBase/MatchedNotes";
 
 function ActionExecutor() {
   const state = useAppState((state) => ({
@@ -138,6 +139,7 @@ const TaskUI = () => {
         <RecommendedTasks runTask={runTaskWithNewInstructions} />
       )}
       {debugMode && <ActionExecutor />}
+      <MatchedNotes />
       <TaskHistory />
     </>
   );

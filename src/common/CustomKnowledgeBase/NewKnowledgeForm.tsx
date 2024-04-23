@@ -9,7 +9,6 @@ import {
   ModalBody,
   ModalFooter,
   Box,
-  Heading,
   InputGroup,
   InputRightElement,
   IconButton,
@@ -235,7 +234,7 @@ const NewKnowledgeForm = ({
   // )
 
   return (
-    <Modal isOpen={isOpen} onClose={closeForm}>
+    <Modal isOpen={isOpen} onClose={closeForm} size="xl">
       <ModalOverlay />
       <ModalContent>
         <ModalCloseButton />
@@ -264,13 +263,13 @@ const NewKnowledgeForm = ({
                 onClose={() => setShowDuplicateAlert(false)}
               />
               <ModalHeader>
-                {isEditMode ? "Edit" : "New"} Host Knowledge
+                {isEditMode ? "Edit" : "New"} Instructions
               </ModalHeader>
               <ModalBody>
                 <FormControl isRequired mb={4}>
-                  <FormLabel>Host</FormLabel>
+                  <FormLabel>Instructions for:</FormLabel>
                   <FormHelperText mb={1} fontSize="xs">
-                    e.g. github.com
+                    host of the website (e.g. google.com)
                   </FormHelperText>
                   <Input
                     name="newHost"
@@ -282,9 +281,6 @@ const NewKnowledgeForm = ({
                 </FormControl>
 
                 {/* Rules Section */}
-                <Heading as="h5" size="sm" mb={2}>
-                  Rules
-                </Heading>
                 {values.rules.map((rule, ruleIndex) => (
                   <Box
                     key={ruleIndex}
@@ -430,19 +426,19 @@ const NewKnowledgeForm = ({
 
                     {/* Notes Section */}
                     <FormControl mb={2}>
-                      <FormLabel>Notes</FormLabel>
+                      <FormLabel>Instructions</FormLabel>
                       {rule.knowledge.notes?.map((note, noteIndex) => (
                         <InputGroup key={noteIndex} size="md" mb={1}>
                           <Field
                             as={Textarea}
                             name={`rules[${ruleIndex}].knowledge.notes[${noteIndex}]`}
-                            placeholder="Enter note"
+                            placeholder="Enter Instructions"
                           />
                           <InputRightElement>
                             {rule.knowledge.notes &&
                               rule.knowledge.notes.length > 1 && (
                                 <IconButton
-                                  aria-label="Remove note"
+                                  aria-label="Remove Instructions"
                                   icon={<SmallCloseIcon />}
                                   variant="ghost"
                                   onClick={() => {
@@ -476,7 +472,7 @@ const NewKnowledgeForm = ({
                         );
                       }}
                     >
-                      Add more notes
+                      Add another instruction
                     </Button>
 
                     {/* Annotation Rules Section */}
@@ -509,7 +505,7 @@ const NewKnowledgeForm = ({
                     setFieldValue("rules", updatedRules);
                   }}
                 >
-                  Add more rules
+                  Add another set of instructions
                 </Button>
               </ModalBody>
               <ModalFooter>

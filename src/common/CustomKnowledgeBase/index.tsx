@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Button, Text, VStack, Box, useDisclosure } from "@chakra-ui/react";
+import { Button, Text, VStack, Box } from "@chakra-ui/react";
 import { useAppState } from "@root/src/state/store";
 import NewKnowledgeForm from "./NewKnowledgeForm";
 import { type EditingData } from "../../helpers/knowledge";
 import DefaultKnowledge from "./DefaultKnowledge";
 import HostKnowledge from "./HostKnowledge";
-import NewKnowledgeJson from "./NewKnowledgeJson";
+// import NewKnowledgeJson from "./NewKnowledgeJson";
 import { findActiveTab } from "../../helpers/browserUtils";
 
 const CustomKnowledgeBase = () => {
@@ -16,11 +16,11 @@ const CustomKnowledgeBase = () => {
   const customKnowledgeBase = useAppState(
     (state) => state.settings.customKnowledgeBase,
   );
-  const {
-    isOpen: isJsonInputOpen,
-    onOpen: openJsonInput,
-    onClose: closeJsonInput,
-  } = useDisclosure();
+  // const {
+  //   isOpen: isJsonInputOpen,
+  //   onOpen: openJsonInput,
+  //   onClose: closeJsonInput,
+  // } = useDisclosure();
   const [defaultHost, setDefaultHost] = useState("");
   const [currentURL, setCurrentUrl] = useState("");
 
@@ -76,10 +76,10 @@ const CustomKnowledgeBase = () => {
           </Box>
         ))
       ) : (
-        <Text>No custom knowledge found</Text>
+        <Text>No instructions found</Text>
       )}
-      <Button onClick={openForm}>Add Host Knowledge with Form</Button>
-      <Button onClick={openJsonInput}>Add Host Knowledge with JSON</Button>
+      <Button onClick={openForm}>Add Instructions</Button>
+      {/* <Button onClick={openJsonInput}>Add Host Knowledge with JSON</Button> */}
       <NewKnowledgeForm
         isOpen={isFormOpen}
         isEditMode={!!editKnowledge}
@@ -88,7 +88,7 @@ const CustomKnowledgeBase = () => {
         defaultHost={defaultHost}
         currentURL={currentURL}
       />
-      <NewKnowledgeJson isOpen={isJsonInputOpen} onClose={closeJsonInput} />
+      {/* <NewKnowledgeJson isOpen={isJsonInputOpen} onClose={closeJsonInput} /> */}
     </VStack>
   );
 };

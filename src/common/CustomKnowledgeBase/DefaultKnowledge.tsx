@@ -20,7 +20,7 @@ const DefaultKnowledge = () => {
   return (
     <>
       <Button size="sm" variant="link" colorScheme="blue" onClick={onOpen}>
-        View Default Knowledge
+        View Built-in Instructions
       </Button>
       <Modal
         isOpen={isOpen}
@@ -30,7 +30,7 @@ const DefaultKnowledge = () => {
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Default Knowledge Base</ModalHeader>
+          <ModalHeader>Default Instructions</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             {Object.keys(defaultKnowledgeBase).map((host) => (

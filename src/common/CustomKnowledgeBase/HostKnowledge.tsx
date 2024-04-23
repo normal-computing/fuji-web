@@ -1,4 +1,4 @@
-import { DeleteIcon, CopyIcon, EditIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Heading,
   Accordion,
@@ -9,11 +9,11 @@ import {
   IconButton,
   Tooltip,
   Flex,
-  useToast,
   Box,
 } from "@chakra-ui/react";
 import { fetchAllDefaultKnowledge } from "../../helpers/knowledge";
 import { useAppState } from "@root/src/state/store";
+import Notes from "./Notes";
 
 type HostKnowledgeProps = {
   host: string;
@@ -26,7 +26,6 @@ const HostKnowledge = ({
   isDefaultKnowledge,
   onEdit,
 }: HostKnowledgeProps) => {
-  const toast = useToast();
   const updateSettings = useAppState((state) => state.settings.actions.update);
   const customKnowledgeBase = useAppState(
     (state) => state.settings.customKnowledgeBase,
@@ -35,14 +34,31 @@ const HostKnowledge = ({
     ? fetchAllDefaultKnowledge()
     : customKnowledgeBase;
 
-  const getJsonString = (): string => {
-    return JSON.stringify(knowledgeBase[host], null, 2);
-  };
+  if (knowledgeBase[host] === undefined) {
+    return null;
+  }
+  const rules = knowledgeBase[host].rules;
+  if (rules === undefined) {
+    return null;
+  }
+  const hasNotes = rules.some(
+    (rule) => (rule.knowledge?.notes?.length ?? 0) > 0,
+  );
+  // skip if no notes
+  if (!hasNotes) {
+    return null;
+  }
 
   const handleRemove = () => {
     const newKnowledge = { ...knowledgeBase };
     delete newKnowledge[host];
     updateSettings({ customKnowledgeBase: newKnowledge });
+  };
+
+  // temporarily disable copy feature
+  /*
+  const getJsonString = (): string => {
+    return JSON.stringify(knowledgeBase[host], null, 2);
   };
 
   const handleCopy = async () => {
@@ -65,13 +81,23 @@ const HostKnowledge = ({
       });
     }
   };
+  */
 
   return (
     <>
-      <Flex alignItems="flex-start">
-        <Heading as="h5" size="sm" flex="1" overflowWrap="anywhere">
+      <Flex alignItems="flex-start" mb="2">
+        <Heading
+          as="h5"
+          size="sm"
+          flex="1"
+          overflowWrap="anywhere"
+          lineHeight="1.5rem"
+        >
           {!isDefaultKnowledge && (
-            <Box position="relative" style={{ float: "right" }}>
+            <Box
+              position="relative"
+              style={{ float: "right", marginTop: "-4px" }}
+            >
               <Tooltip label="Edit knowledge">
                 <IconButton
                   aria-label="Edit knowledge"
@@ -81,15 +107,6 @@ const HostKnowledge = ({
                   onClick={() => {
                     if (onEdit) onEdit(host);
                   }}
-                />
-              </Tooltip>
-              <Tooltip label="Copy knowledge">
-                <IconButton
-                  aria-label="Copy knowledge"
-                  icon={<CopyIcon />}
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleCopy}
                 />
               </Tooltip>
               <Tooltip label="Remove knowledge">
@@ -107,21 +124,31 @@ const HostKnowledge = ({
         </Heading>
       </Flex>
       <Accordion allowToggle>
-        {knowledgeBase[host].rules?.map((rule, ruleIndex) => (
-          <AccordionItem key={ruleIndex} backgroundColor="white">
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  Rule {ruleIndex + 1}
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              <pre style={{ overflowX: "auto" }}>{getJsonString()}</pre>
-            </AccordionPanel>
-          </AccordionItem>
-        ))}
+        {rules.map((rule, ruleIndex) => {
+          // Skip rules without notes
+          if (
+            rule.knowledge === undefined ||
+            rule.knowledge.notes === undefined ||
+            rule.knowledge.notes.length === 0
+          ) {
+            return null;
+          }
+          return (
+            <AccordionItem key={ruleIndex} backgroundColor="white">
+              <h2>
+                <AccordionButton>
+                  <Box flex="1" textAlign="left">
+                    Instructions Set {ruleIndex + 1}
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4}>
+                <Notes notes={rule.knowledge.notes} />
+              </AccordionPanel>
+            </AccordionItem>
+          );
+        })}
       </Accordion>
     </>
   );
