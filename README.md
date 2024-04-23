@@ -12,8 +12,8 @@ Crafted on top of the innovative fusion of multi-modal Large Language Models (GP
 
 WebWand leverages the power of multi-modal Large Language Model, DOM state awareness, and semantic understanding of HTML to focus on essential webpage elements while filtering out noise. 
 
-Here is an example of WebWand annotating the website, using both visual and textual cues to think and perform action.
-<img src="public/webwand_screenshot.png" alt="Screenshot of annotated website" width="50%" style="display: block; margin: 0 auto"/>
+Here is an example of WebWand annotating the website to better understand the environment.
+<img src="media/web-annotation.png" alt="Screenshot of annotated website" width="50%" style="display: block; margin: 0 auto"/>
 
 
 It also features a unique "Prior Knowledge Augmentation" system that allows WebWand to navigate websites with the wisdom of collective past experiences, crowdsourced from WebWand users. 
