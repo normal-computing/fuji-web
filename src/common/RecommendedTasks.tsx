@@ -3,7 +3,7 @@ import { useAppState } from "../state/store";
 
 const tasks = [
   'Post on twitter.com with content "an automated post from WebWand by @NormalComputing! :)" If I\'m not logged in, fail the task and wait for me to log in.',
-  "Find a book about AI and add a physical copy to cart on Amazon.com. Pick the cheaper one from papaerback and hardcover.",
+  "Find a book about AI and add a physical copy to cart on Amazon.com. Pick the cheaper one from paperback and hardcover.",
 ];
 
 const RecommendedTasks = ({
