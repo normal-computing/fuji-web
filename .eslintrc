@@ -35,6 +35,8 @@
     }
   },
   "rules": {
+    "prefer-promise-reject-errors": "error",
+    "no-throw-literal": "error",
     "react/react-in-jsx-scope": "off",
     "import/no-unresolved": "off"
   },

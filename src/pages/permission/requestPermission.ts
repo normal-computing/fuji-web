@@ -23,7 +23,8 @@ export async function getUserPermission(): Promise<void> {
 
         // Handling different error scenarios
         if (error.name === "Permission denied") {
-          reject("MICROPHONE_PERMISSION_DENIED");
+          // TODO: catch this error and show a user-friendly message
+          reject(new Error("MICROPHONE_PERMISSION_DENIED"));
         } else {
           reject(error);
         }
