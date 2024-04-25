@@ -1,4 +1,7 @@
 import {
+  Alert,
+  AlertIcon,
+  AlertDescription,
   VStack,
   HStack,
   Box,
@@ -15,6 +18,44 @@ import {
 import { TaskHistoryEntry } from "../state/currentTask";
 import { useAppState } from "../state/store";
 import CopyButton from "./CopyButton";
+import Notes from "./CustomKnowledgeBase/Notes";
+
+function MatchedNotes() {
+  const knowledge = useAppState((state) => state.currentTask.knowledgeInUse);
+  const notes = knowledge?.notes;
+  if (!notes || notes.length === 0) {
+    return null;
+  }
+
+  return (
+    <AccordionItem>
+      <Heading as="h3" size="sm">
+        <AccordionButton>
+          <Box mr="4" fontWeight="bold">
+            0.
+          </Box>
+          <Box as="span" textAlign="left" flex="1">
+            Found {notes.length} instructions.
+          </Box>
+          <AccordionIcon />
+        </AccordionButton>
+      </Heading>
+      <AccordionPanel backgroundColor="gray.100" p="2">
+        <Accordion allowMultiple w="full" defaultIndex={1}>
+          <Box pl={2}>
+            <Notes notes={notes} />
+          </Box>
+          <Alert status="info" borderRadius="sm" mt="1">
+            <AlertIcon />
+            <AlertDescription fontSize="0.8rem" lineHeight="4">
+              You can customize instructions in the settings menu.
+            </AlertDescription>
+          </Alert>
+        </Accordion>
+      </AccordionPanel>
+    </AccordionItem>
+  );
+}
 
 type TaskHistoryItemProps = {
   index: number;
@@ -127,6 +168,7 @@ export default function TaskHistory() {
         <CopyButton text={JSON.stringify(taskHistory, null, 2)} />
       </HStack>
       <Accordion allowMultiple w="full" pb="4">
+        <MatchedNotes />
         {taskHistory.map((entry, index) => (
           <TaskHistoryItem key={index} index={index} entry={entry} />
         ))}
