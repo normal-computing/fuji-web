@@ -123,7 +123,6 @@ const TaskUI = () => {
           />
         )}
         <Spacer />
-        {debugMode && <TaskStatus />}
       </HStack>
       {state.voiceMode && (
         <Alert status="info" borderRadius="lg">
@@ -140,6 +139,7 @@ const TaskUI = () => {
       )}
       {debugMode && <ActionExecutor />}
       <MatchedNotes />
+      <TaskStatus />
       <TaskHistory />
     </>
   );
