@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Alert,
   AlertIcon,
@@ -11,11 +12,13 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
+  Icon,
   Spacer,
   ColorProps,
   BackgroundProps,
 } from "@chakra-ui/react";
 import { TaskHistoryEntry } from "../state/currentTask";
+import { BsSortNumericDown, BsSortNumericUp } from "react-icons/bs";
 import { useAppState } from "../state/store";
 import CopyButton from "./CopyButton";
 import Notes from "./CustomKnowledgeBase/Notes";
@@ -155,8 +158,19 @@ export default function TaskHistory() {
     taskStatus: state.currentTask.status,
     taskHistory: state.currentTask.history,
   }));
+  const [sortNumericDown, setSortNumericDown] = useState(false);
+  const toggleSort = () => {
+    setSortNumericDown(!sortNumericDown);
+  };
 
   if (taskHistory.length === 0 && taskStatus !== "running") return null;
+  const historyItems = taskHistory.map((entry, index) => (
+    <TaskHistoryItem key={index} index={index} entry={entry} />
+  ));
+  historyItems.unshift(<MatchedNotes key="matched-notes" />);
+  if (!sortNumericDown) {
+    historyItems.reverse();
+  }
 
   return (
     <VStack mt={8}>
@@ -165,13 +179,17 @@ export default function TaskHistory() {
           Action History
         </Heading>
         <Spacer />
+        <Icon
+          as={sortNumericDown ? BsSortNumericDown : BsSortNumericUp}
+          cursor="pointer"
+          color="gray.500"
+          _hover={{ color: "gray.700" }}
+          onClick={toggleSort}
+        />
         <CopyButton text={JSON.stringify(taskHistory, null, 2)} />
       </HStack>
       <Accordion allowMultiple w="full" pb="4">
-        <MatchedNotes />
-        {taskHistory.map((entry, index) => (
-          <TaskHistoryItem key={index} index={index} entry={entry} />
-        ))}
+        {historyItems}
       </Accordion>
     </VStack>
   );
