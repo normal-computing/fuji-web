@@ -1,3 +1,4 @@
+import base64
 import os
 import json
 import time
@@ -48,6 +49,27 @@ def history():
     with open(file_path, 'w') as file:
         json.dump(task_history, file, indent=4)
     return jsonify({"message": "Got history"}), 200
+
+@app.route('/screenshot/', methods=['POST'])
+def save_screenshot():
+    global task_id
+    # Decode the image data
+    image_data = request.json.get('value', '')
+    image_bytes = base64.b64decode(image_data)
+
+    # Ensure the directory exists
+    task_dir = os.path.join(results_dir, f"test{task_id}")
+    os.makedirs(task_dir, exist_ok=True)
+
+    # Create a unique filename for each screenshot
+    timestamp = int(time.time())
+    file_path = os.path.join(task_dir, f'screenshot_{timestamp}.png')
+    
+    # Save the screenshot to the file
+    with open(file_path, 'wb') as file:
+        file.write(image_bytes)
+    
+    return jsonify({"message": f"Screenshot saved to {file_path}"}), 200
 
 def run_server():
     app.run(port=5000, debug=False, use_reloader=False)

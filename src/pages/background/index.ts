@@ -32,6 +32,8 @@ chrome.runtime.onMessage.addListener((message) => {
     sendStatusToPython(message.value);
   } else if (message.type === "POST_TASK_HISTORY") {
     sendTaskHistoryToPython(message.value);
+  } else if (message.type == "POST_SCREENSHOT") {
+    sendScreenshotToServer(message.value);
   } else {
     // Broadcast to other parts of the extension
     chrome.runtime.sendMessage(message);
@@ -66,4 +68,18 @@ function sendTaskHistoryToPython(history) {
     .catch((error) =>
       console.error("Error sending history to Python server:", error),
     );
+}
+
+async function sendScreenshotToServer(imgData) {
+  // Remove the prefix 'data:image/png;base64,'
+  const imageDataBase64 = imgData.split(",")[1] || imgData;
+
+  fetch(`http://localhost:5000/screenshot`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ value: imageDataBase64 }),
+  })
+    .then((response) => response.json())
+    .then((data) => console.log("Screenshot posted:", data))
+    .catch((error) => console.error("Error posting screenshot:", error));
 }

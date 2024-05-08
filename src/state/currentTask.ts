@@ -212,6 +212,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               tabId,
               knowledge,
             );
+            chrome.runtime.sendMessage({
+              type: "POST_SCREENSHOT",
+              value: imgData,
+            });
             const viewportPercentage = await callRPCWithTab(
               tabId,
               "getViewportPercentage",
