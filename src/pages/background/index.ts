@@ -30,6 +30,8 @@ chrome.runtime.onMessage.addListener((message) => {
     return true;
   } else if (message.type === "POST_TASK_STATUS") {
     sendStatusToPython(message.value);
+  } else if (message.type === "POST_TASK_HISTORY") {
+    sendTaskHistoryToPython(message.value);
   } else {
     // Broadcast to other parts of the extension
     chrome.runtime.sendMessage(message);
@@ -45,8 +47,23 @@ function sendStatusToPython(status: string) {
     body: JSON.stringify({ status: status }),
   })
     .then((response) => response.json())
-    .then((data) => console.log("Status updated to Python server:", data))
+    .then((data) => console.log("From Python server:", data))
     .catch((error) =>
       console.error("Error updating status to Python server:", error),
+    );
+}
+
+function sendTaskHistoryToPython(history) {
+  fetch("http://localhost:5000/history", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ history: history }),
+  })
+    .then((response) => response.json())
+    .then((data) => console.log("From Python server:", data))
+    .catch((error) =>
+      console.error("Error sending history to Python server:", error),
     );
 }

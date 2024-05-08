@@ -65,6 +65,12 @@ const App = () => {
             value: taskState.taskStatus,
           });
           break;
+        case "GET_TASK_HISTORY":
+          chrome.runtime.sendMessage({
+            type: "POST_TASK_HISTORY",
+            value: taskState.taskHistory,
+          });
+          break;
         default:
           console.log("Unhandled message type:", message.type);
       }

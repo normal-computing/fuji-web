@@ -17,20 +17,34 @@ load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
 
 # Hard-coded coordinates to open web-wand side panel
-extensions_pos = (1070, 110)
+extensions_pos = (1050, 110)
 web_wand_pos = (900, 280)
 
 app = Flask(__name__)
 CORS(app)
 
-# Shared variable to store the task status
 task_status = "idle"
+task_history = []
+
+results_dir = 'result'
+os.makedirs(results_dir, exist_ok=True)
 
 @app.route('/status', methods=['POST'])
 def status():
     global task_status
     task_status = request.json.get('status', 'idle')
     return jsonify({"message": "Got status"}), 200
+
+@app.route('/history', methods=['POST'])
+def history():
+    global task_history
+    task_history = request.json.get('history', [])
+
+    file_name = f"{results_dir}/task_history_{int(time.time())}.txt"
+
+    with open(file_name, 'w') as file:
+        json.dump(task_history, file, indent=4)
+    return jsonify({"message": "Got history"}), 200
 
 def run_server():
     app.run(port=5000, debug=False, use_reloader=False)
@@ -67,8 +81,9 @@ def run_webwand_task(driver, url, task_description):
     dispatch_event(driver, 'RunTask', {})
 
     check_task_status(driver)
+    dispatch_event(driver, 'GetTaskHistory', {})
     
-    time.sleep(10)
+    time.sleep(30)
 
 def main():
     driver = setup_driver()

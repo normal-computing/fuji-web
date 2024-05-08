@@ -5,13 +5,18 @@ import { initializeRPC } from "./domOperations";
 initializeRPC();
 
 document.addEventListener("SetAPIKey", function (event) {
-  chrome.runtime.sendMessage({ type: "API_KEY", value: event.detail.value });
+  const customEvent = event as CustomEvent;
+  chrome.runtime.sendMessage({
+    type: "API_KEY",
+    value: customEvent.detail.value,
+  });
 });
 
 document.addEventListener("SetTask", function (event) {
+  const customEvent = event as CustomEvent;
   chrome.runtime.sendMessage({
     type: "SET_TASK",
-    value: event.detail.value,
+    value: customEvent.detail.value,
   });
 });
 
@@ -20,6 +25,9 @@ document.addEventListener("RunTask", function () {
 });
 
 document.addEventListener("GetTaskStatus", function () {
-  // Assuming taskStatus is globally accessible or retrievable
   chrome.runtime.sendMessage({ type: "GET_TASK_STATUS" });
+});
+
+document.addEventListener("GetTaskHistory", function () {
+  chrome.runtime.sendMessage({ type: "GET_TASK_HISTORY" });
 });
