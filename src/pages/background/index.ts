@@ -28,5 +28,8 @@ chrome.runtime.onMessage.addListener((message) => {
       });
     }
     return true;
+  } else {
+    // Broadcast to other parts of the extension
+    chrome.runtime.sendMessage(message);
   }
 });
