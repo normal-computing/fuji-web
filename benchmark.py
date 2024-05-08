@@ -7,6 +7,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+import threading
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import requests
 
 # Load the .env file
 load_dotenv()
@@ -15,6 +19,21 @@ api_key = os.getenv('OPENAI_API_KEY')
 # Hard-coded coordinates to open web-wand side panel
 extensions_pos = (1070, 110)
 web_wand_pos = (900, 280)
+
+app = Flask(__name__)
+CORS(app)
+
+# Shared variable to store the task status
+task_status = "idle"
+
+@app.route('/status', methods=['POST'])
+def status():
+    global task_status
+    task_status = request.json.get('status', 'idle')
+    return jsonify({"message": "Got status"}), 200
+
+def run_server():
+    app.run(port=5000, debug=False, use_reloader=False)
 
 def setup_driver():
     chrome_options = Options()
@@ -32,14 +51,10 @@ def dispatch_event(driver, event_name, event):
     driver.execute_script(script)
 
 def check_task_status(driver):
-    # Function to check task status
-    status = "running"  # Initial assumption
-    while status == "running":
+    while task_status == "idle" or task_status == "running":
         dispatch_event(driver, 'GetTaskStatus', {})
-        # Capture the status from the global variable updated by the content script
-        status = driver.execute_script("return window.lastReceivedStatus;")
-        time.sleep(2)  # Wait for some time before the next check
-    print("Task completed")
+        time.sleep(5)
+    print(task_status)
 
 def run_webwand_task(driver, url, task_description):
     driver.get(url)
@@ -47,17 +62,13 @@ def run_webwand_task(driver, url, task_description):
     pyautogui.click(extensions_pos)
     pyautogui.click(web_wand_pos) 
 
-    set_api_event = {"value": api_key}
-    dispatch_event(driver, 'SetAPIKey', set_api_event)
+    dispatch_event(driver, 'SetAPIKey', {"value": api_key})
+    dispatch_event(driver, 'SetTask', {"value": task_description})
+    dispatch_event(driver, 'RunTask', {})
 
-    set_task_event = {"value": task_description}
-    dispatch_event(driver, 'SetTask', set_task_event)
-
-    run_task_event = {}
-    dispatch_event(driver, 'RunTask', run_task_event)
-    
     check_task_status(driver)
-    time.sleep(5)
+    
+    time.sleep(10)
 
 def main():
     driver = setup_driver()
@@ -69,4 +80,9 @@ def main():
     driver.quit()
 
 if __name__ == "__main__":
+    # Start the Flask server in a new thread
+    server_thread = threading.Thread(target=run_server)
+    server_thread.start()   
+
     main()
+    server_thread.join()

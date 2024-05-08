@@ -28,8 +28,25 @@ chrome.runtime.onMessage.addListener((message) => {
       });
     }
     return true;
+  } else if (message.type === "POST_TASK_STATUS") {
+    sendStatusToPython(message.value);
   } else {
     // Broadcast to other parts of the extension
     chrome.runtime.sendMessage(message);
   }
 });
+
+function sendStatusToPython(status: string) {
+  fetch("http://localhost:5000/status", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status: status }),
+  })
+    .then((response) => response.json())
+    .then((data) => console.log("Status updated to Python server:", data))
+    .catch((error) =>
+      console.error("Error updating status to Python server:", error),
+    );
+}

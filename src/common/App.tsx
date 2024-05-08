@@ -57,12 +57,11 @@ const App = () => {
           taskState.setInstructions(message.value);
           break;
         case "RUN_TASK":
-          console.log("Run task command received");
           taskState.runTask(toastError);
           break;
-        case "TASK_STATUS":
+        case "GET_TASK_STATUS":
           chrome.runtime.sendMessage({
-            type: "TASK_STATUS",
+            type: "POST_TASK_STATUS",
             value: taskState.taskStatus,
           });
           break;
@@ -76,7 +75,7 @@ const App = () => {
     return () => {
       chrome.runtime.onMessage.removeListener(handleMessage);
     };
-  }, []);
+  }, [taskState.taskStatus]);
 
   return (
     <ChakraProvider>
