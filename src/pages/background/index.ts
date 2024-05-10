@@ -28,58 +28,39 @@ chrome.runtime.onMessage.addListener((message) => {
       });
     }
     return true;
-  } else if (message.type === "POST_TASK_STATUS") {
-    sendStatusToPython(message.value);
-  } else if (message.type === "POST_TASK_HISTORY") {
-    sendTaskHistoryToPython(message.value);
-  } else if (message.type == "POST_SCREENSHOT") {
-    sendScreenshotToServer(message.value);
+  } else if (message.action === "updateTaskStatus") {
+    // Forward message to content script
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      if (tabs.length > 0 && tabs[0].id !== undefined) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: "updateStatus",
+          status: message.status,
+        });
+      }
+    });
+  } else if (message.action === "updateHistory") {
+    console.log("bg broadcasting updateHistory to content script");
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      if (tabs.length > 0 && tabs[0].id !== undefined) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: "updateHistory",
+          history: message.history,
+        });
+      }
+    });
+  } else if (message.action === "sendScreenshot") {
+    console.log("bg broadcasting sendScreenshot to content script");
+    const imageDataBase64 = message.imgData.split(",")[1] || message.imgData;
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      if (tabs.length > 0 && tabs[0].id !== undefined) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: "sendScreenshot",
+          imgData: imageDataBase64,
+        });
+      }
+    });
   } else {
     // Broadcast to other parts of the extension
     chrome.runtime.sendMessage(message);
   }
 });
-
-function sendStatusToPython(status: string) {
-  fetch("http://localhost:5000/status", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ status: status }),
-  })
-    .then((response) => response.json())
-    .then((data) => console.log("From Python server:", data))
-    .catch((error) =>
-      console.error("Error updating status to Python server:", error),
-    );
-}
-
-function sendTaskHistoryToPython(history) {
-  fetch("http://localhost:5000/history", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ history: history }),
-  })
-    .then((response) => response.json())
-    .then((data) => console.log("From Python server:", data))
-    .catch((error) =>
-      console.error("Error sending history to Python server:", error),
-    );
-}
-
-async function sendScreenshotToServer(imgData) {
-  // Remove the prefix 'data:image/png;base64,'
-  const imageDataBase64 = imgData.split(",")[1] || imgData;
-
-  fetch(`http://localhost:5000/screenshot`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ value: imageDataBase64 }),
-  })
-    .then((response) => response.json())
-    .then((data) => console.log("Screenshot posted:", data))
-    .catch((error) => console.error("Error posting screenshot:", error));
-}

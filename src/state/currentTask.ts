@@ -96,6 +96,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         state.currentTask.status = "running";
         state.currentTask.actionStatus = "attaching-debugger";
       });
+      chrome.runtime.sendMessage({
+        action: "updateTaskStatus",
+        status: "running",
+      });
 
       try {
         await disableIncompatibleExtensions();
@@ -132,6 +136,14 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             if (query == null) {
               set((state) => {
                 state.currentTask.status = "error";
+              });
+              chrome.runtime.sendMessage({
+                action: "updateHistory",
+                history: get().currentTask.history,
+              });
+              chrome.runtime.sendMessage({
+                action: "updateTaskStatus",
+                status: "error",
               });
               return false;
             }
@@ -208,13 +220,11 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             });
 
             setActionStatus("annotating-page");
-            const [imgData, labelData] = await buildAnnotatedScreenshots(
-              tabId,
-              knowledge,
-            );
+            const [imgDataRaw, imgData, labelData] =
+              await buildAnnotatedScreenshots(tabId, knowledge);
             chrome.runtime.sendMessage({
-              type: "POST_SCREENSHOT",
-              value: imgData,
+              action: "sendScreenshot",
+              imgData: imgDataRaw,
             });
             const viewportPercentage = await callRPCWithTab(
               tabId,
@@ -272,12 +282,28 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         set((state) => {
           state.currentTask.status = "success";
         });
+        chrome.runtime.sendMessage({
+          action: "updateHistory",
+          history: get().currentTask.history,
+        });
+        chrome.runtime.sendMessage({
+          action: "updateTaskStatus",
+          status: "success",
+        });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         console.error(e);
         onError(e.message);
         set((state) => {
           state.currentTask.status = "error";
+        });
+        chrome.runtime.sendMessage({
+          action: "updateHistory",
+          history: get().currentTask.history,
+        });
+        chrome.runtime.sendMessage({
+          action: "updateTaskStatus",
+          status: "error",
         });
       } finally {
         await detachAllDebuggers();

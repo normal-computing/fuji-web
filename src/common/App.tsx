@@ -47,7 +47,6 @@ const App = () => {
   );
 
   useEffect(() => {
-    console.log("triggered");
     const handleMessage = (message: { type: string; value: string }) => {
       switch (message.type) {
         case "API_KEY":
@@ -58,18 +57,6 @@ const App = () => {
           break;
         case "RUN_TASK":
           taskState.runTask(toastError);
-          break;
-        case "GET_TASK_STATUS":
-          chrome.runtime.sendMessage({
-            type: "POST_TASK_STATUS",
-            value: taskState.taskStatus,
-          });
-          break;
-        case "GET_TASK_HISTORY":
-          chrome.runtime.sendMessage({
-            type: "POST_TASK_HISTORY",
-            value: taskState.taskHistory,
-          });
           break;
         default:
           console.log("Unhandled message type:", message.type);

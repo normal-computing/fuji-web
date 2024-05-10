@@ -24,10 +24,22 @@ document.addEventListener("RunTask", function () {
   chrome.runtime.sendMessage({ type: "RUN_TASK" });
 });
 
-document.addEventListener("GetTaskStatus", function () {
-  chrome.runtime.sendMessage({ type: "GET_TASK_STATUS" });
+// Listen for messages from the background script
+chrome.runtime.onMessage.addListener(function (message) {
+  switch (message.type) {
+    case "updateStatus":
+      dispatchCustomEvent("TaskStatusUpdate", { status: message.status });
+      break;
+    case "updateHistory":
+      dispatchCustomEvent("TaskHistoryUpdate", { history: message.history });
+      break;
+    case "sendScreenshot":
+      dispatchCustomEvent("ScreenshotUpdate", { imgData: message.imgData });
+      break;
+  }
 });
 
-document.addEventListener("GetTaskHistory", function () {
-  chrome.runtime.sendMessage({ type: "GET_TASK_HISTORY" });
-});
+function dispatchCustomEvent(eventType: string, detail) {
+  const event = new CustomEvent(eventType, { detail });
+  document.dispatchEvent(event);
+}
