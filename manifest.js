@@ -18,7 +18,6 @@ const manifest = {
     "clipboardWrite",
     "debugger",
     "management",
-    "http://localhost:5000/",
   ],
   host_permissions: ["<all_urls>"],
   side_panel: {
