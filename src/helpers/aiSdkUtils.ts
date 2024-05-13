@@ -69,7 +69,7 @@ export function findBestMatchingModel(
   if (!openAIKey && anthropicKey && !isAnthropicModel(result)) {
     result = SupportedModels.Claude3Sonnet;
   } else if (openAIKey && !anthropicKey && !isOpenAIModel(result)) {
-    result = SupportedModels.Gpt4Turbo;
+    result = SupportedModels.Gpt4O;
   }
   return result;
 }
