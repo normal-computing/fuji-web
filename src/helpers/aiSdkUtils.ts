@@ -9,6 +9,7 @@ export enum SupportedModels {
   Gpt4TurboPreview = "gpt-4-turbo-preview",
   Gpt4VisionPreview = "gpt-4-vision-preview",
   Gpt4Turbo = "gpt-4-turbo",
+  Gpt4O = "gpt-4o",
   Claude3Sonnet = "claude-3-sonnet-20240229",
 }
 
@@ -24,6 +25,7 @@ export const DisplayName = {
   [SupportedModels.Gpt4TurboPreview]: "GPT-4 Turbo (Preview)",
   [SupportedModels.Gpt4VisionPreview]: "GPT-4 Vision (Preview)",
   [SupportedModels.Gpt4Turbo]: "GPT-4 Turbo",
+  [SupportedModels.Gpt4O]: "GPT-4o",
   [SupportedModels.Claude3Sonnet]: "Claude 3 Sonnet",
 };
 
@@ -31,6 +33,7 @@ export function hasVisionSupport(model: SupportedModels) {
   return (
     model === SupportedModels.Gpt4VisionPreview ||
     model === SupportedModels.Gpt4Turbo ||
+    model === SupportedModels.Gpt4O ||
     model === SupportedModels.Claude3Sonnet
   );
 }
