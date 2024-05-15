@@ -231,7 +231,7 @@ export class DomActions {
   public async scrollUp() {
     await this.sendCommand("Runtime.evaluate", {
       expression:
-        'window.scrollBy({left: 0, top: -window.innerHeight/2, behavior: "smooth"})',
+        'window.scrollBy({left: 0, top: -window.innerHeight/1.5, behavior: "smooth"})',
     });
     await sleep(300);
   }
@@ -239,7 +239,7 @@ export class DomActions {
   public async scrollDown() {
     await this.sendCommand("Runtime.evaluate", {
       expression:
-        'window.scrollBy({left: 0, top: window.innerHeight/2, behavior: "smooth"})',
+        'window.scrollBy({left: 0, top: window.innerHeight/1.5, behavior: "smooth"})',
     });
     await sleep(300);
   }
