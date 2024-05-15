@@ -68,7 +68,7 @@ const App = () => {
     return () => {
       chrome.runtime.onMessage.removeListener(handleMessage);
     };
-  }, [taskState.taskStatus]);
+  });
 
   return (
     <ChakraProvider>

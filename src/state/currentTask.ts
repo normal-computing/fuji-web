@@ -97,8 +97,9 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         state.currentTask.actionStatus = "attaching-debugger";
       });
       chrome.runtime.sendMessage({
-        action: "updateTaskStatus",
+        action: "updateHistory",
         status: "running",
+        history: get().currentTask.history,
       });
 
       try {
@@ -139,11 +140,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               });
               chrome.runtime.sendMessage({
                 action: "updateHistory",
-                history: get().currentTask.history,
-              });
-              chrome.runtime.sendMessage({
-                action: "updateTaskStatus",
                 status: "error",
+                history: get().currentTask.history,
               });
               return false;
             }
@@ -224,6 +222,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               await buildAnnotatedScreenshots(tabId, knowledge);
             chrome.runtime.sendMessage({
               action: "sendScreenshot",
+              status: get().currentTask.status,
               imgData: imgDataRaw,
             });
             const viewportPercentage = await callRPCWithTab(
@@ -274,6 +273,14 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           // While testing let's automatically stop after 50 actions to avoid
           // infinite loops
           if (get().currentTask.history.length >= 50) {
+            set((state) => {
+              state.currentTask.status = "error";
+            });
+            chrome.runtime.sendMessage({
+              action: "updateHistory",
+              status: "error",
+              history: get().currentTask.history,
+            });
             break;
           }
 
@@ -284,11 +291,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         });
         chrome.runtime.sendMessage({
           action: "updateHistory",
-          history: get().currentTask.history,
-        });
-        chrome.runtime.sendMessage({
-          action: "updateTaskStatus",
           status: "success",
+          history: get().currentTask.history,
         });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
@@ -299,11 +303,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         });
         chrome.runtime.sendMessage({
           action: "updateHistory",
-          history: get().currentTask.history,
-        });
-        chrome.runtime.sendMessage({
-          action: "updateTaskStatus",
           status: "error",
+          history: get().currentTask.history,
         });
       } finally {
         await detachAllDebuggers();
@@ -339,7 +340,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         new URL(activeTab.url ?? ""),
         customKnowledgeBase,
       );
-      const [imgData, labelData] = await buildAnnotatedScreenshots(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [imgDataRaw, imgData, labelData] = await buildAnnotatedScreenshots(
         tabId,
         knowledge,
       );

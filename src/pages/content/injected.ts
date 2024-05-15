@@ -27,14 +27,21 @@ document.addEventListener("RunTask", function () {
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener(function (message) {
   switch (message.type) {
-    case "updateStatus":
-      dispatchCustomEvent("TaskStatusUpdate", { status: message.status });
-      break;
     case "updateHistory":
-      dispatchCustomEvent("TaskHistoryUpdate", { history: message.history });
+      console.log("sending status and history event");
+      dispatchCustomEvent("TaskUpdate", {
+        type: "history",
+        status: message.status,
+        data: message.history,
+      });
       break;
     case "sendScreenshot":
-      dispatchCustomEvent("ScreenshotUpdate", { imgData: message.imgData });
+      console.log("sending screenshot event");
+      dispatchCustomEvent("TaskUpdate", {
+        type: "screenshot",
+        status: message.status,
+        data: message.imgData,
+      });
       break;
   }
 });

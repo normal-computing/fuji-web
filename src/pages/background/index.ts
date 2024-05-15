@@ -1,3 +1,4 @@
+import { findActiveTab } from "@root/src/helpers/browserUtils";
 import reloadOnUpdate from "virtual:reload-on-update-in-background-script";
 import "webextension-polyfill";
 
@@ -16,7 +17,7 @@ chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(async (message) => {
   if (message.action === "injectFunctions") {
     if (message.tabId == null) {
       console.log("no active tab found");
@@ -28,37 +29,28 @@ chrome.runtime.onMessage.addListener((message) => {
       });
     }
     return true;
-  } else if (message.action === "updateTaskStatus") {
-    // Forward message to content script
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      if (tabs.length > 0 && tabs[0].id !== undefined) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: "updateStatus",
-          status: message.status,
-        });
-      }
-    });
   } else if (message.action === "updateHistory") {
-    console.log("bg broadcasting updateHistory to content script");
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      if (tabs.length > 0 && tabs[0].id !== undefined) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: "updateHistory",
-          history: message.history,
-        });
-      }
-    });
+    // Forward message to content script
+    const tab = await findActiveTab();
+    if (tab?.id !== undefined) {
+      console.log("sending updateHistory message to content script");
+      chrome.tabs.sendMessage(tab.id, {
+        type: "updateHistory",
+        status: message.status,
+        history: message.history,
+      });
+    }
   } else if (message.action === "sendScreenshot") {
-    console.log("bg broadcasting sendScreenshot to content script");
     const imageDataBase64 = message.imgData.split(",")[1] || message.imgData;
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      if (tabs.length > 0 && tabs[0].id !== undefined) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: "sendScreenshot",
-          imgData: imageDataBase64,
-        });
-      }
-    });
+    const tab = await findActiveTab();
+    if (tab?.id !== undefined) {
+      console.log("sending sendScreenshot message to content script");
+      chrome.tabs.sendMessage(tab.id, {
+        type: "sendScreenshot",
+        status: message.status,
+        imgData: imageDataBase64,
+      });
+    }
   } else {
     // Broadcast to other parts of the extension
     chrome.runtime.sendMessage(message);
