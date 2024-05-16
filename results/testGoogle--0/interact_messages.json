@@ -1,0 +1,36 @@
+[
+    {
+        "action": {
+            "operation": {
+                "args": {
+                    "label": "8",
+                    "value": "bananas"
+                },
+                "name": "setValueAndEnter"
+            },
+            "thought": "I will enter 'bananas' into the search bar and press Enter to search."
+        },
+        "prompt": "The user requests the following task:\n\n  Search for bananas\n\n\nCurrent time: 5/16/2024, 2:57:41 PM\nCurrent URL: https://www.google.com/\nCurrent page scrolling position: 100.0%\n\n\nUse the following data as a reference of the annotated elements (using `===` as a delimiter between each annotation):\n\nlabel = 1\nname = About\ntagName = A\n===\nlabel = 2\nname = Store\ntagName = A\n===\nlabel = 3\nname = Gmail\ntagName = A\n===\nlabel = 4\nname = Search for Images\ntagName = A\n===\nlabel = 5\nname = Google apps\ntagName = A\nrole = button\n===\nlabel = 6\nname = Sign in\ntagName = A\n===\nlabel = 7\nname = Celebrating Hank Adams\ntagName = A\n===\nlabel = 8\nname = Search\ntagName = TEXTAREA\ncurrentValue = \nplaceholder = \nrole = combobox\n===\nlabel = 9\nname = Search by voice\ntagName = DIV\nrole = button\n===\nlabel = 10\nname = Search by image\ntagName = DIV\nrole = button\n===\nlabel = 11\nname = Google Search\ntagName = INPUT\ncurrentValue = Google Search\nplaceholder = \nrole = button\n===\nlabel = 12\nname = I'm Feeling Lucky\ntagName = INPUT\ncurrentValue = I'm Feeling Lucky\nplaceholder = \nrole = button\n===\nlabel = 13\nname = Advertising\ntagName = A\n===\nlabel = 14\nname = Business\ntagName = A\n===\nlabel = 15\nname = How Search works\ntagName = A\n===\nlabel = 16\nname = Our third decade of climate action: join us\ntagName = A\n===\nlabel = 17\nname = Privacy\ntagName = A\n===\nlabel = 18\nname = Terms\ntagName = A\n===\nlabel = 19\nname = Settings\ntagName = DIV\nrole = button\n\nThis textarea currently has focus:\nlabel = 8\nname = Search\ntagName = TEXTAREA\ncurrentValue = \nplaceholder = \nrole = combobox\n",
+        "response": "{\n  \"thought\": \"I will enter 'bananas' into the search bar and press Enter to search.\",\n  \"action\": {\n    \"name\": \"setValueAndEnter\",\n    \"args\": {\n      \"label\": \"8\",\n      \"value\": \"bananas\"\n    }\n  }\n}",
+        "usage": {
+            "completion_tokens": 63,
+            "prompt_tokens": 2599,
+            "total_tokens": 2662
+        }
+    },
+    {
+        "action": {
+            "operation": {
+                "name": "finish"
+            },
+            "thought": "The search results for 'bananas' are displayed. The first result is a Wikipedia link about bananas, followed by related questions and nutritional information."
+        },
+        "prompt": "The user requests the following task:\n\n  Search for bananas\nYou have already taken the following actions: \nThought: I will enter 'bananas' into the search bar and press Enter to search.\nAction:{\"name\":\"setValueAndEnter\",\"args\":{\"label\":\"8\",\"value\":\"bananas\"}}\n\n\n\nCurrent time: 5/16/2024, 2:57:49 PM\nCurrent URL: https://www.google.com/search\nCurrent page scrolling position: 22.1%\n\n\nUse the following data as a reference of the annotated elements (using `===` as a delimiter between each annotation):\n\nlabel = 1\nname = Celebrating Hank Adams\ntagName = A\n===\nlabel = 2\nname = Search\ntagName = TEXTAREA\ncurrentValue = bananas\nplaceholder = \nrole = combobox\n===\nlabel = 3\nname = Clear\ntagName = DIV\nrole = button\n===\nlabel = 4\nname = Search by voice\ntagName = DIV\nrole = button\n===\nlabel = 5\nname = Search by image\ntagName = DIV\nrole = button\n===\nlabel = 6\nname = Search\ntagName = BUTTON\n===\nlabel = 7\nname = Settings\ntagName = DIV\nrole = button\n===\nlabel = 8\nname = Google apps\ntagName = A\nrole = button\n===\nlabel = 9\nname = Sign in\ntagName = A\n===\nlabel = 10\nname = Images\ntagName = A\nrole = link\n===\nlabel = 11\nname = Shopping\ntagName = A\nrole = link\n===\nlabel = 12\nname = Videos\ntagName = A\nrole = link\n===\nlabel = 13\nname = Forums\ntagName = A\nrole = link\n===\nlabel = 14\nname = More\ntagName = DIV\nrole = button\n===\nlabel = 15\nname = Tools\ntagName = DIV\nrole = button\n===\nlabel = 16\nname = Add Nutrition facts\ntagName = A\nrole = link\n===\nlabel = 17\nname = Add Benefits\ntagName = A\nrole = link\n===\nlabel = 18\nname = Add Recipes\ntagName = A\nrole = link\n===\nlabel = 19\nname = Add In stock\ntagName = A\nrole = link\n===\nlabel = 20\nname = Add Types\ntagName = A\nrole = link\n===\nlabel = 21\nname = Add Open now\ntagName = A\nrole = link\n===\nlabel = 22\nname = Add Plant\ntagName = A\nrole = link\n===\nlabel = 23\nname = Add Tree\ntagName = A\nrole = link\n===\nlabel = 24\nname = Add Who should avoid\ntagName = A\nrole = link\n===\nlabel = 25\nname = SafeSearch\ntagName = DIV\nrole = button\n===\nlabel = 26\nname = Banana Wikipedia https://en.wikipedia.org \u203a wiki \u203a Banana\ntagName = A\n===\nlabel = 27\nname = About this result\ntagName = DIV\nrole = button\n===\nlabel = 28\nname = List of banana cultivars\ntagName = A\n===\nlabel = 29\nname = Cavendish banana\ntagName = A\n===\nlabel = 30\nname = Gros Michel\ntagName = A\n===\nlabel = 31\nname = Cooking banana\ntagName = A\n===\nlabel = 32\nname = About this result\ntagName = DIV\nrole = button\n===\nlabel = 33\nname = What are the benefits of eating bananas?\ntagName = DIV\nrole = button\n===\nlabel = 34\nname = Is it good to eat a banana every day?\ntagName = DIV\nrole = button\n===\nlabel = 35\nname = What are bananas high in?\ntagName = DIV\nrole = button\n===\nlabel = 36\nname = What is the best time to eat bananas?\ntagName = DIV\nrole = button\n===\nlabel = 37\nname = Feedback\ntagName = DIV\nrole = button\n===\nlabel = 38\nname = Food Nutrition\u2026Banana nutrition\ntagName = DIV\nrole = button\n===\nlabel = 39\nname = Protein Amount\u2026protein in banana\ntagName = DIV\nrole = button\n===\nlabel = 40\nname = Equivalent\u2026what fruit is equivalent to a banana\ntagName = DIV\nrole = button\n===\nlabel = 41\nname = Sugar Amount\u2026how much sugar in a banana\ntagName = DIV\nrole = button\n===\nlabel = 42\nname = 6 more\ntagName = DIV\nrole = button\n===\nlabel = 43\nname = Feedback\ntagName = DIV\nrole = button\n",
+        "response": "{\n  \"thought\": \"The search results for 'bananas' are displayed. The first result is a Wikipedia link about bananas, followed by related questions and nutritional information.\",\n  \"action\": {\n    \"name\": \"finish\"\n  }\n}",
+        "usage": {
+            "completion_tokens": 50,
+            "prompt_tokens": 3147,
+            "total_tokens": 3197
+        }
+    }
+]

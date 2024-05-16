@@ -11,15 +11,20 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import WebDriverException
 import logging
 
-# Setup logging
-logging.basicConfig(filename='webwand_test_log.txt', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
-
 load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
 
 # Place to store task execution results
 results_dir = 'results'
 os.makedirs(results_dir, exist_ok=True)
+
+dataset = 'tasks_test.jsonl'
+example_dataset = 'example_test.jsonl'
+
+# Setup logging
+logs_path = 'webwand_test_log.txt'
+sample_logs_path = 'webwand_test_log_example.txt'
+logging.basicConfig(filename=sample_logs_path, level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 def setup_driver():
     chrome_options = Options()
@@ -33,6 +38,7 @@ def setup_driver():
     return driver
 
 def dispatch_event(driver, event_name, event):
+    logging.info(f'Dispatched event {event_name}')
     script = f"""
     var event = new CustomEvent('{event_name}', {{ detail: {json.dumps(event)} }});
     document.dispatchEvent(event);
@@ -77,10 +83,11 @@ def add_task_listener(driver, task_id, max_retries=3):
     def handle_event(event_data):
         nonlocal attempts
         if not event_data:
-            print("no event data")
+            logging.info("No event data received")
             return
         if event_data['type'] == 'history':
             # Record history when task stops
+            logging.info(f'Task {task_id} status: {event_data["status"]}')
             write_history(task_id, event_data['data'])
             attempts = 0
             return
@@ -90,6 +97,7 @@ def add_task_listener(driver, task_id, max_retries=3):
             # Task is still running. Continue to listen for events
             handle_event(driver.execute_async_script(script))
         else:
+            logging.error(f"Unhandled event data type: {event_data['type']}")
             raise ValueError(f"Unhandled event data type: {event_data['type']}")
 
     while attempts < max_retries:
@@ -100,7 +108,6 @@ def add_task_listener(driver, task_id, max_retries=3):
             if "javascript error: document unloaded while waiting for result" in str(e):
                 attempts += 1
                 logging.warning(f'Document unloaded error during task {task_id} attempt {attempts}: {str(e)}')
-                print(f"Attempt {attempts}: Document unloaded error. Retrying...")
                 logging.info("Retrying...")
                 if attempts == max_retries:
                     logging.error(f'Maximum retry attempts reached for task {task_id}.')
@@ -118,6 +125,7 @@ def write_history(task_id, task_history):
     
     with open(file_path, 'w') as file:
         json.dump(task_history, file, indent=4)
+    logging.info(f'History saved for task {task_id}')
 
 def write_screenshots(task_id, image_data):
     image_bytes = base64.b64decode(image_data)
@@ -137,7 +145,7 @@ def run_webwand_task(driver, task_id, task_description):
     dispatch_event(driver, 'RunTask', {})
     add_task_listener(driver, task_id)
     end = time.time()
-    logging.info(f'The task {task_id} took {end - start} seconds to complete.')
+    logging.info(f'Task {task_id} took {end - start} seconds to complete.')
 
 def click_extensions_icon(driver):
     # Simulate click to open side panel
@@ -154,8 +162,9 @@ def main():
     driver = setup_driver()
     initial_load = True
 
-    with open('tasks_test.jsonl', 'r') as file:
+    with open(example_dataset, 'r') as file:
         for line in file:
+            logging.info(f'-------------------------------------')
             task = json.loads(line)
             task_id = task["id"]
             driver.get(task['web'])

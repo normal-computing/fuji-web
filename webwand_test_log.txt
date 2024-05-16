@@ -1,0 +1,34 @@
+2024-05-16 14:42:59,145:INFO:====== WebDriver manager ======
+2024-05-16 14:42:59,225:INFO:Get LATEST chromedriver version for google-chrome
+2024-05-16 14:42:59,324:INFO:Get LATEST chromedriver version for google-chrome
+2024-05-16 14:42:59,365:INFO:Get LATEST chromedriver version for google-chrome
+2024-05-16 14:42:59,460:INFO:WebDriver version 124.0.6367.207 selected
+2024-05-16 14:42:59,461:INFO:Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.207/mac-arm64/chromedriver-mac-arm64.zip
+2024-05-16 14:42:59,461:INFO:About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.207/mac-arm64/chromedriver-mac-arm64.zip
+2024-05-16 14:42:59,679:INFO:Driver downloading response is 200
+2024-05-16 14:42:59,990:INFO:Get LATEST chromedriver version for google-chrome
+2024-05-16 14:43:00,105:INFO:Driver has been saved in cache [/Users/lingjie/.wdm/drivers/chromedriver/mac64/124.0.6367.207]
+2024-05-16 14:43:01,235:INFO:Start running task Allrecipes--20 Find a recipe for a cauliflower pizza crust that has a preparation time of under 30 minutes and a rating of at least 4 stars on Allrecipes. Include the number of calories per serving.
+2024-05-16 14:43:01,258:INFO:Adding task listener for task Allrecipes--20
+2024-05-16 14:43:04,745:INFO:The task Allrecipes--20 took 3.509775161743164 seconds to complete.
+2024-05-16 14:43:07,616:INFO:====== WebDriver manager ======
+2024-05-16 14:43:07,681:INFO:Get LATEST chromedriver version for google-chrome
+2024-05-16 14:43:07,747:INFO:Get LATEST chromedriver version for google-chrome
+2024-05-16 14:43:07,790:INFO:Driver [/Users/lingjie/.wdm/drivers/chromedriver/mac64/124.0.6367.207/chromedriver-mac-arm64/chromedriver] found in cache
+2024-05-16 14:43:08,960:INFO:Start running task Allrecipes--20 Find a recipe for a cauliflower pizza crust that has a preparation time of under 30 minutes and a rating of at least 4 stars on Allrecipes. Include the number of calories per serving.
+2024-05-16 14:43:08,968:INFO:Adding task listener for task Allrecipes--20
+2024-05-16 14:43:14,243:INFO:The task Allrecipes--20 took 5.283488988876343 seconds to complete.
+2024-05-16 14:44:31,018:INFO:====== WebDriver manager ======
+2024-05-16 14:44:31,089:INFO:Get LATEST chromedriver version for google-chrome
+2024-05-16 14:44:31,140:INFO:Get LATEST chromedriver version for google-chrome
+2024-05-16 14:44:31,180:INFO:Driver [/Users/lingjie/.wdm/drivers/chromedriver/mac64/124.0.6367.207/chromedriver-mac-arm64/chromedriver] found in cache
+2024-05-16 14:44:32,892:INFO:Start running task Google--0 Search for bananas
+2024-05-16 14:44:32,899:INFO:Adding task listener for task Google--0
+2024-05-16 14:44:35,997:INFO:Screenshot saved for task Google--0
+2024-05-16 14:44:44,473:INFO:Screenshot saved for task Google--0
+2024-05-16 14:44:49,595:INFO:The task Google--0 took 16.702996015548706 seconds to complete.
+2024-05-16 14:44:50,076:INFO:Start running task Google--1 Search for apples
+2024-05-16 14:44:50,084:INFO:Adding task listener for task Google--1
+2024-05-16 14:44:53,082:INFO:Screenshot saved for task Google--1
+2024-05-16 14:45:01,832:INFO:Screenshot saved for task Google--1
+2024-05-16 14:45:07,820:INFO:The task Google--1 took 17.744070768356323 seconds to complete.
