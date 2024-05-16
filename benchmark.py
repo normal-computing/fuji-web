@@ -1,3 +1,10 @@
+"""
+To run benchmark testing, copy and paste corresponding test dataset from https://github.com/MinorJerry/WebVoyager/blob/main/data/WebVoyager_data.jsonl
+to the tasks_test.jsonl file.
+Then in terminal, first run "pnpm dev" to start the webwand server.
+Then run "python benchmark.py"
+"""
+
 import base64
 import os
 import json
