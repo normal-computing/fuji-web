@@ -62,13 +62,12 @@ def add_task_listener(driver, task_id, max_retries=3):
     var eventListener = function (e) {{
         if (e.detail.type == 'history') {{
             if (e.detail.status === 'success' || e.detail.status === 'error') {{
-                document.removeEventListener('TaskUpdate', eventListener);
                 callback({{status: e.detail.status, type: 'history', data: e.detail.data}});
+                document.removeEventListener('TaskUpdate', eventListener); // Optional: remove if you need continuous listening
             }}
             // Does not do anything when the status is 'running' or 'idle'. 
             // The status 'interrupted' will never be triggered automatically.
         }} else if (e.detail.type == 'screenshot') {{
-            document.removeEventListener('TaskUpdate', eventListener);
             callback({{status: e.detail.status, type: 'screenshot', data: e.detail.data}});
         }} else {{
             throw new Error("Invalid event type received: " + e.detail.type);
@@ -91,7 +90,7 @@ def add_task_listener(driver, task_id, max_retries=3):
             # Record history when task stops
             result = event_data["status"]
             # Determine the last action status
-            history =  event_data['data']
+            history = event_data['data']
             last_action = history[-1]["action"]["operation"]["name"]
             if last_action == "finish":
                 result = "success"
@@ -112,6 +111,7 @@ def add_task_listener(driver, task_id, max_retries=3):
 
     while attempts < max_retries:
         try:
+            logging.info("Setting up event listener...")
             handle_event(driver.execute_async_script(script))
             break
         except WebDriverException as e:
