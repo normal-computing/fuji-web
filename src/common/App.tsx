@@ -24,10 +24,7 @@ const App = () => {
     updateSettings: state.settings.actions.update,
   }));
   const taskState = useAppState((state) => ({
-    taskHistory: state.currentTask.history,
-    taskStatus: state.currentTask.status,
     runTask: state.currentTask.actions.runTask,
-    instructions: state.ui.instructions,
     setInstructions: state.ui.actions.setInstructions,
   }));
   const [inSettingsView, setInSettingsView] = useState(false);
