@@ -18,3 +18,6 @@
 utils/reload/*.js
 utils/reload/injections/*.js
 public/manifest.json
+
+# test results
+/results

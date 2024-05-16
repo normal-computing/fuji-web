@@ -33,8 +33,8 @@ def setup_driver():
     chrome_options.add_argument("--window-size=1600,900")
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
-    # Set script timeout to 240 seconds
-    driver.set_script_timeout(240)
+    # Set script timeout to 120 seconds
+    driver.set_script_timeout(120)
     return driver
 
 def dispatch_event(driver, event_name, event):
@@ -46,7 +46,7 @@ def dispatch_event(driver, event_name, event):
     driver.execute_script(script)
 
 def add_task_listener(driver, task_id, max_retries=3):
-    logging.info(f'Adding task listener for task {task_id}')
+    logging.info(f'Adding task listeners for task {task_id}')
     """
     Add event listeners for task history and screenshot events. Both events include task status.
     Then process those events as they are captured.
@@ -79,16 +79,25 @@ def add_task_listener(driver, task_id, max_retries=3):
     """
 
     attempts = 0
+    result = ""
 
     def handle_event(event_data):
         nonlocal attempts
+        nonlocal result
         if not event_data:
             logging.info("No event data received")
             return
         if event_data['type'] == 'history':
             # Record history when task stops
-            logging.info(f'Task {task_id} status: {event_data["status"]}')
-            write_history(task_id, event_data['data'])
+            result = event_data["status"]
+            # Determine the last action status
+            history =  event_data['data']
+            last_action = history[-1]["action"]["operation"]["name"]
+            if last_action == "finish":
+                result = "success"
+            else:
+                result = "fail"
+            write_history(task_id, history)
             attempts = 0
             return
         if event_data['type'] == 'screenshot':
@@ -98,7 +107,8 @@ def add_task_listener(driver, task_id, max_retries=3):
             handle_event(driver.execute_async_script(script))
         else:
             logging.error(f"Unhandled event data type: {event_data['type']}")
-            raise ValueError(f"Unhandled event data type: {event_data['type']}")
+            result = "script-error"
+            return
 
     while attempts < max_retries:
         try:
@@ -108,15 +118,25 @@ def add_task_listener(driver, task_id, max_retries=3):
             if "javascript error: document unloaded while waiting for result" in str(e):
                 attempts += 1
                 logging.warning(f'Document unloaded error during task {task_id} attempt {attempts}: {str(e)}')
-                logging.info("Retrying...")
                 if attempts == max_retries:
                     logging.error(f'Maximum retry attempts reached for task {task_id}.')
+                    result = 'doc-unload-max-retry'
+                    break
+                else:
+                    logging.info("Retrying...")
+            elif "script timeout" in str(e):
+                logging.error(f'Script timeout for task {task_id}: {str(e)}')
+                result = 'js-script-timeout'
+                break
             else:
                 logging.error(f'WebDriver exception for task {task_id}: {str(e)}')
+                result = 'webdriver-error'
                 break
         except Exception as e:
             logging.error(f'Unhandled error for task {task_id}: {str(e)}')
+            result = 'python-script-error'
             break
+    return result
 
 def write_history(task_id, task_history):
     task_dir = os.path.join(results_dir, f"test{task_id}")
@@ -143,9 +163,10 @@ def run_webwand_task(driver, task_id, task_description):
     dispatch_event(driver, 'SetAPIKey', {"value": api_key})
     dispatch_event(driver, 'SetTask', {"value": task_description})
     dispatch_event(driver, 'RunTask', {})
-    add_task_listener(driver, task_id)
+    result = add_task_listener(driver, task_id)
     end = time.time()
     logging.info(f'Task {task_id} took {end - start} seconds to complete.')
+    return result
 
 def click_extensions_icon(driver):
     # Simulate click to open side panel
@@ -173,7 +194,13 @@ def main():
                 click_extensions_icon(driver)
                 initial_load = False
 
-            run_webwand_task(driver, task_id, task['ques'])
+            result = run_webwand_task(driver, task_id, task['ques'])
+            logging.info(f'Task {task_id} status: {result}')
+            # Optional: if the previous task timed out, reset the driver after each task to ensure proper state for the next task
+            # if result == "js-script-timeout":
+            #     driver.quit()
+            #     driver = setup_driver()
+            #     initial_load = True
     driver.quit()
 
 if __name__ == "__main__":
