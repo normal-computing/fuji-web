@@ -3,28 +3,26 @@ import os
 import json
 import time
 import pyautogui
+import logging
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import WebDriverException
-import logging
 
 load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
+
+dataset = 'tasks_test.jsonl'
 
 # Place to store task execution results
 results_dir = 'results'
 os.makedirs(results_dir, exist_ok=True)
 
-dataset = 'tasks_test.jsonl'
-example_dataset = 'example_test.jsonl'
-
 # Setup logging
 logs_path = 'webwand_test_log.txt'
-sample_logs_path = 'webwand_test_log_example.txt'
-logging.basicConfig(filename=sample_logs_path, level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+logging.basicConfig(filename=logs_path, level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 def setup_driver():
     chrome_options = Options()
@@ -56,18 +54,14 @@ def add_task_listener(driver, task_id, max_retries=3):
     var callback = arguments[0];
     var eventListener = function (e) {{
         if (e.detail.type == 'history') {{
-            console.log("event listener received history event");
             if (e.detail.status === 'success' || e.detail.status === 'error') {{
                 document.removeEventListener('TaskUpdate', eventListener);
-                console.log("event listener removed");
                 callback({{status: e.detail.status, type: 'history', data: e.detail.data}});
             }}
             // Does not do anything when the status is 'running' or 'idle'. 
             // The status 'interrupted' will never be triggered automatically.
         }} else if (e.detail.type == 'screenshot') {{
-            console.log("event listener received screenshot event");
             document.removeEventListener('TaskUpdate', eventListener);
-            console.log("event listener removed");
             callback({{status: e.detail.status, type: 'screenshot', data: e.detail.data}});
         }} else {{
             throw new Error("Invalid event type received: " + e.detail.type);
@@ -75,7 +69,6 @@ def add_task_listener(driver, task_id, max_retries=3):
     }};
 
     document.addEventListener('TaskUpdate', eventListener);
-    console.log("added event listener");
     """
 
     attempts = 0
@@ -175,7 +168,6 @@ def click_extensions_icon(driver):
     right = window_position['x'] + window_position['width']
     # click Extensions icon
     pyautogui.click(right - 150, top + 50)
-
     # click webwand
     pyautogui.click(right - 300, top + 210)
 
@@ -183,7 +175,7 @@ def main():
     driver = setup_driver()
     initial_load = True
 
-    with open(example_dataset, 'r') as file:
+    with open(dataset, 'r') as file:
         for line in file:
             logging.info(f'-------------------------------------')
             task = json.loads(line)
