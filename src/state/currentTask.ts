@@ -96,6 +96,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         state.currentTask.status = "running";
         state.currentTask.actionStatus = "attaching-debugger";
       });
+      console.log("sending updateHistory to bg because starts running task");
       chrome.runtime.sendMessage({
         action: "updateHistory",
         status: "running",
@@ -138,6 +139,9 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
               set((state) => {
                 state.currentTask.status = "error";
               });
+              console.log(
+                "sending updateHistory to bg because perform action error",
+              );
               chrome.runtime.sendMessage({
                 action: "updateHistory",
                 status: "error",
@@ -273,15 +277,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           // While testing let's automatically stop after 50 actions to avoid
           // infinite loops
           if (get().currentTask.history.length >= 50) {
-            set((state) => {
-              state.currentTask.status = "error";
-            });
-            chrome.runtime.sendMessage({
-              action: "updateHistory",
-              status: "error",
-              history: get().currentTask.history,
-            });
-            break;
+            throw new Error("Max number of actions reached");
+            // break;
           }
 
           setActionStatus("waiting");
@@ -289,6 +286,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         set((state) => {
           state.currentTask.status = "success";
         });
+        console.log("sending updateHistory to bg because out of while loop");
         chrome.runtime.sendMessage({
           action: "updateHistory",
           status: "success",
@@ -301,6 +299,9 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         set((state) => {
           state.currentTask.status = "error";
         });
+        console.log(
+          "sending updateHistory to bg because catch error in task running",
+        );
         chrome.runtime.sendMessage({
           action: "updateHistory",
           status: "error",

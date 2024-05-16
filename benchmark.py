@@ -9,6 +9,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import WebDriverException
+import logging
+
+# Setup logging
+logging.basicConfig(filename='webwand_test_log.txt', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
@@ -21,6 +25,7 @@ def setup_driver():
     chrome_options = Options()
     # Load the unpacked webwand chrome extension
     chrome_options.add_argument("--load-extension=./dist")
+    chrome_options.add_argument("--window-size=1600,900")
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
     # Set script timeout to 240 seconds
@@ -35,7 +40,7 @@ def dispatch_event(driver, event_name, event):
     driver.execute_script(script)
 
 def add_task_listener(driver, task_id, max_retries=3):
-    print('add_task_listener', task_id)
+    logging.info(f'Adding task listener for task {task_id}')
     """
     Add event listeners for task history and screenshot events. Both events include task status.
     Then process those events as they are captured.
@@ -47,17 +52,17 @@ def add_task_listener(driver, task_id, max_retries=3):
         if (e.detail.type == 'history') {{
             console.log("event listener received history event");
             if (e.detail.status === 'success' || e.detail.status === 'error') {{
-                callback({{status: e.detail.status, type: 'history', data: e.detail.data}});
                 document.removeEventListener('TaskUpdate', eventListener);
                 console.log("event listener removed");
+                callback({{status: e.detail.status, type: 'history', data: e.detail.data}});
             }}
             // Does not do anything when the status is 'running' or 'idle'. 
             // The status 'interrupted' will never be triggered automatically.
         }} else if (e.detail.type == 'screenshot') {{
             console.log("event listener received screenshot event");
-            callback({{status: e.detail.status, type: 'screenshot', data: e.detail.data}});
             document.removeEventListener('TaskUpdate', eventListener);
             console.log("event listener removed");
+            callback({{status: e.detail.status, type: 'screenshot', data: e.detail.data}});
         }} else {{
             throw new Error("Invalid event type received: " + e.detail.type);
         }}
@@ -67,7 +72,6 @@ def add_task_listener(driver, task_id, max_retries=3):
     console.log("added event listener");
     """
 
-    completed = {'status': None}
     attempts = 0
 
     def handle_event(event_data):
@@ -77,17 +81,16 @@ def add_task_listener(driver, task_id, max_retries=3):
             return
         if event_data['type'] == 'history':
             # Record history when task stops
-            completed['status'] = event_data['status']
             write_history(task_id, event_data['data'])
+            attempts = 0
             return
         if event_data['type'] == 'screenshot':
             write_screenshots(task_id, event_data['data'])
+            attempts = 0
             # Task is still running. Continue to listen for events
             handle_event(driver.execute_async_script(script))
         else:
             raise ValueError(f"Unhandled event data type: {event_data['type']}")
-        attempts = 0
-        print("reset attempts to zero")
 
     while attempts < max_retries:
         try:
@@ -95,23 +98,20 @@ def add_task_listener(driver, task_id, max_retries=3):
             break
         except WebDriverException as e:
             if "javascript error: document unloaded while waiting for result" in str(e):
-                print(f"Document unloaded error: {e}")
                 attempts += 1
+                logging.warning(f'Document unloaded error during task {task_id} attempt {attempts}: {str(e)}')
                 print(f"Attempt {attempts}: Document unloaded error. Retrying...")
+                logging.info("Retrying...")
                 if attempts == max_retries:
-                    print("Maximum retry attempts reached. Cannot recover from document unloaded error.")
+                    logging.error(f'Maximum retry attempts reached for task {task_id}.')
             else:
-                print(f"Other WebDriver error: {e}")
+                logging.error(f'WebDriver exception for task {task_id}: {str(e)}')
                 break
         except Exception as e:
-            print(f"Error while listening for updates: {e}")
+            logging.error(f'Unhandled error for task {task_id}: {str(e)}')
             break
-        
-    print("completed['status']", completed['status'])
-    return completed['status']
 
 def write_history(task_id, task_history):
-    print('write_history', task_id)
     task_dir = os.path.join(results_dir, f"test{task_id}")
     os.makedirs(task_dir, exist_ok=True)
     file_path = os.path.join(task_dir, 'interact_messages.json')
@@ -120,7 +120,6 @@ def write_history(task_id, task_history):
         json.dump(task_history, file, indent=4)
 
 def write_screenshots(task_id, image_data):
-    print('write_screenshots', task_id)
     image_bytes = base64.b64decode(image_data)
     task_dir = os.path.join(results_dir, f"test{task_id}")
     os.makedirs(task_dir, exist_ok=True)
@@ -128,14 +127,17 @@ def write_screenshots(task_id, image_data):
     file_path = os.path.join(task_dir, f'screenshot_{timestamp}.png')
     with open(file_path, 'wb') as file:
         file.write(image_bytes)
+    logging.info(f'Screenshot saved for task {task_id}')
 
 def run_webwand_task(driver, task_id, task_description):
-    print('run_webwand_task', task_id, task_description)
+    logging.info(f'Start running task {task_id} {task_description}')
+    start = time.time()
     dispatch_event(driver, 'SetAPIKey', {"value": api_key})
     dispatch_event(driver, 'SetTask', {"value": task_description})
     dispatch_event(driver, 'RunTask', {})
-    task_status = add_task_listener(driver, task_id)
-    return task_status
+    add_task_listener(driver, task_id)
+    end = time.time()
+    logging.info(f'The task {task_id} took {end - start} seconds to complete.')
 
 def click_extensions_icon(driver):
     # Simulate click to open side panel
@@ -162,10 +164,7 @@ def main():
                 click_extensions_icon(driver)
                 initial_load = False
 
-            task_status = run_webwand_task(driver, task_id, task['ques'])
-            while task_status not in ['success', 'error']:
-                print("wait task_status", task_status)
-                time.sleep(3)  # Wait for 3 seconds till the current task completes
+            run_webwand_task(driver, task_id, task['ques'])
     driver.quit()
 
 if __name__ == "__main__":

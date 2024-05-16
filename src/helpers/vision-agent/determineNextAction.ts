@@ -60,6 +60,8 @@ ${
 `
 }
 
+If a task requires searching and if the first searching attempt does not lead to ideal results, try again with a more general search query.
+
 Your response must always be in JSON format and must include string "thought"${
   voiceMode ? ', string "speak",' : ""
 } and object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
