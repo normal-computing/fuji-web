@@ -96,12 +96,6 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         state.currentTask.status = "running";
         state.currentTask.actionStatus = "attaching-debugger";
       });
-      console.log("sending updateHistory to bg because starts running task");
-      chrome.runtime.sendMessage({
-        action: "updateHistory",
-        status: "running",
-        history: get().currentTask.history,
-      });
 
       try {
         await disableIncompatibleExtensions();
@@ -138,14 +132,6 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             if (query == null) {
               set((state) => {
                 state.currentTask.status = "error";
-              });
-              console.log(
-                "sending updateHistory to bg because perform action error",
-              );
-              chrome.runtime.sendMessage({
-                action: "updateHistory",
-                status: "error",
-                history: get().currentTask.history,
               });
               return false;
             }
@@ -286,26 +272,12 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         set((state) => {
           state.currentTask.status = "success";
         });
-        console.log("sending updateHistory to bg because out of while loop");
-        chrome.runtime.sendMessage({
-          action: "updateHistory",
-          status: "success",
-          history: get().currentTask.history,
-        });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         console.error(e);
         onError(e.message);
         set((state) => {
           state.currentTask.status = "error";
-        });
-        console.log(
-          "sending updateHistory to bg because catch error in task running",
-        );
-        chrome.runtime.sendMessage({
-          action: "updateHistory",
-          status: "error",
-          history: get().currentTask.history,
         });
       } finally {
         await detachAllDebuggers();
