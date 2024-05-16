@@ -1,26 +1,31 @@
 // The content script runs inside each page this extension is enabled on
 
+import { RunTask, SetAPIKey, SetTask } from "@root/src/constants";
 import { initializeRPC } from "./domOperations";
 
 initializeRPC();
 
-document.addEventListener("SetAPIKey", function (event) {
-  const customEvent = event as CustomEvent;
-  chrome.runtime.sendMessage({
-    type: "API_KEY",
-    value: customEvent.detail.value,
-  });
+document.addEventListener(SetAPIKey, function (event) {
+  if (isCustomEvent(event)) {
+    const customEvent = event as CustomEvent;
+    chrome.runtime.sendMessage({
+      type: "API_KEY",
+      value: customEvent.detail.value,
+    });
+  }
 });
 
-document.addEventListener("SetTask", function (event) {
-  const customEvent = event as CustomEvent;
-  chrome.runtime.sendMessage({
-    type: "SET_TASK",
-    value: customEvent.detail.value,
-  });
+document.addEventListener(SetTask, function (event) {
+  if (isCustomEvent(event)) {
+    const customEvent = event as CustomEvent;
+    chrome.runtime.sendMessage({
+      type: "SET_TASK",
+      value: customEvent.detail.value,
+    });
+  }
 });
 
-document.addEventListener("RunTask", function () {
+document.addEventListener(RunTask, function () {
   chrome.runtime.sendMessage({ type: "RUN_TASK" });
 });
 
@@ -46,7 +51,18 @@ chrome.runtime.onMessage.addListener(function (message) {
   }
 });
 
-function dispatchCustomEvent(eventType: string, detail) {
+type CustomEventDetail = {
+  type: string;
+  status: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any;
+};
+
+function dispatchCustomEvent(eventType: string, detail: CustomEventDetail) {
   const event = new CustomEvent(eventType, { detail });
   document.dispatchEvent(event);
+}
+
+function isCustomEvent(event: Event): event is CustomEvent {
+  return "detail" in event;
 }
