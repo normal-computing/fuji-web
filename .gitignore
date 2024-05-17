@@ -23,3 +23,4 @@ public/manifest.json
 /results
 tasks_test.jsonl
 webwand_test_log.txt
+tasks_status.txt

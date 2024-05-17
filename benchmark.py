@@ -174,7 +174,7 @@ def click_extensions_icon(driver):
     top = window_position['y']
     right = window_position['x'] + window_position['width']
     # click Extensions icon
-    pyautogui.click(right - 150, top + 50)
+    pyautogui.click(right - 165, top + 50)
     # click webwand
     pyautogui.click(right - 300, top + 210)
 
@@ -196,10 +196,10 @@ def main():
             result = run_webwand_task(driver, task_id, task['ques'])
             logging.info(f'Task {task_id} status: {result}')
             # Optional: if the previous task timed out, reset the driver after each task to ensure proper state for the next task
-            # if result == "js-script-timeout":
-            #     driver.quit()
-            #     driver = setup_driver()
-            #     initial_load = True
+            if result == "js-script-timeout":
+                driver.quit()
+                driver = setup_driver()
+                initial_load = True
     driver.quit()
 
 if __name__ == "__main__":
