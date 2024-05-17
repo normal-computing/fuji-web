@@ -44,7 +44,7 @@ ${
     ? `
 {
   "thought": "I am reading the tweets visible on the screen.",
-  "speak": "Here is one tweet currently visible on the screen: The tweet is by Normal Computing, who posted about open sourcing WebWand with a screenshot of the WebWand github repository. The tweet has 10 replies, 100 retweets, and 1000 likes.",
+  "speak": "Here is one tweet currently visible on the screen: The tweet is by Normal Computing, who posted about open sourcing Fuji-Web with a screenshot of the Fuji-Web github repository. The tweet has 10 replies, 100 retweets, and 1000 likes.",
   "action": {
     "name": "finish",
   }
@@ -52,7 +52,7 @@ ${
 `
     : `
 {
-  "thought": "Here is one tweet currently visible on the screen: The tweet is by Normal Computing, who posted about open sourcing WebWand with a screenshot of the WebWand github repository. The tweet has 10 replies, 100 retweets, and 1000 likes.",
+  "thought": "Here is one tweet currently visible on the screen: The tweet is by Normal Computing, who posted about open sourcing Fuji-Web with a screenshot of the Fuji-Web github repository. The tweet has 10 replies, 100 retweets, and 1000 likes.",
   "action": {
     "name": "finish",
   }

@@ -1,6 +1,6 @@
 # Troubleshooting Guide for WebWand
 
-This guide aims to help you diagnose and resolve common problems you might encounter. If you're still facing difficulties after following these steps, please reach out to us through our [GitHub Issues](https://github.com/normal-computing/web-wand/issues).
+This guide aims to help you diagnose and resolve common problems you might encounter. If you're still facing difficulties after following these steps, please reach out to us through our [GitHub Issues](https://github.com/normal-computing/fuji-web/issues).
 
 
 ## Common Issues and Solutions

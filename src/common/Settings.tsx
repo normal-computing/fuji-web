@@ -173,9 +173,8 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             <Alert status="warning" borderRadius="lg">
               <AlertIcon />
               <AlertDescription fontSize="sm">
-                Most of WebWand&rsquo;s capabilities are based on the GPT-4
-                Vision mode. Non-vision models are available for research
-                purposes.
+                Most of Fuji&rsquo;s capabilities are based on the GPT-4 Vision
+                mode. Non-vision models are available for research purposes.
               </AlertDescription>
             </Alert>
           )}

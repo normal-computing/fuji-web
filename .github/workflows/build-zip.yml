@@ -31,5 +31,5 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: webwand
+          name: fuji-extension
           path: dist/*

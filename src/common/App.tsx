@@ -26,7 +26,7 @@ const App = () => {
       <Box p="8" pb="24" fontSize="lg" w="full">
         <HStack mb={4} alignItems="center">
           <Heading as="h1" size="lg" flex={1}>
-            WebWand 🪄
+            Fuji 🗻
           </Heading>
           {hasAPIKey && (
             <IconButton
@@ -68,7 +68,7 @@ const App = () => {
           wrap="wrap"
         >
           <Link
-            href="https://github.com/normal-computing/web-wand#readme"
+            href="https://github.com/normal-computing/fuji-web#readme"
             isExternal
           >
             About this project
@@ -76,7 +76,7 @@ const App = () => {
           <Link href="https://forms.gle/isLeGyUvoKGiqT8W8" isExternal>
             Leave Feedback
           </Link>
-          <Link href="https://github.com/normal-computing/web-wand" isExternal>
+          <Link href="https://github.com/normal-computing/fuji-web" isExternal>
             GitHub <Icon verticalAlign="text-bottom" as={FaGithub} />
           </Link>
           <Link href="https://discord.gg/yfMjZ8udb5" isExternal>
