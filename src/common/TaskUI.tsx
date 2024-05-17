@@ -106,7 +106,7 @@ const TaskUI = () => {
       <AutosizeTextarea
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
-        placeholder="Try telling WebWand to do something..."
+        placeholder="Try telling Fuji to do a task"
         value={state.instructions || ""}
         isDisabled={taskInProgress || state.isListening}
         onChange={(e) => state.setInstructions(e.target.value)}
@@ -128,8 +128,8 @@ const TaskUI = () => {
           <AlertIcon />
           <AlertDescription fontSize="sm" lineHeight="5">
             In Voice Mode, you can press Space to start speaking and Space again
-            to stop. WebWand will run the task when you stop speaking. To turn
-            off Voice Mode, click the Setting icon in the top right corner.
+            to stop. Fuji will run the task when you stop speaking. To turn off
+            Voice Mode, click the Setting icon in the top right corner.
           </AlertDescription>
         </Alert>
       )}

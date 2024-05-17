@@ -1,4 +1,4 @@
-<img src="public/icon-128.png" alt="Web Wand Logo" width="100"/>
+<img src="public/icon-128.png" alt="Fuji-web Logo" width="100"/>
 
 # WebWand: Vision based Full Browser Automation 🪄
 
@@ -24,7 +24,7 @@ We do NOT collect your screenshots, browsing information or your prompts. It liv
 
 ### Download and Install the extension in your browser
 
-1. Go to the [releases page](https://github.com/normal-computing/web-wand/releases), find the latest version of the extension and download "webwand.zip".
+1. Go to the [releases page](https://github.com/normal-computing/fuji-web/releases), find the latest version of the extension and download "webwand.zip".
 2. Unzip the file.
 3. Load your extension on Chrome by doing the following:
    1. Navigate to `chrome://extensions/`
@@ -78,4 +78,4 @@ We also encourage everyone in the community to add new knowledge to the "Prior K
 - WebWand's image annotation method was inspired by Microsoft's [UFO paper](https://arxiv.org/abs/2402.07939).
 - Web Agent as a tool that lives in the browser sidepanel was inspired by [TaxyAI's browser extension](https://github.com/TaxyAI/browser-extension). We also used some of its UI code.
 - The Chrome extension set-up leveraged an awesome boilerplate project [Jonghakseo/chrome-extension-boilerplate-react-vite](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite).
-- The WebWand logo was designed by [Mengdi](https://twitter.com/mengdi_en).
+- The Fuji logo is from [Toss Face](https://emojipedia.org/toss-face) Emoji design set.

@@ -1,10 +1,10 @@
 {
-  "name": "web-wand",
+  "name": "fuji-web",
   "version": "2.1.0",
-  "description": "WebWand is a tool that redefines web interaction, making complex online tasks as simple as uttering a single command.",
+  "description": "A tool that redefines web interaction, making complex online tasks as simple as uttering a single command.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/normal-computing/web-wand"
+    "url": "https://github.com/normal-computing/fuji-web"
   },
   "scripts": {
     "build": "tsc --noEmit && vite build",

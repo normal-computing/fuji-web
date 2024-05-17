@@ -6,7 +6,7 @@ import packageJson from "./package.json" assert { type: "json" };
  */
 const manifest = {
   manifest_version: 3,
-  name: "Web Wand",
+  name: "Fuji",
   version: packageJson.version,
   description: packageJson.description,
   permissions: [
@@ -31,7 +31,7 @@ const manifest = {
   action: {
     // default_popup: 'src/pages/popup/index.html',
     default_title: "Click to open side panel",
-    default_icon: "icon-34.png",
+    default_icon: "icon-128.png",
   },
   icons: {
     128: "icon-128.png",
@@ -52,7 +52,6 @@ const manifest = {
         "assets/css/*.css",
         "assets/fonts/*",
         "icon-128.png",
-        "icon-34.png",
         "src/pages/permission/index.html",
         "src/pages/permission/requestPermissions.ts",
       ],
