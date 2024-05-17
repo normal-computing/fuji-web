@@ -78,4 +78,4 @@ We also encourage everyone in the community to add new knowledge to the "Prior K
 - WebWand's image annotation method was inspired by Microsoft's [UFO paper](https://arxiv.org/abs/2402.07939).
 - Web Agent as a tool that lives in the browser sidepanel was inspired by [TaxyAI's browser extension](https://github.com/TaxyAI/browser-extension). We also used some of its UI code.
 - The Chrome extension set-up leveraged an awesome boilerplate project [Jonghakseo/chrome-extension-boilerplate-react-vite](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite).
-- The WebWand logo was designed by [Mengdi](https://twitter.com/mengdi_en).
+- The Fuji logo is from [Toss Face](https://emojipedia.org/toss-face) Emoji design set.
