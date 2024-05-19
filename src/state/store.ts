@@ -1,7 +1,12 @@
 import { merge } from "lodash";
 import { create, StateCreator } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { createJSONStorage, devtools, persist , subscribeWithSelector } from "zustand/middleware";
+import {
+  createJSONStorage,
+  devtools,
+  persist,
+  subscribeWithSelector,
+} from "zustand/middleware";
 import { createCurrentTaskSlice, CurrentTaskSlice } from "./currentTask";
 import { createUiSlice, UiSlice } from "./ui";
 import { createSettingsSlice, SettingsSlice } from "./settings";
@@ -66,11 +71,18 @@ useAppState.subscribe(
   (state) => state.currentTask.status,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (status, previousStatus) => {
-    chrome.runtime.sendMessage({
+    const message = {
       action: "updateHistory",
       status,
       history: useAppState.getState().currentTask.history,
-    });
+      error: "",
+    };
+
+    if (status === "error") {
+      message.error = useAppState.getState().currentTask.errorMessage;
+    }
+
+    chrome.runtime.sendMessage(message);
   },
   { fireImmediately: true },
 );

@@ -42,6 +42,7 @@ export type CurrentTaskSlice = {
   history: TaskHistoryEntry[];
   status: "idle" | "running" | "success" | "error" | "interrupted";
   knowledgeInUse: Knowledge | null;
+  errorMessage: string;
   actionStatus:
     | "idle"
     | "attaching-debugger"
@@ -73,6 +74,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
   status: "idle",
   actionStatus: "idle",
   knowledgeInUse: null,
+  errorMessage: "",
   actions: {
     runTask: async (onError) => {
       const voiceMode = get().settings.voiceMode;
@@ -132,6 +134,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             if (query == null) {
               set((state) => {
                 state.currentTask.status = "error";
+                state.currentTask.errorMessage = "Query is null.";
               });
               return false;
             }
@@ -239,6 +242,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             if (!pageDOM) {
               set((state) => {
                 state.currentTask.status = "error";
+                state.currentTask.errorMessage = "No page dom found";
               });
               break;
             }
@@ -278,6 +282,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         onError(e.message);
         set((state) => {
           state.currentTask.status = "error";
+          state.currentTask.errorMessage = e.message;
         });
       } finally {
         await detachAllDebuggers();

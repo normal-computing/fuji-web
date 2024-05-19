@@ -62,7 +62,7 @@ def add_task_listener(driver, task_id, max_retries=3):
     var eventListener = function (e) {{
         if (e.detail.type == 'history') {{
             if (e.detail.status === 'success' || e.detail.status === 'error') {{
-                callback({{status: e.detail.status, type: 'history', data: e.detail.data}});
+                callback({{status: e.detail.status, type: 'history', data: e.detail.data, errorMessage: e.detail.errorMessage}});
                 document.removeEventListener('TaskUpdate', eventListener); // Optional: remove if you need continuous listening
             }}
             // Does not do anything when the status is 'running' or 'idle'. 
@@ -88,15 +88,10 @@ def add_task_listener(driver, task_id, max_retries=3):
             return
         if event_data['type'] == 'history':
             # Record history when task stops
-            result = event_data["status"]
-            # Determine the last action status
-            history = event_data['data']
-            last_action = history[-1]["action"]["operation"]["name"]
-            if last_action == "finish":
-                result = "success"
-            else:
-                result = "fail"
-            write_history(task_id, history)
+            if event_data['status'] == 'error':
+                logging.error(f"Task {task_id} error: {event_data['errorMessage']}")
+            result = event_data['status']
+            write_history(task_id, event_data['data'])
             attempts = 0
             return
         if event_data['type'] == 'screenshot':
