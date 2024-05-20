@@ -31,13 +31,14 @@ document.addEventListener(RunTask, function () {
 
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener(function (message) {
-  switch (message.type) {
+  switch (message.action) {
     case "updateHistory":
       console.log("sending status and history event");
       dispatchCustomEvent("TaskUpdate", {
         type: "history",
         status: message.status,
         data: message.history,
+        errorMessage: message.error,
       });
       break;
     case "sendScreenshot":
@@ -56,6 +57,7 @@ type CustomEventDetail = {
   status: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
+  errorMessage?: string;
 };
 
 function dispatchCustomEvent(eventType: string, detail: CustomEventDetail) {

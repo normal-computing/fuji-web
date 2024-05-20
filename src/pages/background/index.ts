@@ -32,11 +32,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
     const tab = await findActiveTab();
     if (tab?.id !== undefined) {
       console.log("sending updateHistory message to content script");
-      chrome.tabs.sendMessage(tab.id, {
-        type: "updateHistory",
-        status: message.status,
-        history: message.history,
-      });
+      chrome.tabs.sendMessage(tab.id, message);
     }
   } else if (message.action === "sendScreenshot") {
     const imageDataBase64 = message.imgData.split(",")[1] || message.imgData;
@@ -44,7 +40,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
     if (tab?.id !== undefined) {
       console.log("sending sendScreenshot message to content script");
       chrome.tabs.sendMessage(tab.id, {
-        type: "sendScreenshot",
+        action: message.action,
         status: message.status,
         imgData: imageDataBase64,
       });

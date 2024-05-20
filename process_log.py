@@ -4,7 +4,7 @@ def process_log_file(log_file_path):
     with open(log_file_path, 'r') as file:
         log_data = file.readlines()
 
-    task_status_pattern = re.compile(r"Task ([\w\s-]+--\d+) status: (script-error|success|fail|doc-unload-max-retry|js-script-timeout|webdriver-error|python-script-error)")
+    task_status_pattern = re.compile(r"Task ([\w\s-]+--\d+) status: (script-error|success|error|fail|doc-unload-max-retry|js-script-timeout|webdriver-error|python-script-error)")
     tasks = []
 
     for line in log_data:

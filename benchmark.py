@@ -35,7 +35,7 @@ def setup_driver():
     chrome_options = Options()
     # Load the unpacked webwand chrome extension
     chrome_options.add_argument("--load-extension=./dist")
-    chrome_options.add_argument("--window-size=1600,900")
+    chrome_options.add_argument("--window-size=1600,1000")
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
     # Set script timeout to 120 seconds
@@ -60,10 +60,13 @@ def add_task_listener(driver, task_id, max_retries=3):
     script = f"""
     var callback = arguments[0];
     var eventListener = function (e) {{
+        console.log("received evnet");
+        console.log(e);
         if (e.detail.type == 'history') {{
             if (e.detail.status === 'success' || e.detail.status === 'error') {{
                 callback({{status: e.detail.status, type: 'history', data: e.detail.data, errorMessage: e.detail.errorMessage}});
                 document.removeEventListener('TaskUpdate', eventListener); // Optional: remove if you need continuous listening
+                console.log("listener removed after history");
             }}
             // Does not do anything when the status is 'running' or 'idle'. 
             // The status 'interrupted' will never be triggered automatically.
@@ -75,6 +78,7 @@ def add_task_listener(driver, task_id, max_retries=3):
     }};
 
     document.addEventListener('TaskUpdate', eventListener);
+    console.log("added event listener");
     """
 
     attempts = 0
