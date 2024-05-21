@@ -1,6 +1,6 @@
 # Contributing to Prior Knowledge Augmentation
 
-WebWand's Prior Knowledge Augmentation system is designed to enhance the tool's web navigation and task execution capabilities by leveraging a shared knowledge base. Contributions to this system help make WebWand smarter and more capable.
+Fuji-Web's Prior Knowledge Augmentation system is designed to enhance the tool's web navigation and task execution capabilities by leveraging a shared knowledge base. Contributions to this system help make Fuji-Web smarter and more capable.
 
 ## What Kind of Knowledge Are We Looking For?
 
@@ -14,14 +14,14 @@ For example, if a website has two buttons with the same name but different funct
 ## How to Add and Test New Knowledge
 
 We offer two convenient ways to add and test new knowledge in real-time:
-- Via Form: Within the WebWand UI settings, navigate to the "Custom Knowledge Base" and select "Add Host Knowledge with Form" to input new knowledge using a user-friendly form.
+- Via Form: Within the Fuji-Web UI settings, navigate to the "Custom Knowledge Base" and select "Add Host Knowledge with Form" to input new knowledge using a user-friendly form.
 - Via JSON: If you prefer to work directly with JSON, choose "Add Host Knowledge with JSON" to enter your custom knowledge.
 
-You can test the new knowledge by running several tasks on the relevant web pages to ensure WebWand behaves as expected.
+You can test the new knowledge by running several tasks on the relevant web pages to ensure Fuji-Web behaves as expected.
 
 Once you've tested various knowledge inputs and are satisfied with the new knowledge's performance, you can then copy that knowledge into the db.json file.
 
-1. Locate the `db.json` file in the `src/helpers/knowledge` directory of the WebWand repository.
+1. Locate the `db.json` file in the `src/helpers/knowledge` directory of the Fuji-Web repository.
 2. Add your knowledge in the JSON format, following the existing structure. `annotationRules` is optional.
    ```json
    {
@@ -49,4 +49,4 @@ Once you've tested various knowledge inputs and are satisfied with the new knowl
 
 ## Submitting Your Contribution
 
-Please check out the [Contribution Guide](CONTRIBUTING.md). Share your testing process and results in your pull request to help reviewers understand the impact of your contribution. Specifically, describe how the new knowledge help WebWand acheive something it previously cannot perform correctly.
+Please check out the [Contribution Guide](CONTRIBUTING.md). Share your testing process and results in your pull request to help reviewers understand the impact of your contribution. Specifically, describe how the new knowledge help Fuji-Web acheive something it previously cannot perform correctly.

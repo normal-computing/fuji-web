@@ -1,28 +1,28 @@
-# Contributing to WebWand
+# Contributing to Fuji-Web
 
-Thank you for your interest in contributing to WebWand! WebWand is a tool that simplifies web interactions through the innovative use of multi-modal Large Language Models, offering users a more intuitive and efficient online experience. We welcome contributions from the community to help make WebWand even better.
+Thank you for your interest in contributing to Fuji-Web! Fuji-Web is a tool that simplifies web interactions through the innovative use of multi-modal Large Language Models, offering users a more intuitive and efficient online experience. We welcome contributions from the community to help make Fuji-Web even better.
 
 ## How to Contribute
 
-There are many ways to contribute to WebWand, from writing code to improving documentation, reporting bugs, and suggesting enhancements. Here's how you can get started:
+There are many ways to contribute to Fuji-Web, from writing code to improving documentation, reporting bugs, and suggesting enhancements. Here's how you can get started:
 
 ### Spread the Word
-If you love WebWand, you can make a big difference by telling others about it. Write a blog post, talk about it on social media, or share your experience with friends and colleagues. Every bit helps in growing our community and bringing new contributors on board.
+If you love Fuji-Web, you can make a big difference by telling others about it. Write a blog post, talk about it on social media, or share your experience with friends and colleagues. Every bit helps in growing our community and bringing new contributors on board.
 
 ### Reporting Bugs
 
 Before reporting a new bug, please ensure that the issue has not already been reported. You can do this by searching through the existing issues in our GitHub repository. 
 
-If you encounter a bug while using WebWand and it has not been reported yet, please report it by creating a new issue. Be sure to include:
+If you encounter a bug while using Fuji-Web and it has not been reported yet, please report it by creating a new issue. Be sure to include:
 
 - A clear and descriptive title
 - A detailed description of the bug, including steps to reproduce it
 - Any relevant screenshots or error messages
-- Your WebWand version and browser details
+- Your Fuji-Web version and browser details
 
 ### Suggesting Enhancements
 
-We're always looking for ways to improve WebWand. If you have an idea for a new feature or an enhancement to an existing one, please submit it as an issue, using a clear and concise title and description. Explain why this enhancement would be useful, and if possible, include examples of how it could be implemented.
+We're always looking for ways to improve Fuji-Web. If you have an idea for a new feature or an enhancement to an existing one, please submit it as an issue, using a clear and concise title and description. Explain why this enhancement would be useful, and if possible, include examples of how it could be implemented.
 
 ### Contributing Code
 
@@ -40,11 +40,11 @@ Before submitting your first code contribution, please make sure to:
 
 - Ensure that your code follows the project's coding conventions and is properly documented.
 - Include screenshots or animated GIFs in your pull request whenever possible, especially for UI-related changes.
-- Follow the [Pull Request Template](https://github.com/normal-computing/web-wand/PULL_REQUEST_TEMPLATE.md) provided in the repository for the description of your pull request.
+- Follow the [Pull Request Template](https://github.com/normal-computing/fuji-web/PULL_REQUEST_TEMPLATE.md) provided in the repository for the description of your pull request.
 
 ### Code Review Process
 
-After you submit a pull request, the project maintainers will review your proposed changes. This process helps to ensure the quality and consistency of the WebWand codebase. The review may require some back-and-forth communication, so please be patient. We appreciate your contributions and will do our best to provide feedback and guidance as quickly as possible.
+After you submit a pull request, the project maintainers will review your proposed changes. This process helps to ensure the quality and consistency of the Fuji-Web codebase. The review may require some back-and-forth communication, so please be patient. We appreciate your contributions and will do our best to provide feedback and guidance as quickly as possible.
 
 ## Community and Conduct
 
@@ -52,4 +52,4 @@ We are committed to providing a welcoming and inspiring community for all. We en
 
 ## Acknowledgements
 
-Your contributions help make WebWand a better tool for everyone. We look forward to your ideas, feedback, and contributions. Thank you for being part of the WebWand community! Happy contributing!
+Your contributions help make Fuji-Web a better tool for everyone. We look forward to your ideas, feedback, and contributions. Thank you for being part of the Fuji-Web community! Happy contributing!
