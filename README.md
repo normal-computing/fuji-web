@@ -16,7 +16,7 @@ Here is an example of Fuji-Web annotating the website to better understand the e
 <img src="media/web-annotation.png" alt="Screenshot of annotated website" width="50%" style="display: block; margin: 0 auto"/>
 
 
-It also features a unique "Prior Knowledge Augmentation" system that allows Fuji-Web to navigate websites with the wisdom of collective past experiences, crowdsourced from Fuji-Web users. 
+It also features a unique "Prior Knowledge Augmentation" system that allows Fuji-Web to navigate websites with the wisdom of collective past experiences. 
 
 We do NOT collect your screenshots, browsing information or your prompts. It lives in your browser and is directly sent to the LLM API of your choice.
 
@@ -24,7 +24,7 @@ We do NOT collect your screenshots, browsing information or your prompts. It liv
 
 ### Download and Install the extension in your browser
 
-1. Go to the [releases page](https://github.com/normal-computing/fuji-web/releases), find the latest version of the extension and download "Fuji-Web.zip".
+1. Go to the [releases page](https://github.com/normal-computing/fuji-web/releases), find the latest version of the extension and download "fuji-extension.zip".
 2. Unzip the file.
 3. Load your extension on Chrome by doing the following:
    1. Navigate to `chrome://extensions/`
@@ -34,10 +34,10 @@ We do NOT collect your screenshots, browsing information or your prompts. It liv
 
 ### Use the extension
 
-*Please note that you might need to refresh the page for the extension to work.*
+*Please note that you may need to refresh the page for the extension to work.*
 
-1. Find the Fuji-Web icon in the top right corner of your browser and click on it to open the sidepanel.
-2. The next thing you need to do is create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) and paste it in the provided box. This key will be stored securely in your browser, and will not be uploaded to a third party.
+1. Find the Fuji icon in the top right corner of your browser and click on it to open the sidepanel.
+2. The next thing you need to do is create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) and paste it in the provided box. This key will be stored in your browser, and will not be uploaded to a third party.
 3. Finally, navigate to a webpage you want Fuji-Web and type in the task you want it to perform.
 
 ### Build the extension
@@ -55,12 +55,10 @@ When loading the extension, you will need to load the `dist` folder created by t
 ## Roadmap
 
 - Expose API for easy integration with browser automation frameworks (e.g. Puppeteer, Playwright, Selenium)
-- Evaluate the performance of the Fuji-Web in real-world scenarios
 - Add support for more complex & cross-tab workflows
-- Add support for more AI Models
-- Add support for more browsing behaviors (select from dropdown, extract text etc.)
+- Add support for more browsing behaviors (select from dropdown, extract content from entire page etc.)
 - Add support for saving workflows
-- Add support for sharing workflows & knowledge with others
+- Add support for sharing workflows & instructions with others
 - Create wikipedia-like knowledge base where users can work together to create knowledge that can improve the Fuji-Web's performance
 
 ## Troubleshooting
