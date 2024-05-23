@@ -49,4 +49,4 @@ Once you've tested various knowledge inputs and are satisfied with the new knowl
 
 ## Submitting Your Contribution
 
-Please check out the [Contribution Guide](CONTRIBUTING.md). Share your testing process and results in your pull request to help reviewers understand the impact of your contribution. Specifically, describe how the new knowledge help Fuji-Web acheive something it previously cannot perform correctly.
+Please check out the [Contribution Guide](CONTRIBUTING.md). Share your testing process and results in your pull request to help reviewers understand the impact of your contribution. Specifically, describe how the new knowledge help Fuji-Web achieve something it previously cannot perform correctly.
