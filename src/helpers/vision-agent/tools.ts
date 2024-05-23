@@ -55,9 +55,11 @@ export const scrollSchema = z.object({
       'Scroll the page to see the other parts. Use "up" or "down" to scroll 2/3 of height of the window. Use "top" or "bottom" to quickly scroll to the top or bottom of the page.',
     )
     .optional(),
-  args: z.object({
-    value: z.string(),
-  }),
+  args: z
+    .object({
+      value: z.string(),
+    })
+    .optional(),
 });
 
 export const waitSchema = z.object({
@@ -67,7 +69,7 @@ export const waitSchema = z.object({
       "Wait for 3 seconds before the next action. Useful when the page is loading.",
     )
     .optional(),
-  args: z.object({}),
+  args: z.object({}).optional(),
 });
 
 export const finishSchema = z.object({
