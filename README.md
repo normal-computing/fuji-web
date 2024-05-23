@@ -1,24 +1,12 @@
 <img src="public/icon-128.png" alt="Fuji-web Logo" width="100"/>
 
-# Fuji-Web: Vision based Full Browser Automation 🪄
+# Fuji-Web: AI based Full Browser Automation 🗻
 
-[Demo](https://twitter.com/mengdi_en/status/1721965940680565166)
-
-Fuji-Web is a tool that redefines web interaction, making complex online tasks as simple as uttering a single command.
-
-Crafted on top of the innovative fusion of multi-modal Large Language Models (GPT-4V), Fuji-Web embodies a sophisticated Web AI Partner. Imagine having an intelligent companion that not only grasps your intent but also possesses a broad awareness of website content, enabling it to autonomously execute tasks on your behalf and augment your workflow. With Fuji-Web, this vision becomes reality.
+Fuji-Web is an intelligent AI partner that understands the user’s intent, navigates websites autonomously, and executes tasks on the user’s behalf while explaining each action step.
 
 ## How does it work?
 
-Fuji-Web leverages the power of multi-modal Large Language Model, DOM state awareness, and semantic understanding of HTML to focus on essential webpage elements while filtering out noise. 
-
-Here is an example of Fuji-Web annotating the website to better understand the environment.
-<img src="media/web-annotation.png" alt="Screenshot of annotated website" width="50%" style="display: block; margin: 0 auto"/>
-
-
-It also features a unique "Prior Knowledge Augmentation" system that allows Fuji-Web to navigate websites with the wisdom of collective past experiences. 
-
-We do NOT collect your screenshots, browsing information or your prompts. It lives in your browser and is directly sent to the LLM API of your choice.
+**Please read [our blog post](https://blog.normalcomputing.ai/posts/2024-05-22-introducing-fuji-web/fuji-web.html) for a demo video, benchmarks and deep-dive technical overview!**
 
 ## Installing and Running
 
@@ -37,8 +25,10 @@ We do NOT collect your screenshots, browsing information or your prompts. It liv
 *Please note that you may need to refresh the page for the extension to work.*
 
 1. Find the Fuji icon in the top right corner of your browser and click on it to open the sidepanel.
-2. The next thing you need to do is create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) and paste it in the provided box. This key will be stored in your browser, and will not be uploaded to a third party.
+2. Create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) and paste it in the provided box. This key will be stored in your browser, and will not be uploaded to a third party.
 3. Finally, navigate to a webpage you want Fuji-Web and type in the task you want it to perform.
+
+_Note: all prompts (text and image) are sent directly to the API of your selection. Fuji-Web does not attempt to collect any information from you._
 
 ### Build the extension
 
@@ -69,11 +59,11 @@ Check out our [Troubleshooting Guide](TROUBLESHOOTING.md) for help with common p
 
 Interested in contributing to Fuji-Web? We'd love your help! Check out our [Contribution Guide](CONTRIBUTING.md) for guidelines on how to contribute, report bugs, suggest enhancements, and more. 
 
-We also encourage everyone in the community to add new knowledge to the "Prior Knowledge Augmentation" system to make Fuji-Web even smarter. For detailed instructions on what kind of knowledge we're looking for and how to test and submit it, please see our [Contributing Knowledge Guide](CONTRIBUTING_KNOWLEDGE.md).
+We also have set up a dedicated channel for Fuji-Web feedback on Discord at https://discord.gg/yfMjZ8udb5.
 
 ## Credits
 
 - Fuji-Web's image annotation method was inspired by Microsoft's [UFO paper](https://arxiv.org/abs/2402.07939).
-- Web Agent as a tool that lives in the browser sidepanel was inspired by [TaxyAI's browser extension](https://github.com/TaxyAI/browser-extension). We also used some of its UI code.
+- Fuji as a tool that lives in the browser sidepanel was inspired by [TaxyAI's browser extension](https://github.com/TaxyAI/browser-extension). We also used some of its UI code.
 - The Chrome extension set-up leveraged an awesome boilerplate project [Jonghakseo/chrome-extension-boilerplate-react-vite](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite).
 - The Fuji logo is from [Toss Face](https://emojipedia.org/toss-face) Emoji design set.
