@@ -111,7 +111,7 @@ export async function determineNextActionWithVision(
       } catch (e) {
         console.error(e);
         // TODO: try use LLM to fix format when response is not valid
-        throw new Error(`Incorrectly formatted response: ${e}`);
+        throw new Error(`Incorrect response format: ${e}`);
       }
 
       return {

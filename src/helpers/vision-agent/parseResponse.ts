@@ -1,4 +1,5 @@
 import { toolSchemaUnion, type ToolOperation } from "./tools";
+import { fromError } from "zod-validation-error";
 
 export type Action = {
   thought: string;
@@ -38,7 +39,14 @@ export function parseResponse(rawResponse: string): Action {
   if (response.thought == null || response.action == null) {
     throw new Error("Invalid response: Thought and Action are required");
   }
-  const operation = toolSchemaUnion.parse(response.action);
+  let operation;
+  try {
+    operation = toolSchemaUnion.parse(response.action);
+  } catch (err) {
+    const validationError = fromError(err);
+    // user friendly error message
+    throw new Error(validationError.toString());
+  }
   if ("speak" in response) {
     return {
       thought: response.thought,
