@@ -4,6 +4,10 @@
 
 Fuji-Web is an intelligent AI partner that understands the user’s intent, navigates websites autonomously, and executes tasks on the user’s behalf while explaining each action step.
 
+Watch it autonomously look up flight prices:
+
+https://github.com/normal-computing/fuji-web/assets/1001890/1ef34e6d-b533-4656-a302-80f71ba2d95a
+
 ## How does it work?
 
 **Please read [our blog post](https://blog.normalcomputing.ai/posts/2024-05-22-introducing-fuji-web/fuji-web.html) for a demo video, benchmarks and deep-dive technical overview!**
