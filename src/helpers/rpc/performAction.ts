@@ -140,7 +140,7 @@ function createOperateTool(
     console.log("operateTool", action);
     switch (action.name) {
       case "scroll":
-        await scroll(domActions, action?.args?.value ?? "down");
+        await scroll(domActions, action.args.value);
         break;
       case "wait":
         await sleep(3000);
