@@ -98,8 +98,7 @@ export class DomActions {
   }
 
   private async selectAllText() {
-    // TODO: on other OSes, use the appropriate modifier
-    const metaModifier = 4;
+    const metaModifier = await this.getMetaModifier();
     // send command to select all
     await this.sendCommand("Input.dispatchKeyEvent", {
       type: "keyDown",
@@ -108,6 +107,16 @@ export class DomActions {
       commands: ["selectAll"],
     });
     await sleep(200);
+  }
+
+  private async getMetaModifier(): Promise<number> {
+    const platformInfo = await chrome.runtime.getPlatformInfo();
+    switch (platformInfo.os) {
+      case "mac": // macOS
+        return 4; // Meta (Command) key
+      default:
+        return 2; // Control key
+    }
   }
 
   private async typeText(text: string, shiftEnter = false): Promise<void> {
