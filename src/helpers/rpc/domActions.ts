@@ -98,13 +98,8 @@ export class DomActions {
   }
 
   private async selectAllText() {
-    // TODO: on other OSes, use the appropriate modifier
-    const metaModifier = 4;
-    // send command to select all
     await this.sendCommand("Input.dispatchKeyEvent", {
       type: "keyDown",
-      modifiers: metaModifier,
-      text: "A",
       commands: ["selectAll"],
     });
     await sleep(200);
