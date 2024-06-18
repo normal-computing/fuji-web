@@ -4,6 +4,7 @@ import path, { resolve } from "path";
 import makeManifest from "./utils/plugins/make-manifest";
 import customDynamicImport from "./utils/plugins/custom-dynamic-import";
 import addHmr from "./utils/plugins/add-hmr";
+import inlineVitePreloadScript from "./utils/plugins/inline-vite-preload-script";
 
 const rootDir = resolve(__dirname);
 const srcDir = resolve(rootDir, "src");
@@ -32,6 +33,7 @@ export default defineConfig({
     react(),
     customDynamicImport(),
     addHmr({ background: enableHmrInBackgroundScript, view: true }),
+    inlineVitePreloadScript(),
   ],
   publicDir,
   build: {
@@ -50,10 +52,8 @@ export default defineConfig({
         content: resolve(pagesDir, "content", "index.ts"),
         contentStyleGlobal: resolve(pagesDir, "content", "style.global.scss"),
         contentStyle: resolve(pagesDir, "content", "style.scss"),
+        contentInjected: resolve(pagesDir, "content/mainWorld", "index.ts"),
         permission: resolve(pagesDir, "permission", "index.html"),
-        // TODO: current cannot support multiple content script entry files
-        // https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/issues/306#issuecomment-1981885190
-        // mainWorld: resolve(pagesDir, "content/mainWorld", "index.ts"),
         popup: resolve(pagesDir, "popup", "index.html"),
         newtab: resolve(pagesDir, "newtab", "index.html"),
         options: resolve(pagesDir, "options", "index.html"),

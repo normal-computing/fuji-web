@@ -1,10 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import {
   Button,
   Box,
   HStack,
   Spacer,
-  Textarea,
   useToast,
   Alert,
   AlertIcon,
@@ -19,6 +18,19 @@ import TaskStatus from "./TaskStatus";
 import RecommendedTasks from "./RecommendedTasks";
 import AutosizeTextarea from "./AutosizeTextarea";
 
+const injectContentScript = async () => {
+  const [tab] = await chrome.tabs.query({ currentWindow: true, active: true });
+  if (!tab || !tab.id) {
+    return;
+  }
+
+  await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    files: ["src/pages/contentInjected/index.js"],
+    world: "MAIN",
+  });
+};
+
 function ActionExecutor() {
   const state = useAppState((state) => ({
     attachDebugger: state.currentTask.actions.attachDebugger,
@@ -27,28 +39,26 @@ function ActionExecutor() {
     prepareLabels: state.currentTask.actions.prepareLabels,
     showImagePrompt: state.currentTask.actions.showImagePrompt,
   }));
-  const [action, setAction] = useState<string>(`{
-  "thought": "try searching",
-  "action": "click('search')"
-}
-`);
   return (
     <Box mt={4}>
-      <Textarea
-        value={action}
-        onChange={(e) => setAction(e.target.value)}
-        mb={2}
-      />
-      <HStack>
+      <HStack
+        columnGap="0.5rem"
+        rowGap="0.5rem"
+        fontSize="md"
+        borderTop="1px dashed gray"
+        py="3"
+        shouldWrapChildren
+        wrap="wrap"
+      >
         <Button onClick={state.attachDebugger}>Attach</Button>
         <Button onClick={state.prepareLabels}>Prepare</Button>
         <Button onClick={state.showImagePrompt}>Show Image</Button>
         <Button
           onClick={() => {
-            state.performActionString(action);
+            injectContentScript();
           }}
         >
-          Run
+          Inject
         </Button>
       </HStack>
     </Box>
