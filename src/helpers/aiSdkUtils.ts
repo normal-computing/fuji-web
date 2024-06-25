@@ -11,6 +11,8 @@ export enum SupportedModels {
   Gpt4Turbo = "gpt-4-turbo",
   Gpt4O = "gpt-4o",
   Claude3Sonnet = "claude-3-sonnet-20240229",
+  Claude3Opus = "claude-3-opus-20240229",
+  Claude35Sonnet = "claude-3-5-sonnet-20240620",
 }
 
 function isSupportedModel(value: string): value is SupportedModels {
@@ -27,6 +29,8 @@ export const DisplayName = {
   [SupportedModels.Gpt4Turbo]: "GPT-4 Turbo",
   [SupportedModels.Gpt4O]: "GPT-4o",
   [SupportedModels.Claude3Sonnet]: "Claude 3 Sonnet",
+  [SupportedModels.Claude3Opus]: "Claude 3 Opus",
+  [SupportedModels.Claude35Sonnet]: "Claude 3.5 Sonnet",
 };
 
 export function hasVisionSupport(model: SupportedModels) {
@@ -34,7 +38,9 @@ export function hasVisionSupport(model: SupportedModels) {
     model === SupportedModels.Gpt4VisionPreview ||
     model === SupportedModels.Gpt4Turbo ||
     model === SupportedModels.Gpt4O ||
-    model === SupportedModels.Claude3Sonnet
+    model === SupportedModels.Claude3Sonnet ||
+    model === SupportedModels.Claude3Opus ||
+    model === SupportedModels.Claude35Sonnet
   );
 }
 
@@ -67,7 +73,7 @@ export function findBestMatchingModel(
   }
   // ensure the provider's API key is available
   if (!openAIKey && anthropicKey && !isAnthropicModel(result)) {
-    result = SupportedModels.Claude3Sonnet;
+    result = SupportedModels.Claude35Sonnet;
   } else if (openAIKey && !anthropicKey && !isOpenAIModel(result)) {
     result = SupportedModels.Gpt4O;
   }
