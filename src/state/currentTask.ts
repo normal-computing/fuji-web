@@ -314,7 +314,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         knowledge,
       );
       console.log(labelData);
-      openBase64InNewTab(imgData, "image/png");
+      openBase64InNewTab(imgData, "image/webp");
     },
     prepareLabels: async () => {
       const activeTab = await findActiveTab();

@@ -15,6 +15,7 @@ type ExtendedImageData = ImageSourceAttrs & {
 export type MergeImageOptionsInput = {
   format?: string;
   quality?: number;
+  maxFileSizeMB?: number;
   padding?: number;
 };
 
@@ -45,10 +46,31 @@ const getHorizontalLayoutCanvasSize: GetCanvasSize = (images, options) => {
   };
 };
 
+// Function to get WebP data URL and ensure it's less than 5 MB
+function getWebPDataURL(
+  canvas: HTMLCanvasElement,
+  maxFileSizeMB: number = 5,
+  maxQuality = 1,
+  qualityStep = 0.05,
+) {
+  const maxFileSizeBytes = maxFileSizeMB * 1024 * 1024;
+  let quality = maxQuality;
+  let dataURL = canvas.toDataURL("image/webp", quality);
+
+  // Check the size of the data URL
+  while (dataURL.length * 0.75 > maxFileSizeBytes && quality > 0) {
+    quality -= qualityStep; // Decrease quality
+    dataURL = canvas.toDataURL("image/webp", quality);
+  }
+
+  return dataURL;
+}
+
 // Defaults
 const defaultOptions: MergeImageOptions = {
-  format: "image/png",
-  quality: 0.92,
+  format: "image/webp",
+  quality: 1,
+  maxFileSizeMB: 5,
   padding: 40,
 };
 
@@ -118,6 +140,10 @@ const mergeImages = async (
       // Increment x to where the next image should be drawn
       x += image.img.width + options.padding;
     });
+
+    if (options.format === "image/webp") {
+      return getWebPDataURL(canvas, options.maxFileSizeMB, options.quality);
+    }
 
     return canvas.toDataURL(options.format, options.quality);
   });
