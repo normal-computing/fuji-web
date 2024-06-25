@@ -7,7 +7,7 @@ import { type Knowledge } from "./knowledge";
 export default async function buildAnnotatedScreenshots(
   tabId: number,
   knowledge: Knowledge,
-): Promise<[string, LabelData[]]> {
+): Promise<[string, string, LabelData[]]> {
   const imgDataRaw = await chrome.tabs.captureVisibleTab({
     format: "png",
   });
@@ -23,5 +23,5 @@ export default async function buildAnnotatedScreenshots(
   await sleep(300);
   await callRPCWithTab(tabId, "removeLabels", []);
 
-  return [imgData, labelData];
+  return [imgDataRaw, imgData, labelData];
 }
