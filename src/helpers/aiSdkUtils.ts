@@ -177,7 +177,7 @@ export async function fetchResponseFromModelAnthropic(
       type: "image",
       source: {
         type: "base64",
-        media_type: "image/png",
+        media_type: "image/webp",
         // need to remove the prefix
         data: params.imageData.split("base64,")[1],
       },
