@@ -28,7 +28,7 @@ https://github.com/normal-computing/fuji-web/assets/1001890/88a2fa12-31d9-4856-b
 *Please note that you may need to refresh the page for the extension to work.*
 
 1. Find the Fuji icon in the top right corner of your browser and click on it to open the sidepanel.
-2. Create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) and paste it in the provided box. This key will be stored in your browser, and will not be uploaded to a third party.
+2. Create or access an existing [OpenAI API Key](https://platform.openai.com/account/api-keys) or [Anthropic API key](https://console.anthropic.com/settings/keys) and paste it in the provided box. This key will be stored in your browser, and will not be uploaded to a third party.
 3. Finally, navigate to a webpage you want Fuji-Web and type in the task you want it to perform.
 
 _Note: all prompts (text and image) are sent directly to the API of your selection. Fuji-Web does not attempt to collect any information from you._
