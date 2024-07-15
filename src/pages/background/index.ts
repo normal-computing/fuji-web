@@ -1,3 +1,4 @@
+import { findActiveTab } from "@root/src/helpers/browserUtils";
 import reloadOnUpdate from "virtual:reload-on-update-in-background-script";
 import "webextension-polyfill";
 
@@ -9,14 +10,12 @@ reloadOnUpdate("pages/background");
  */
 reloadOnUpdate("pages/content/style.scss");
 
-console.log("background loaded");
-
 // Allows users to open the side panel by clicking on the action toolbar icon
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(async (message) => {
   if (message.action === "injectFunctions") {
     if (message.tabId == null) {
       console.log("no active tab found");
@@ -28,5 +27,26 @@ chrome.runtime.onMessage.addListener((message) => {
       });
     }
     return true;
+  } else if (message.action === "updateHistory") {
+    // Forward message to content script
+    const tab = await findActiveTab();
+    if (tab?.id !== undefined) {
+      console.log("sending updateHistory message to content script");
+      chrome.tabs.sendMessage(tab.id, message);
+    }
+  } else if (message.action === "sendScreenshot") {
+    const imageDataBase64 = message.imgData.split(",")[1] || message.imgData;
+    const tab = await findActiveTab();
+    if (tab?.id !== undefined) {
+      console.log("sending sendScreenshot message to content script");
+      chrome.tabs.sendMessage(tab.id, {
+        action: message.action,
+        status: message.status,
+        imgData: imageDataBase64,
+      });
+    }
+  } else {
+    // Broadcast to other parts of the extension
+    chrome.runtime.sendMessage(message);
   }
 });

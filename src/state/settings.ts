@@ -19,7 +19,7 @@ export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
   anthropicKey: undefined,
   openAIBaseUrl: undefined,
   anthropicBaseUrl: undefined,
-  selectedModel: SupportedModels.Gpt4Turbo,
+  selectedModel: SupportedModels.Gpt4O,
   voiceMode: false,
   customKnowledgeBase: {},
   actions: {
