@@ -206,8 +206,8 @@ devDependencies:
     specifier: 5.2.11
     version: 5.2.11(@types/node@20.11.24)(sass@1.72.0)
   ws:
-    specifier: 8.16.0
-    version: 8.16.0
+    specifier: 8.18.0
+    version: 8.18.0
 
 packages:
 
@@ -6610,7 +6610,7 @@ packages:
       whatwg-encoding: 2.0.0
       whatwg-mimetype: 3.0.0
       whatwg-url: 11.0.0
-      ws: 8.16.0
+      ws: 8.18.0
       xml-name-validator: 4.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -9319,8 +9319,8 @@ packages:
       signal-exit: 3.0.7
     dev: true
 
-  /ws@8.16.0:
-    resolution: {integrity: sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==}
+  /ws@8.18.0:
+    resolution: {integrity: sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
