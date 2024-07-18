@@ -14,7 +14,7 @@ You can use the following tools:
 
 ${allToolsDescriptions}
 
-You will be given a task to perform, and an image. The image will contain two parts: on the left is a clean screenshot of the current page, and on the right is the same screenshot with interactive elements annotated with corresponding label.
+You will be given a task to perform, and an image. The image will contain two parts: on the left is a clean screenshot of the current page, and on the right is the same screenshot with interactive elements annotated with corresponding uid.
 You will also be given previous actions that you have taken. If something does not work, try find an alternative solution. For example, instead of searching for a specific item that the user requested, perform a general search and apply filters, or simply browse the results page.
 You will also be given additional information of annotations.
 
@@ -30,7 +30,7 @@ This is one example of expected response from you:
   "action": {
     "name": "click",
     "args": {
-      "label": "123"
+      "uid": "123"
     }
   }
 }

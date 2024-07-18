@@ -36,8 +36,14 @@ Example 1:
 
 Example 2:
 {
+  thought: "I am typing 'fish food' into the search bar",
+  action: "setValue(123, 'fish food')"
+}
+
+Example 3:
+{
   thought: "I continue to scroll down to find the section",
-  action: "scroll("down")"
+  action: "scroll('down')"
 }
 
 Your response must always be in JSON format and must include "thought" and "action".
@@ -137,9 +143,9 @@ ${pageContents}`;
 // make action compatible with vision agent
 // TODO: refactor dom agent so we don't need this
 function visionActionAdapter(action: ParsedResponseSuccess): Action {
-  const args = { ...action.parsedAction.args, label: "" };
+  const args = { ...action.parsedAction.args, uid: "" };
   if ("elementId" in args) {
-    args.label = args.elementId;
+    args.uid = args.elementId;
   }
   return {
     thought: action.thought,

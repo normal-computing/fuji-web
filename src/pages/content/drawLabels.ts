@@ -202,7 +202,7 @@ const baseZIndex = 10000;
 
 type LabelDataWithElement = {
   element: Element;
-  label: string;
+  uid: string;
   name: string;
   tagName: string;
   role?: string;
@@ -229,7 +229,7 @@ function getLabelData(
     const uidString = uid.toString();
 
     const item: LabelDataWithElement = {
-      label: uidString,
+      uid: uidString,
       name,
       tagName: elem.tagName,
       element: elem,
@@ -310,8 +310,8 @@ export function addLabelsToDom(data: LabelDataWithElement[]) {
   const wrapper = document.createElement("div");
   wrapper.classList.add("_label_overlay_wrapper");
   wrapper.popover = "manual";
-  data.forEach(({ element, label }, index) => {
-    drawLabel(wrapper, element, label, baseZIndex + data.length - index);
+  data.forEach(({ element, uid }, index) => {
+    drawLabel(wrapper, element, uid, baseZIndex + data.length - index);
   });
   // set wrapper's width and height to match body
   wrapper.style.width = `${document.documentElement.scrollWidth}px`;
