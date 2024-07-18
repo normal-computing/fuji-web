@@ -3,10 +3,10 @@ import { z } from "zod";
 export const clickSchema = z.object({
   name: z.literal("click"),
   description: z
-    .literal("Click on an element with the label on the annotation.")
+    .literal("Click on an element with the uid on the annotation.")
     .optional(),
   args: z.object({
-    label: z.string(),
+    uid: z.string(),
   }),
 });
 
@@ -14,11 +14,11 @@ export const setValueSchema = z.object({
   name: z.literal("setValue"),
   description: z
     .literal(
-      "Focus on and set the value of an input element with the label on the annotation.",
+      "Focus on and set the value of an input element with the uid on the annotation.",
     )
     .optional(),
   args: z.object({
-    label: z.string(),
+    uid: z.string(),
     value: z.string(),
   }),
 });
@@ -31,7 +31,7 @@ export const setValueAndEnterSchema = z.object({
     )
     .optional(),
   args: z.object({
-    label: z.string(),
+    uid: z.string(),
     value: z.string(),
   }),
 });

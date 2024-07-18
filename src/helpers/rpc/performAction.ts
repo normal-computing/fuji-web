@@ -156,40 +156,31 @@ function createOperateTool(
         window.open(action.args.url, "_blank");
         break;
       case "click": {
-        const success = await click(domActions, action.args.label);
+        const success = await click(domActions, action.args.uid);
         if (!success) {
-          console.error(
-            "Unable to find element with label: ",
-            action.args.label,
-          );
+          console.error("Unable to find element with uid: ", action.args.uid);
         }
         break;
       }
       case "setValue": {
         const success = await setValue(
           domActions,
-          action.args.label,
+          action.args.uid,
           action.args.value || "",
         );
         if (!success) {
-          console.error(
-            "Unable to find element with label: ",
-            action.args.label,
-          );
+          console.error("Unable to find element with uid: ", action.args.uid);
         }
         break;
       }
       case "setValueAndEnter": {
         const success = await setValue(
           domActions,
-          action.args.label,
+          action.args.uid,
           (action.args.value || "") + "\n",
         );
         if (!success) {
-          console.error(
-            "Unable to find element with label: ",
-            action.args.label,
-          );
+          console.error("Unable to find element with uid: ", action.args.uid);
         }
         break;
       }
