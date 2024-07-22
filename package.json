@@ -52,7 +52,7 @@
     "@commitlint/cli": "19.3.0",
     "@commitlint/config-conventional": "18.1.0",
     "@jest/globals": "^29.7.0",
-    "@rollup/plugin-typescript": "11.1.5",
+    "@rollup/plugin-typescript": "11.1.6",
     "@testing-library/react": "14.0.0",
     "@types/chrome": "0.0.251",
     "@types/dom-speech-recognition": "^0.0.4",
