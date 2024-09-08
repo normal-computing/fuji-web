@@ -1,0 +1,26 @@
+2024-05-16 16:24:05,963:INFO:====== WebDriver manager ======
+2024-05-16 16:24:06,036:INFO:Get LATEST chromedriver version for google-chrome
+2024-05-16 16:24:06,090:INFO:Get LATEST chromedriver version for google-chrome
+2024-05-16 16:24:06,137:INFO:Driver [/Users/lingjie/.wdm/drivers/chromedriver/mac64/124.0.6367.207/chromedriver-mac-arm64/chromedriver] found in cache
+2024-05-16 16:24:07,094:INFO:-------------------------------------
+2024-05-16 16:24:08,209:INFO:Start running task Google--0 Search for bananas
+2024-05-16 16:24:08,209:INFO:Dispatched event SetAPIKey
+2024-05-16 16:24:08,211:INFO:Dispatched event SetTask
+2024-05-16 16:24:08,213:INFO:Dispatched event RunTask
+2024-05-16 16:24:08,215:INFO:Adding task listeners for task Google--0
+2024-05-16 16:24:11,312:INFO:Screenshot saved for task Google--0
+2024-05-16 16:24:20,689:INFO:Screenshot saved for task Google--0
+2024-05-16 16:24:26,987:INFO:History saved for task Google--0
+2024-05-16 16:24:26,987:INFO:Task Google--0 took 18.77788782119751 seconds to complete.
+2024-05-16 16:24:26,987:INFO:Task Google--0 status: success
+2024-05-16 16:24:26,987:INFO:-------------------------------------
+2024-05-16 16:24:27,648:INFO:Start running task Google--1 Search for apples
+2024-05-16 16:24:27,648:INFO:Dispatched event SetAPIKey
+2024-05-16 16:24:27,652:INFO:Dispatched event SetTask
+2024-05-16 16:24:27,654:INFO:Dispatched event RunTask
+2024-05-16 16:24:27,656:INFO:Adding task listeners for task Google--1
+2024-05-16 16:24:30,641:INFO:Screenshot saved for task Google--1
+2024-05-16 16:24:39,938:INFO:Screenshot saved for task Google--1
+2024-05-16 16:24:47,633:INFO:History saved for task Google--1
+2024-05-16 16:24:47,633:INFO:Task Google--1 took 19.985090017318726 seconds to complete.
+2024-05-16 16:24:47,633:INFO:Task Google--1 status: success

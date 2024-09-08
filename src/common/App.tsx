@@ -6,10 +6,11 @@ import {
   HStack,
   IconButton,
   Icon,
+  useToast,
 } from "@chakra-ui/react";
 import { SettingsIcon } from "@chakra-ui/icons";
 import { FaDiscord, FaGithub } from "react-icons/fa6";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAppState } from "../state/store";
 import SetAPIKey from "./SetAPIKey";
 import TaskUI from "./TaskUI";
@@ -19,7 +20,52 @@ const App = () => {
   const hasAPIKey = useAppState(
     (state) => state.settings.anthropicKey || state.settings.openAIKey,
   );
+  const { updateSettings } = useAppState((state) => ({
+    updateSettings: state.settings.actions.update,
+  }));
+  const taskState = useAppState((state) => ({
+    runTask: state.currentTask.actions.runTask,
+    setInstructions: state.ui.actions.setInstructions,
+  }));
   const [inSettingsView, setInSettingsView] = useState(false);
+
+  const toast = useToast();
+  const toastError = useCallback(
+    (message: string) => {
+      toast({
+        title: "Error",
+        description: message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    },
+    [toast],
+  );
+
+  useEffect(() => {
+    const handleMessage = (message: { type: string; value: string }) => {
+      switch (message.type) {
+        case "API_KEY":
+          updateSettings({ openAIKey: message.value });
+          break;
+        case "SET_TASK":
+          taskState.setInstructions(message.value);
+          break;
+        case "RUN_TASK":
+          taskState.runTask(toastError);
+          break;
+        default:
+          console.log("Unhandled message type:", message.type);
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(handleMessage);
+
+    return () => {
+      chrome.runtime.onMessage.removeListener(handleMessage);
+    };
+  });
 
   return (
     <ChakraProvider>

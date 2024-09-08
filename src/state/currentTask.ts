@@ -42,6 +42,7 @@ export type CurrentTaskSlice = {
   history: TaskHistoryEntry[];
   status: "idle" | "running" | "success" | "error" | "interrupted";
   knowledgeInUse: Knowledge | null;
+  errorMessage: string;
   actionStatus:
     | "idle"
     | "attaching-debugger"
@@ -73,6 +74,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
   status: "idle",
   actionStatus: "idle",
   knowledgeInUse: null,
+  errorMessage: "",
   actions: {
     runTask: async (onError) => {
       const voiceMode = get().settings.voiceMode;
@@ -132,6 +134,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             if (query == null) {
               set((state) => {
                 state.currentTask.status = "error";
+                state.currentTask.errorMessage = "Query is null.";
               });
               return false;
             }
@@ -208,10 +211,13 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             });
 
             setActionStatus("annotating-page");
-            const [imgData, labelData] = await buildAnnotatedScreenshots(
-              tabId,
-              knowledge,
-            );
+            const [imgDataRaw, imgData, labelData] =
+              await buildAnnotatedScreenshots(tabId, knowledge);
+            chrome.runtime.sendMessage({
+              action: "sendScreenshot",
+              status: get().currentTask.status,
+              imgData: imgDataRaw,
+            });
             const viewportPercentage = await callRPCWithTab(
               tabId,
               "getViewportPercentage",
@@ -236,6 +242,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             if (!pageDOM) {
               set((state) => {
                 state.currentTask.status = "error";
+                state.currentTask.errorMessage = "No page dom found";
               });
               break;
             }
@@ -260,7 +267,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           // While testing let's automatically stop after 50 actions to avoid
           // infinite loops
           if (get().currentTask.history.length >= 50) {
-            break;
+            throw new Error("Max number of actions reached");
+            // break;
           }
 
           setActionStatus("waiting");
@@ -274,6 +282,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         onError(e.message);
         set((state) => {
           state.currentTask.status = "error";
+          state.currentTask.errorMessage = e.message;
         });
       } finally {
         await detachAllDebuggers();
@@ -309,7 +318,8 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
         new URL(activeTab.url ?? ""),
         customKnowledgeBase,
       );
-      const [imgData, labelData] = await buildAnnotatedScreenshots(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [imgDataRaw, imgData, labelData] = await buildAnnotatedScreenshots(
         tabId,
         knowledge,
       );

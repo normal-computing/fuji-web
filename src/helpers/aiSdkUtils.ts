@@ -20,7 +20,7 @@ function isSupportedModel(value: string): value is SupportedModels {
   return enumValues(SupportedModels).includes(value as SupportedModels);
 }
 
-export const DEFAULT_MODEL = SupportedModels.Gpt4Turbo;
+export const DEFAULT_MODEL = SupportedModels.Gpt4O;
 
 export const DisplayName = {
   [SupportedModels.Gpt35Turbo16k]: "GPT-3.5 Turbo (16k)",
