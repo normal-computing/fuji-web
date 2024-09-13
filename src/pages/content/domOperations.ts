@@ -10,7 +10,20 @@ import { getDataFromRenderedMarkdown } from "./reverseMarkdown";
 import getViewportPercentage from "./getViewportPercentage";
 import { injectMicrophonePermissionIframe } from "./permission";
 
+function clickWithSelector(selector: string) {
+  const element = document.querySelector(selector) as HTMLElement;
+  // get center coordinates of the element
+  const { x, y } = element.getBoundingClientRect();
+  const centerX = x + element.offsetWidth / 2;
+  const centerY = y + element.offsetHeight / 2;
+  ripple(centerX, centerY);
+  if (element) {
+    element.click();
+  }
+}
+
 export const rpcMethods = {
+  clickWithSelector,
   getAnnotatedDOM,
   getUniqueElementSelectorId,
   ripple,

@@ -294,13 +294,14 @@ export class DomActions {
   public async clickWithSelector(payload: {
     selector: string;
   }): Promise<boolean> {
-    const objectId = await this.getObjectIdBySelector(payload.selector);
-    if (!objectId) {
-      return false;
-    }
-    // await this.scrollIntoView(objectId);
-    const { x, y } = await this.getCenterCoordinates(objectId);
-    await this.clickAtPosition(x, y);
+    // const objectId = await this.getObjectIdBySelector(payload.selector);
+    // if (!objectId) {
+    //   return false;
+    // }
+    // // await this.scrollIntoView(objectId);
+    // const { x, y } = await this.getCenterCoordinates(objectId);
+    // await this.clickAtPosition(x, y);
+    await callRPCWithTab(this.tabId, "clickWithSelector", [payload.selector]);
     return true;
   }
 }

@@ -4,6 +4,8 @@ import { useAppState } from "../state/store";
 import { enumValues } from "./utils";
 
 export enum SupportedModels {
+  O1Preview = "o1-preview",
+  O1Mini = "o1-mini",
   Gpt35Turbo16k = "gpt-3.5-turbo-16k",
   Gpt4 = "gpt-4",
   Gpt4TurboPreview = "gpt-4-turbo-preview",
@@ -23,6 +25,8 @@ function isSupportedModel(value: string): value is SupportedModels {
 export const DEFAULT_MODEL = SupportedModels.Gpt4Turbo;
 
 export const DisplayName = {
+  [SupportedModels.O1Preview]: "O1 Preview",
+  [SupportedModels.O1Mini]: "O1 Mini",
   [SupportedModels.Gpt35Turbo16k]: "GPT-3.5 Turbo (16k)",
   [SupportedModels.Gpt4]: "GPT-4",
   [SupportedModels.Gpt4TurboPreview]: "GPT-4 Turbo (Preview)",
@@ -111,10 +115,21 @@ export async function fetchResponseFromModelOpenAI(
   });
   const messages: OpenAI.ChatCompletionMessageParam[] = [];
   if (params.systemMessage != null) {
-    messages.push({
-      role: "system",
-      content: params.systemMessage,
-    });
+    // O1 does not support system message
+    if (
+      model === SupportedModels.O1Preview ||
+      model === SupportedModels.O1Mini
+    ) {
+      messages.push({
+        role: "user",
+        content: params.systemMessage,
+      });
+    } else {
+      messages.push({
+        role: "system",
+        content: params.systemMessage,
+      });
+    }
   }
   const content: OpenAI.ChatCompletionContentPart[] = [
     {
@@ -143,8 +158,8 @@ export async function fetchResponseFromModelOpenAI(
   const completion = await openai.chat.completions.create({
     model: model,
     messages,
-    max_tokens: 1000,
-    temperature: 0,
+    // max_completion_tokens: 1000,
+    // temperature: 0,
   });
   let rawResponse = completion.choices[0].message?.content?.trim() ?? "";
   if (params.jsonMode && !rawResponse.startsWith("{")) {
