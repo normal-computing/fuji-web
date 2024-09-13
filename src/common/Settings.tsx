@@ -173,8 +173,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             <Alert status="warning" borderRadius="lg">
               <AlertIcon />
               <AlertDescription fontSize="sm">
-                Most of Fuji&rsquo;s capabilities are based on the GPT-4 Vision
-                mode. Non-vision models are available for research purposes.
+                Fuji will operate in non-vision mode with the selected model.
               </AlertDescription>
             </Alert>
           )}
