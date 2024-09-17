@@ -22,10 +22,10 @@ import {
 } from "@chakra-ui/react";
 import { ArrowBackIcon, EditIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
-import ModelDropdown from "./ModelDropdown";
+import ModelDropdown from "./settings/ModelDropdown";
 import { callRPC } from "../helpers/rpc/pageRPC";
 import CustomKnowledgeBase from "./CustomKnowledgeBase";
-import SetAPIKey from "./SetAPIKey";
+import SetAPIKey from "./settings/SetAPIKey";
 import { hasVisionSupport } from "../helpers/aiSdkUtils";
 import { debugMode } from "../constants";
 

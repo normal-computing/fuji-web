@@ -1,12 +1,12 @@
 import { Select } from "@chakra-ui/react";
-import { useAppState } from "../state/store";
+import { useAppState } from "../../state/store";
 import {
   SupportedModels,
   DisplayName,
   isOpenAIModel,
   isAnthropicModel,
-} from "../helpers/aiSdkUtils";
-import { enumValues } from "../helpers/utils";
+} from "../../helpers/aiSdkUtils";
+import { enumValues } from "../../helpers/utils";
 
 const ModelDropdown = () => {
   const { selectedModel, updateSettings } = useAppState((state) => ({
