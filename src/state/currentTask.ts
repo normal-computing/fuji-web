@@ -83,6 +83,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           get().settings.agentMode,
           get().settings.openAIKey,
           get().settings.anthropicKey,
+          get().settings.geminiKey,
         )
       ) {
         onError(
