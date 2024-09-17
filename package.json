@@ -49,7 +49,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@commitlint/cli": "19.3.0",
+    "@commitlint/cli": "19.5.0",
     "@commitlint/config-conventional": "18.1.0",
     "@jest/globals": "^29.7.0",
     "@rollup/plugin-typescript": "11.1.6",
