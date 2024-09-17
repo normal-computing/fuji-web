@@ -18,6 +18,7 @@ type SetAPIKeyProps = {
   asInitializerView?: boolean;
   initialOpenAIKey?: string;
   initialAnthropicKey?: string;
+  initialGeminiKey?: string;
   onClose?: () => void;
 };
 
@@ -25,6 +26,7 @@ const SetAPIKey = ({
   asInitializerView = false,
   initialOpenAIKey = "",
   initialAnthropicKey = "",
+  initialGeminiKey = "",
   onClose,
 }: SetAPIKeyProps) => {
   const { updateSettings, initialOpenAIBaseUrl, initialAnthropicBaseUrl } =
@@ -38,6 +40,7 @@ const SetAPIKey = ({
   const [anthropicKey, setAnthropicKey] = React.useState(
     initialAnthropicKey || "",
   );
+  const [geminiKey, setGeminiKey] = React.useState(initialGeminiKey || "");
   const [openAIBaseUrl, setOpenAIBaseUrl] = React.useState(
     initialOpenAIBaseUrl || "",
   );
@@ -53,6 +56,7 @@ const SetAPIKey = ({
       openAIBaseUrl,
       anthropicKey,
       anthropicBaseUrl,
+      geminiKey,
     });
     onClose && onClose();
   };
@@ -157,10 +161,37 @@ const SetAPIKey = ({
           />
         </FormControl>
       )}
+
+      <Box position="relative" py={2} w="full">
+        <Divider />
+        <AbsoluteCenter bg="white" px="4">
+          Gemini (Google)
+        </AbsoluteCenter>
+      </Box>
+      <FormControl>
+        <FormLabel>Gemini API Key</FormLabel>
+        <HStack w="full">
+          <Input
+            placeholder="Enter Gemini API Key"
+            value={geminiKey}
+            onChange={(event) => setGeminiKey(event.target.value)}
+            type={showPassword ? "text" : "password"}
+          />
+          {asInitializerView && (
+            <Button
+              onClick={() => setShowPassword(!showPassword)}
+              variant="outline"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </Button>
+          )}
+        </HStack>
+      </FormControl>
+
       <Button
         onClick={onSave}
         w="full"
-        isDisabled={!openAIKey && !anthropicKey}
+        isDisabled={!openAIKey && !anthropicKey && !geminiKey}
         colorScheme="blue"
       >
         Save

@@ -14,9 +14,10 @@ const ModelDropdown = () => {
     updateSettings: state.settings.actions.update,
   }));
 
-  const { openAIKey, anthropicKey } = useAppState((state) => ({
+  const { openAIKey, anthropicKey, geminiKey } = useAppState((state) => ({
     openAIKey: state.settings.openAIKey,
     anthropicKey: state.settings.anthropicKey,
+    geminiKey: state.settings.geminiKey,
   }));
 
   return (
@@ -32,7 +33,13 @@ const ModelDropdown = () => {
           key={model}
           value={model}
           disabled={
-            !isValidModelSettings(model, agentMode, openAIKey, anthropicKey)
+            !isValidModelSettings(
+              model,
+              agentMode,
+              openAIKey,
+              anthropicKey,
+              geminiKey,
+            )
           }
         >
           {DisplayName[model]}

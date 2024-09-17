@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
 import OpenAI from "openai";
 import { useAppState } from "../state/store";
 import { enumValues } from "./utils";
@@ -22,6 +23,7 @@ export enum SupportedModels {
   Claude3Sonnet = "claude-3-sonnet-20240229",
   Claude3Opus = "claude-3-opus-20240229",
   Claude35Sonnet = "claude-3-5-sonnet-20240620",
+  Gemini15Pro = "gemini-1.5-pro",
 }
 
 function isSupportedModel(value: string): value is SupportedModels {
@@ -43,6 +45,7 @@ export const DisplayName = {
   [SupportedModels.Claude3Sonnet]: "Claude 3 Sonnet",
   [SupportedModels.Claude3Opus]: "Claude 3 Opus",
   [SupportedModels.Claude35Sonnet]: "Claude 3.5 Sonnet",
+  [SupportedModels.Gemini15Pro]: "Gemini 1.5 Pro",
 };
 
 export function hasVisionSupport(model: SupportedModels) {
@@ -53,15 +56,19 @@ export function hasVisionSupport(model: SupportedModels) {
     model === SupportedModels.Gpt4OMini ||
     model === SupportedModels.Claude3Sonnet ||
     model === SupportedModels.Claude3Opus ||
-    model === SupportedModels.Claude35Sonnet
+    model === SupportedModels.Claude35Sonnet ||
+    model === SupportedModels.Gemini15Pro
   );
 }
 
-export type SDKChoice = "OpenAI" | "Anthropic";
+export type SDKChoice = "OpenAI" | "Anthropic" | "Google";
 
 function chooseSDK(model: SupportedModels): SDKChoice {
   if (model.startsWith("claude")) {
     return "Anthropic";
+  }
+  if (model.startsWith("gemini")) {
+    return "Google";
   }
   return "OpenAI";
 }
@@ -72,12 +79,16 @@ export function isOpenAIModel(model: SupportedModels) {
 export function isAnthropicModel(model: SupportedModels) {
   return chooseSDK(model) === "Anthropic";
 }
+export function isGoogleModel(model: SupportedModels) {
+  return chooseSDK(model) === "Google";
+}
 
 export function isValidModelSettings(
   selectedModel: string,
   agentMode: AgentMode,
   openAIKey: string | undefined,
   anthropicKey: string | undefined,
+  geminiKey: string | undefined,
 ): boolean {
   if (!isSupportedModel(selectedModel)) {
     return false;
@@ -88,10 +99,13 @@ export function isValidModelSettings(
   ) {
     return false;
   }
-  if (openAIKey && !anthropicKey && !isOpenAIModel(selectedModel)) {
+  if (isOpenAIModel(selectedModel) && !openAIKey) {
     return false;
   }
-  if (!openAIKey && anthropicKey && !isAnthropicModel(selectedModel)) {
+  if (isAnthropicModel(selectedModel) && !anthropicKey) {
+    return false;
+  }
+  if (isGoogleModel(selectedModel) && !geminiKey) {
     return false;
   }
   return true;
@@ -102,24 +116,29 @@ export function findBestMatchingModel(
   agentMode: AgentMode,
   openAIKey: string | undefined,
   anthropicKey: string | undefined,
+  geminiKey: string | undefined,
 ): SupportedModels {
-  let result: SupportedModels = DEFAULT_MODEL;
-  // verify the string value is a supported model
-  // this is to handle the case when we drop support for a model
-  if (isSupportedModel(selectedModel)) {
-    result = selectedModel;
+  if (
+    isValidModelSettings(
+      selectedModel,
+      agentMode,
+      openAIKey,
+      anthropicKey,
+      geminiKey,
+    )
+  ) {
+    return selectedModel as SupportedModels;
   }
-  // if agent mode is vision-enhanced, we need to ensure the model supports vision
-  if (agentMode === AgentMode.VisionEnhanced && !hasVisionSupport(result)) {
-    result = SupportedModels.Gpt4Turbo;
+  if (openAIKey) {
+    return SupportedModels.Gpt4Turbo;
   }
-  // ensure the provider's API key is available
-  if (!openAIKey && anthropicKey && !isAnthropicModel(result)) {
-    result = SupportedModels.Claude35Sonnet;
-  } else if (openAIKey && !anthropicKey && !isOpenAIModel(result)) {
-    result = SupportedModels.Gpt4O;
+  if (anthropicKey) {
+    return SupportedModels.Claude35Sonnet;
   }
-  return result;
+  if (geminiKey) {
+    return SupportedModels.Gemini15Pro;
+  }
+  return DEFAULT_MODEL;
 }
 
 export type CommonMessageCreateParams = {
@@ -275,6 +294,41 @@ export async function fetchResponseFromModelAnthropic(
   };
 }
 
+export async function fetchResponseFromModelGoogle(
+  model: SupportedModels,
+  params: CommonMessageCreateParams,
+): Promise<Response> {
+  const key = useAppState.getState().settings.geminiKey;
+  if (!key) {
+    throw new Error("No Google Gemini key found");
+  }
+  const genAI = new GoogleGenerativeAI(key);
+  const client = genAI.getGenerativeModel({
+    model: model,
+    systemInstruction: params.systemMessage,
+  });
+  const requestInput: Array<string | Part> = [];
+  requestInput.push(params.prompt);
+  if (params.imageData != null) {
+    requestInput.push({
+      inlineData: {
+        data: params.imageData.split("base64,")[1],
+        mimeType: "image/webp",
+      },
+    });
+  }
+  const result = await client.generateContent(requestInput);
+  return {
+    usage: {
+      completion_tokens:
+        result.response.usageMetadata?.candidatesTokenCount ?? 0,
+      prompt_tokens: result.response.usageMetadata?.promptTokenCount ?? 0,
+      total_tokens: result.response.usageMetadata?.totalTokenCount ?? 0,
+    },
+    rawResponse: result.response.text(),
+  };
+}
+
 export async function fetchResponseFromModel(
   model: SupportedModels,
   params: CommonMessageCreateParams,
@@ -282,7 +336,11 @@ export async function fetchResponseFromModel(
   const sdk = chooseSDK(model);
   if (sdk === "OpenAI") {
     return await fetchResponseFromModelOpenAI(model, params);
-  } else {
+  } else if (sdk === "Anthropic") {
     return await fetchResponseFromModelAnthropic(model, params);
+  } else if (sdk === "Google") {
+    return await fetchResponseFromModelGoogle(model, params);
+  } else {
+    throw new Error("Unsupported model");
   }
 }

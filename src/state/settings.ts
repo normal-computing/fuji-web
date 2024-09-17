@@ -11,6 +11,7 @@ export type SettingsSlice = {
   anthropicKey: string | undefined;
   openAIBaseUrl: string | undefined;
   anthropicBaseUrl: string | undefined;
+  geminiKey: string | undefined;
   selectedModel: SupportedModels;
   agentMode: AgentMode;
   voiceMode: boolean;
@@ -24,6 +25,7 @@ export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
   anthropicKey: undefined,
   openAIBaseUrl: undefined,
   anthropicBaseUrl: undefined,
+  geminiKey: undefined,
   agentMode: AgentMode.VisionEnhanced,
   selectedModel: SupportedModels.Gpt4Turbo,
   voiceMode: false,
@@ -37,6 +39,7 @@ export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
           newSettings.agentMode,
           newSettings.openAIKey,
           newSettings.anthropicKey,
+          newSettings.geminiKey,
         );
         // voice model current relies on OpenAI API key
         if (!newSettings.openAIKey) {

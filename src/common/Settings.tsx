@@ -45,6 +45,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
     voiceMode: state.settings.voiceMode,
     openAIKey: state.settings.openAIKey,
     anthropicKey: state.settings.anthropicKey,
+    geminiKey: state.settings.geminiKey,
   }));
   const toast = useToast();
 
@@ -182,6 +183,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             state.agentMode,
             state.openAIKey,
             state.anthropicKey,
+            state.geminiKey,
           ) ? (
             <Alert status="error">
               <AlertIcon />
