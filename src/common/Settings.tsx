@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import {
+  Alert,
+  AlertIcon,
+  AlertDescription,
   IconButton,
   HStack,
   FormControl,
@@ -25,6 +28,7 @@ import { callRPC } from "../helpers/rpc/pageRPC";
 import CustomKnowledgeBase from "./CustomKnowledgeBase";
 import SetAPIKey from "./settings/SetAPIKey";
 import { debugMode } from "../constants";
+import { isValidModelSettings } from "../helpers/aiSdkUtils";
 
 type SettingsProps = {
   setInSettingsView: React.Dispatch<React.SetStateAction<boolean>>;
@@ -35,8 +39,9 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
     "settings",
   );
   const state = useAppState((state) => ({
-    selectedModel: state.settings.selectedModel,
     updateSettings: state.settings.actions.update,
+    selectedModel: state.settings.selectedModel,
+    agentMode: state.settings.agentMode,
     voiceMode: state.settings.voiceMode,
     openAIKey: state.settings.openAIKey,
     anthropicKey: state.settings.anthropicKey,
@@ -171,6 +176,22 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
               <ModelDropdown />
             </Box>
           </Flex>
+
+          {!isValidModelSettings(
+            state.selectedModel,
+            state.agentMode,
+            state.openAIKey,
+            state.anthropicKey,
+          ) ? (
+            <Alert status="error">
+              <AlertIcon />
+              <AlertDescription>
+                The current model settings are not valid. <br />
+                Please verify your API keys, and note that some models are not
+                compatible with certain agent modes.
+              </AlertDescription>
+            </Alert>
+          ) : null}
 
           <Flex alignItems="center">
             <FormLabel mb="0">Turn On Voice Mode</FormLabel>
