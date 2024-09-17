@@ -5,12 +5,15 @@ import {
   DisplayName,
   isOpenAIModel,
   isAnthropicModel,
+  AgentMode,
+  hasVisionSupport,
 } from "../../helpers/aiSdkUtils";
 import { enumValues } from "../../helpers/utils";
 
 const ModelDropdown = () => {
-  const { selectedModel, updateSettings } = useAppState((state) => ({
+  const { selectedModel, agentMode, updateSettings } = useAppState((state) => ({
     selectedModel: state.settings.selectedModel,
+    agentMode: state.settings.agentMode,
     updateSettings: state.settings.actions.update,
   }));
 
@@ -20,6 +23,9 @@ const ModelDropdown = () => {
   }));
 
   const isModelSupported = (model: SupportedModels) => {
+    if (agentMode === AgentMode.VisionEnhanced && !hasVisionSupport(model)) {
+      return false;
+    }
     if (isOpenAIModel(model)) {
       return !!openAIKey;
     }

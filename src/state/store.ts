@@ -42,6 +42,7 @@ export const useAppState = create<StoreType>()(
           anthropicKey: state.settings.anthropicKey,
           openAIBaseUrl: state.settings.openAIBaseUrl,
           anthropicBaseUrl: state.settings.anthropicBaseUrl,
+          agentMode: state.settings.agentMode,
           selectedModel: state.settings.selectedModel,
           voiceMode: state.settings.voiceMode,
           customKnowledgeBase: state.settings.customKnowledgeBase,
@@ -51,6 +52,7 @@ export const useAppState = create<StoreType>()(
         const result = merge(currentState, persistedState);
         result.settings.selectedModel = findBestMatchingModel(
           result.settings.selectedModel,
+          result.settings.agentMode,
           result.settings.openAIKey,
           result.settings.anthropicKey,
         );
