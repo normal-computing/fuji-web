@@ -73,6 +73,30 @@ export function isAnthropicModel(model: SupportedModels) {
   return chooseSDK(model) === "Anthropic";
 }
 
+export function isValidModelSettings(
+  selectedModel: string,
+  agentMode: AgentMode,
+  openAIKey: string | undefined,
+  anthropicKey: string | undefined,
+): boolean {
+  if (!isSupportedModel(selectedModel)) {
+    return false;
+  }
+  if (
+    agentMode === AgentMode.VisionEnhanced &&
+    !hasVisionSupport(selectedModel)
+  ) {
+    return false;
+  }
+  if (openAIKey && !anthropicKey && !isOpenAIModel(selectedModel)) {
+    return false;
+  }
+  if (!openAIKey && anthropicKey && !isAnthropicModel(selectedModel)) {
+    return false;
+  }
+  return true;
+}
+
 export function findBestMatchingModel(
   selectedModel: string,
   agentMode: AgentMode,
