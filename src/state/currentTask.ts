@@ -27,7 +27,7 @@ import { MyStateCreator } from "./store";
 import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
 import { voiceControl } from "../helpers/voiceControl";
 import { fetchKnowledge, type Knowledge } from "../helpers/knowledge";
-import { hasVisionSupport } from "../helpers/aiSdkUtils";
+import { isValidModelSettings, AgentMode } from "../helpers/aiSdkUtils";
 
 export type TaskHistoryEntry = {
   prompt: string;
@@ -77,6 +77,22 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
     runTask: async (onError) => {
       const voiceMode = get().settings.voiceMode;
 
+      if (
+        !isValidModelSettings(
+          get().settings.selectedModel,
+          get().settings.agentMode,
+          get().settings.openAIKey,
+          get().settings.anthropicKey,
+        )
+      ) {
+        onError(
+          "The current model settings are not valid. Please verify your API keys, and note that some models are not compatible with certain agent modes.",
+        );
+        return;
+      }
+
+      const agentMode = get().settings.agentMode;
+
       const wasStopped = () => get().currentTask.status !== "running";
       const setActionStatus = (status: CurrentTaskSlice["actionStatus"]) => {
         set((state) => {
@@ -124,8 +140,6 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             );
           }
 
-          const isVisionModel = hasVisionSupport(get().settings.selectedModel);
-
           const performAction = async (
             query: QueryResult,
           ): Promise<boolean> => {
@@ -161,7 +175,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             ) {
               return false;
             }
-            if (isVisionModel) {
+            if (agentMode === AgentMode.VisionEnhanced) {
               await operateTool(tabId, query.action.operation);
             } else {
               await operateToolWithSimpliedDom(tabId, query.action.operation);
@@ -198,7 +212,7 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
             .currentTask.history.map((entry) => entry.action)
             .filter(truthyFilter);
 
-          if (isVisionModel) {
+          if (agentMode === AgentMode.VisionEnhanced) {
             setActionStatus("fetching-knoweldge");
             const url = new URL(activeTab.url ?? "");
             const customKnowledgeBase = get().settings.customKnowledgeBase;
