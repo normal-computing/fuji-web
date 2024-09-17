@@ -3,6 +3,12 @@ import OpenAI from "openai";
 import { useAppState } from "../state/store";
 import { enumValues } from "./utils";
 
+export enum AgentMode {
+  // Vision = "vision",
+  VisionEnhanced = "vision-enhanced",
+  Text = "text",
+}
+
 export enum SupportedModels {
   O1Preview = "o1-preview",
   O1Mini = "o1-mini",
@@ -69,6 +75,7 @@ export function isAnthropicModel(model: SupportedModels) {
 
 export function findBestMatchingModel(
   selectedModel: string,
+  agentMode: AgentMode,
   openAIKey: string | undefined,
   anthropicKey: string | undefined,
 ): SupportedModels {
@@ -77,6 +84,10 @@ export function findBestMatchingModel(
   // this is to handle the case when we drop support for a model
   if (isSupportedModel(selectedModel)) {
     result = selectedModel;
+  }
+  // if agent mode is vision-enhanced, we need to ensure the model supports vision
+  if (agentMode === AgentMode.VisionEnhanced && !hasVisionSupport(result)) {
+    result = SupportedModels.Gpt4Turbo;
   }
   // ensure the provider's API key is available
   if (!openAIKey && anthropicKey && !isAnthropicModel(result)) {

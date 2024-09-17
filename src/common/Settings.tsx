@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 import {
-  Alert,
-  AlertIcon,
-  AlertDescription,
   IconButton,
   HStack,
   FormControl,
@@ -23,10 +20,10 @@ import {
 import { ArrowBackIcon, EditIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { useAppState } from "../state/store";
 import ModelDropdown from "./settings/ModelDropdown";
+import AgentModeDropdown from "./settings/AgentModeDropdown";
 import { callRPC } from "../helpers/rpc/pageRPC";
 import CustomKnowledgeBase from "./CustomKnowledgeBase";
 import SetAPIKey from "./settings/SetAPIKey";
-import { hasVisionSupport } from "../helpers/aiSdkUtils";
 import { debugMode } from "../constants";
 
 type SettingsProps = {
@@ -47,8 +44,6 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
   const toast = useToast();
 
   if (!state.openAIKey && !state.anthropicKey) return null;
-
-  const isVisionModel = hasVisionSupport(state.selectedModel);
 
   const closeSetting = () => setInSettingsView(false);
   const openCKB = () => setView("knowledge");
@@ -163,20 +158,19 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
           )}
 
           <Flex alignItems="center">
+            <FormLabel mb="0">Select Agent Mode</FormLabel>
+            <Spacer />
+            <Box w="50%">
+              <AgentModeDropdown />
+            </Box>
+          </Flex>
+          <Flex alignItems="center">
             <FormLabel mb="0">Select Model</FormLabel>
             <Spacer />
             <Box w="50%">
               <ModelDropdown />
             </Box>
           </Flex>
-          {!isVisionModel && (
-            <Alert status="warning" borderRadius="lg">
-              <AlertIcon />
-              <AlertDescription fontSize="sm">
-                Fuji will operate in non-vision mode with the selected model.
-              </AlertDescription>
-            </Alert>
-          )}
 
           <Flex alignItems="center">
             <FormLabel mb="0">Turn On Voice Mode</FormLabel>

@@ -1,6 +1,10 @@
 import { type Data } from "../helpers/knowledge/index";
 import { MyStateCreator } from "./store";
-import { SupportedModels, findBestMatchingModel } from "../helpers/aiSdkUtils";
+import {
+  SupportedModels,
+  findBestMatchingModel,
+  AgentMode,
+} from "../helpers/aiSdkUtils";
 
 export type SettingsSlice = {
   openAIKey: string | undefined;
@@ -8,6 +12,7 @@ export type SettingsSlice = {
   openAIBaseUrl: string | undefined;
   anthropicBaseUrl: string | undefined;
   selectedModel: SupportedModels;
+  agentMode: AgentMode;
   voiceMode: boolean;
   customKnowledgeBase: Data;
   actions: {
@@ -19,6 +24,7 @@ export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
   anthropicKey: undefined,
   openAIBaseUrl: undefined,
   anthropicBaseUrl: undefined,
+  agentMode: AgentMode.VisionEnhanced,
   selectedModel: SupportedModels.Gpt4Turbo,
   voiceMode: false,
   customKnowledgeBase: {},
@@ -28,6 +34,7 @@ export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
         const newSettings: SettingsSlice = { ...state.settings, ...values };
         newSettings.selectedModel = findBestMatchingModel(
           newSettings.selectedModel,
+          newSettings.agentMode,
           newSettings.openAIKey,
           newSettings.anthropicKey,
         );

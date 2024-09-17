@@ -12,7 +12,7 @@ import {
   FormLabel,
 } from "@chakra-ui/react";
 import React from "react";
-import { useAppState } from "../state/store";
+import { useAppState } from "../../state/store";
 
 type SetAPIKeyProps = {
   asInitializerView?: boolean;
