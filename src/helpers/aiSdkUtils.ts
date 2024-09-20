@@ -272,13 +272,20 @@ export async function fetchResponseFromModelAnthropic(
       ],
     });
   }
-  const completion = await anthropic.messages.create({
-    model,
-    system: params.systemMessage,
-    messages,
-    max_tokens: 1000,
-    temperature: 0,
-  });
+  const completion = await anthropic.messages.create(
+    {
+      model,
+      system: params.systemMessage,
+      messages,
+      max_tokens: 1000,
+      temperature: 0,
+    },
+    {
+      headers: {
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+    },
+  );
   let rawResponse = completion.content[0].text.trim();
   if (params.jsonMode && !rawResponse.startsWith("{")) {
     rawResponse = "{" + rawResponse;
