@@ -33,8 +33,8 @@ dependencies:
     specifier: ^2.4.5
     version: 2.4.5(react@18.2.0)
   immer:
-    specifier: ^10.0.3
-    version: 10.0.3
+    specifier: ^10.1.1
+    version: 10.1.1
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
@@ -73,7 +73,7 @@ dependencies:
     version: 3.3.1(zod@3.23.8)
   zustand:
     specifier: ^4.5.2
-    version: 4.5.2(@types/react@18.2.37)(immer@10.0.3)(react@18.2.0)
+    version: 4.5.2(@types/react@18.2.37)(immer@10.1.1)(react@18.2.0)
 
 devDependencies:
   '@commitlint/cli':
@@ -5545,8 +5545,8 @@ packages:
     engines: {node: '>= 4'}
     dev: true
 
-  /immer@10.0.3:
-    resolution: {integrity: sha512-pwupu3eWfouuaowscykeckFmVTpqbzW+rXFCX8rQLkZzM9ftBmU/++Ra+o+L27mz03zJTlyV4UUr+fdKNffo4A==}
+  /immer@10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
     dev: false
 
   /immutable@4.3.5:
@@ -9136,7 +9136,7 @@ packages:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
     dev: false
 
-  /zustand@4.5.2(@types/react@18.2.37)(immer@10.0.3)(react@18.2.0):
+  /zustand@4.5.2(@types/react@18.2.37)(immer@10.1.1)(react@18.2.0):
     resolution: {integrity: sha512-2cN1tPkDVkwCy5ickKrI7vijSjPksFRfqS6237NzT0vqSsztTNnQdHw9mmN7uBdk3gceVXU0a+21jFzFzAc9+g==}
     engines: {node: '>=12.7.0'}
     peerDependencies:
@@ -9152,7 +9152,7 @@ packages:
         optional: true
     dependencies:
       '@types/react': 18.2.37
-      immer: 10.0.3
+      immer: 10.1.1
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
