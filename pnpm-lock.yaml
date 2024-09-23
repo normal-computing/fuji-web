@@ -30,8 +30,8 @@ dependencies:
     specifier: 3.1.0
     version: 3.1.0
   formik:
-    specifier: ^2.4.5
-    version: 2.4.5(react@18.2.0)
+    specifier: ^2.4.6
+    version: 2.4.6(react@18.2.0)
   immer:
     specifier: ^10.0.3
     version: 10.0.3
@@ -5151,8 +5151,8 @@ packages:
       web-streams-polyfill: 4.0.0-beta.3
     dev: false
 
-  /formik@2.4.5(react@18.2.0):
-    resolution: {integrity: sha512-Gxlht0TD3vVdzMDHwkiNZqJ7Mvg77xQNfmBRrNtvzcHZs72TJppSTDKHpImCMJZwcWPBJ8jSQQ95GJzXFf1nAQ==}
+  /formik@2.4.6(react@18.2.0):
+    resolution: {integrity: sha512-A+2EI7U7aG296q2TLGvNapDNTZp1khVt5Vk0Q/fyfSROss0V/V6+txt2aJnwEos44IxTCW/LYAi/zgWzlevj+g==}
     peerDependencies:
       react: '>=16.8.0'
     dependencies:
