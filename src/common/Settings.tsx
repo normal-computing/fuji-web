@@ -35,7 +35,7 @@ type SettingsProps = {
 };
 
 const Settings = ({ setInSettingsView }: SettingsProps) => {
-  const [view, setView] = useState<"settings" | "knowledge" | "api">(
+  const [view, setView] = useState<"settings" | "knowledge" | "api" | "hitl">(
     "settings",
   );
   const state = useAppState((state) => ({
@@ -116,6 +116,11 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
           {view === "api" && (
             <BreadcrumbItem isCurrentPage>
               <BreadcrumbLink href="#">API</BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
+          {view === "hitl" && (
+            <BreadcrumbItem isCurrentPage>
+              <BreadcrumbLink href="#">Safety Checkpoints</BreadcrumbLink>
             </BreadcrumbItem>
           )}
         </Breadcrumb>
@@ -222,6 +227,18 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             <FormLabel mb="0">Custom Instructions</FormLabel>
             <Spacer />
             <Button rightIcon={<EditIcon />} onClick={openCKB}>
+              Edit
+            </Button>
+          </Flex>
+          <Flex alignItems="center">
+            <Box>
+              <FormLabel mb="0">Safety Checkpoints</FormLabel>
+              <FormHelperText>
+                Define actions that require your approval
+              </FormHelperText>
+            </Box>
+            <Spacer />
+            <Button rightIcon={<EditIcon />} onClick={() => setView("hitl")}>
               Edit
             </Button>
           </Flex>
