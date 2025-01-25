@@ -26,6 +26,7 @@ import ModelDropdown from "./settings/ModelDropdown";
 import AgentModeDropdown from "./settings/AgentModeDropdown";
 import { callRPC } from "../helpers/rpc/pageRPC";
 import CustomKnowledgeBase from "./CustomKnowledgeBase";
+import HITLSettings from "./HITLSettings";
 import SetAPIKey from "./settings/SetAPIKey";
 import { debugMode } from "../constants";
 import { isValidModelSettings } from "../helpers/aiSdkUtils";
@@ -53,6 +54,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
 
   const closeSetting = () => setInSettingsView(false);
   const openCKB = () => setView("knowledge");
+  const openHITL = () => setView("hitl");
   const backToSettings = () => setView("settings");
 
   async function checkMicrophonePermission(): Promise<PermissionState> {
@@ -120,7 +122,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
           )}
           {view === "hitl" && (
             <BreadcrumbItem isCurrentPage>
-              <BreadcrumbLink href="#">Safety Checkpoints</BreadcrumbLink>
+              <BreadcrumbLink href="#">Checkpoints</BreadcrumbLink>
             </BreadcrumbItem>
           )}
         </Breadcrumb>
@@ -134,6 +136,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
           onClose={backToSettings}
         />
       )}
+      {view === "hitl" && <HITLSettings />}
       {view === "settings" && (
         <FormControl
           as={VStack}
@@ -238,7 +241,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
               </FormHelperText>
             </Box>
             <Spacer />
-            <Button rightIcon={<EditIcon />} onClick={() => setView("hitl")}>
+            <Button rightIcon={<EditIcon />} onClick={openHITL}>
               Edit
             </Button>
           </Flex>
