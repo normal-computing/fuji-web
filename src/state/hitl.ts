@@ -6,6 +6,8 @@ export type HitlSlice = {
   setProposedAction: (action: Action | null) => void;
   userDecision: "approve" | "reject" | null;
   setUserDecision: (decision: "approve" | "reject" | null) => void;
+  isPendingApproval: boolean;
+  setIsPendingApproval: (isPending: boolean) => void;
 };
 
 export const createHitlSlice: MyStateCreator<HitlSlice> = (set) => ({
@@ -18,5 +20,10 @@ export const createHitlSlice: MyStateCreator<HitlSlice> = (set) => ({
   setUserDecision: (decision) =>
     set((state) => {
       state.hitl.userDecision = decision;
+    }),
+  isPendingApproval: false,
+  setIsPendingApproval: (isPending) =>
+    set((state) => {
+      state.hitl.isPendingApproval = isPending;
     }),
 });
