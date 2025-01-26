@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Button, Text, VStack, Box, Alert, AlertIcon } from "@chakra-ui/react";
+import { Button, Text, VStack, Alert, AlertIcon } from "@chakra-ui/react";
 import { useAppState } from "../../state/store";
 import NewHITLForm from "./NewHITLForm";
+import CheckpointItem from "./CheckpointItem";
 import type { HITLRule } from "../../helpers/knowledge";
 
 const HITLSettings = () => {
@@ -23,11 +24,11 @@ const HITLSettings = () => {
       // Update existing rule
       const updatedRules = hitlRules.map((r) =>
         r.id === editRule.id ? { ...rule, id: editRule.id } : r,
-      );
+      ) as HITLRule[];
       updateSettings({ hitlRules: updatedRules });
     } else {
       // Add new rule
-      const newRule = {
+      const newRule: HITLRule = {
         ...rule,
         id: crypto.randomUUID(),
       };
@@ -36,33 +37,34 @@ const HITLSettings = () => {
     closeForm();
   };
 
-  // const handleDeleteRule = (id: string) => {
-  //   const updatedRules = hitlRules.filter((rule) => rule.id !== id);
-  //   updateSettings({ hitlRules: updatedRules });
-  // };
+  const handleDeleteRule = (id: string) => {
+    const updatedRules = hitlRules.filter((rule) => rule.id !== id);
+    updateSettings({ hitlRules: updatedRules });
+  };
 
-  // const openEditForm = (rule: HITLRule) => {
-  //   setEditRule(rule);
-  //   setIsFormOpen(true);
-  // };
+  const openEditForm = (rule: HITLRule) => {
+    setEditRule(rule);
+    setIsFormOpen(true);
+  };
 
   return (
     <VStack spacing={4}>
       <Alert status="info" borderRadius="md">
         <AlertIcon />
         <Text>
+          {" "}
           Add checkpoints to make Fuji ask for your permission before performing
           certain actions.
         </Text>
       </Alert>
       {hitlRules.length > 0 ? (
         hitlRules.map((rule) => (
-          <Box key={rule.id} w="full" p={4} borderWidth="1px" borderRadius="lg">
-            <Text fontWeight="bold">{rule.description}</Text>
-            <Text fontSize="sm" color="gray.600">
-              Pattern: {rule.pattern}
-            </Text>
-          </Box>
+          <CheckpointItem
+            key={rule.id}
+            rule={rule}
+            onEdit={openEditForm}
+            onDelete={handleDeleteRule}
+          />
         ))
       ) : (
         <Text>No safety checkpoints configured</Text>
