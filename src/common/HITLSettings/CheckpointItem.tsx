@@ -1,10 +1,10 @@
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { Box, Text, Flex, IconButton, Tooltip } from "@chakra-ui/react";
-import type { HITLRule } from "../../helpers/knowledge";
+import type { CheckpointRule } from "../../helpers/hitl";
 
 type CheckpointItemProps = {
-  rule: HITLRule;
-  onEdit: (rule: HITLRule) => void;
+  rule: CheckpointRule;
+  onEdit: (rule: CheckpointRule) => void;
   onDelete: (id: string) => void;
 };
 

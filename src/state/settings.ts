@@ -1,4 +1,5 @@
-import { type Data, type HITLRule } from "../helpers/knowledge/index";
+import { type Data } from "../helpers/knowledge";
+import { type CheckpointRule } from "../helpers/hitl";
 import { MyStateCreator } from "./store";
 import {
   SupportedModels,
@@ -16,7 +17,7 @@ export type SettingsSlice = {
   agentMode: AgentMode;
   voiceMode: boolean;
   customKnowledgeBase: Data;
-  hitlRules: HITLRule[];
+  hitlRules: CheckpointRule[];
   actions: {
     update: (values: Partial<SettingsSlice>) => void;
   };

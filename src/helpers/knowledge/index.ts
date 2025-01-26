@@ -45,12 +45,6 @@ export type LocationInfo = {
   pathname: string;
 };
 
-export type HITLRule = {
-  id: string;
-  pattern: string;
-  description: string;
-};
-
 export function fetchKnowledge(
   location: LocationInfo,
   customKnowledgeBase?: Data,

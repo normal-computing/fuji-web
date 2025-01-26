@@ -3,11 +3,13 @@ import { Button, Text, VStack, Alert, AlertIcon } from "@chakra-ui/react";
 import { useAppState } from "../../state/store";
 import NewHITLForm from "./NewHITLForm";
 import CheckpointItem from "./CheckpointItem";
-import type { HITLRule } from "../../helpers/knowledge";
+import type { CheckpointRule } from "../../helpers/hitl";
 
 const HITLSettings = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editRule, setEditRule] = useState<HITLRule | undefined>(undefined);
+  const [editRule, setEditRule] = useState<CheckpointRule | undefined>(
+    undefined,
+  );
 
   const { hitlRules, updateSettings } = useAppState((state) => ({
     hitlRules: state.settings.hitlRules,
@@ -19,16 +21,16 @@ const HITLSettings = () => {
     setIsFormOpen(false);
   };
 
-  const handleSaveRule = (rule: Omit<HITLRule, "id">) => {
+  const handleSaveRule = (rule: Omit<CheckpointRule, "id">) => {
     if (editRule) {
       // Update existing rule
       const updatedRules = hitlRules.map((r) =>
         r.id === editRule.id ? { ...rule, id: editRule.id } : r,
-      ) as HITLRule[];
+      ) as CheckpointRule[];
       updateSettings({ hitlRules: updatedRules });
     } else {
       // Add new rule
-      const newRule: HITLRule = {
+      const newRule: CheckpointRule = {
         ...rule,
         id: crypto.randomUUID(),
       };
@@ -42,7 +44,7 @@ const HITLSettings = () => {
     updateSettings({ hitlRules: updatedRules });
   };
 
-  const openEditForm = (rule: HITLRule) => {
+  const openEditForm = (rule: CheckpointRule) => {
     setEditRule(rule);
     setIsFormOpen(true);
   };
