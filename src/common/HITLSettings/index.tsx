@@ -1,31 +1,50 @@
 import React, { useState } from "react";
 import { Button, Text, VStack, Box, Alert, AlertIcon } from "@chakra-ui/react";
-// import { useAppState } from "../../state/store"; // Unused for now
+import { useAppState } from "../../state/store";
 import NewHITLForm from "./NewHITLForm";
-
-// TODO: Move to types file when implementing
-type HITLRule = {
-  id: string;
-  pattern: string;
-  description: string;
-};
+import type { HITLRule } from "../../helpers/knowledge";
 
 const HITLSettings = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editRule, setEditRule] = useState<HITLRule | undefined>(undefined);
 
-  // TODO: Implement in store
-  const hitlRules: HITLRule[] = [];
+  const { hitlRules, updateSettings } = useAppState((state) => ({
+    hitlRules: state.settings.hitlRules,
+    updateSettings: state.settings.actions.update,
+  }));
 
   const closeForm = () => {
     setEditRule(undefined);
     setIsFormOpen(false);
   };
 
-  // const openEditForm = (rule: HITLRule) => { // Unused for now
+  const handleSaveRule = (rule: Omit<HITLRule, "id">) => {
+    if (editRule) {
+      // Update existing rule
+      const updatedRules = hitlRules.map((r) =>
+        r.id === editRule.id ? { ...rule, id: editRule.id } : r,
+      );
+      updateSettings({ hitlRules: updatedRules });
+    } else {
+      // Add new rule
+      const newRule = {
+        ...rule,
+        id: crypto.randomUUID(),
+      };
+      updateSettings({ hitlRules: [...hitlRules, newRule] });
+    }
+    closeForm();
+  };
+
+  // const handleDeleteRule = (id: string) => {
+  //   const updatedRules = hitlRules.filter((rule) => rule.id !== id);
+  //   updateSettings({ hitlRules: updatedRules });
+  // };
+
+  // const openEditForm = (rule: HITLRule) => {
   //   setEditRule(rule);
   //   setIsFormOpen(true);
-  // }
+  // };
 
   return (
     <VStack spacing={4}>
@@ -55,6 +74,7 @@ const HITLSettings = () => {
           isEditMode={!!editRule}
           editRule={editRule}
           closeForm={closeForm}
+          onSave={handleSaveRule}
         />
       )}
     </VStack>

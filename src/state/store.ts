@@ -36,7 +36,6 @@ export const useAppState = create<StoreType>()(
       name: "app-state",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        // Stuff we want to persist
         ui: {
           instructions: state.ui.instructions,
         },
@@ -50,6 +49,7 @@ export const useAppState = create<StoreType>()(
           selectedModel: state.settings.selectedModel,
           voiceMode: state.settings.voiceMode,
           customKnowledgeBase: state.settings.customKnowledgeBase,
+          hitlRules: state.settings.hitlRules,
         },
       }),
       merge: (persistedState, currentState) => {

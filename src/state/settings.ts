@@ -1,4 +1,4 @@
-import { type Data } from "../helpers/knowledge/index";
+import { type Data, type HITLRule } from "../helpers/knowledge/index";
 import { MyStateCreator } from "./store";
 import {
   SupportedModels,
@@ -16,6 +16,7 @@ export type SettingsSlice = {
   agentMode: AgentMode;
   voiceMode: boolean;
   customKnowledgeBase: Data;
+  hitlRules: HITLRule[];
   actions: {
     update: (values: Partial<SettingsSlice>) => void;
   };
@@ -30,6 +31,7 @@ export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
   selectedModel: SupportedModels.Gpt4Turbo,
   voiceMode: false,
   customKnowledgeBase: {},
+  hitlRules: [],
   actions: {
     update: (values) => {
       set((state) => {
