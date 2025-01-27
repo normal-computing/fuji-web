@@ -54,7 +54,7 @@ const NewHITLForm: React.FC<NewHITLFormProps> = ({
               <Input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g., Confirm before posting to Facebook"
+                placeholder="e.g., Confirm before posting a Tweet"
               />
             </FormControl>
             <Button colorScheme="blue" w="full" onClick={handleSubmit}>
