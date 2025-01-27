@@ -14,7 +14,6 @@ import { useAppState } from "../state/store";
 import SetAPIKey from "./settings/SetAPIKey";
 import TaskUI from "./TaskUI";
 import Settings from "./Settings";
-import ApprovalDialog from "./ApprovalDialog";
 
 const App = () => {
   const hasAPIKey = useAppState(
@@ -24,7 +23,6 @@ const App = () => {
 
   return (
     <ChakraProvider>
-      <ApprovalDialog />
       <Box p="8" pb="24" fontSize="lg" w="full">
         <HStack mb={4} alignItems="center">
           <Heading as="h1" size="lg" flex={1}>

@@ -16,6 +16,8 @@ import {
   Spacer,
   ColorProps,
   BackgroundProps,
+  Text,
+  Button,
 } from "@chakra-ui/react";
 import { TaskHistoryEntry } from "../state/currentTask";
 import { BsSortNumericDown, BsSortNumericUp } from "react-icons/bs";
@@ -153,6 +155,49 @@ const TaskHistoryItem = ({ index, entry }: TaskHistoryItemProps) => {
   );
 };
 
+const PendingApprovalItem = () => {
+  const { isPendingApproval, proposedAction, setUserDecision } = useAppState(
+    (state) => state.hitl,
+  );
+
+  if (!isPendingApproval || !proposedAction) return null;
+
+  return (
+    <Box
+      border="2px solid"
+      borderColor="yellow.400"
+      p="4"
+      backgroundColor="yellow.50"
+    >
+      <VStack align="stretch" spacing={4}>
+        <HStack>
+          <Box mr="4" fontWeight="bold">
+            ⚠️
+          </Box>
+          <Text fontWeight="medium">Action requires approval</Text>
+        </HStack>
+        <Text fontSize="sm">{proposedAction.thought}</Text>
+        <HStack justify="end" spacing={2}>
+          <Button
+            size="sm"
+            colorScheme="red"
+            onClick={() => setUserDecision("reject")}
+          >
+            Reject
+          </Button>
+          <Button
+            size="sm"
+            colorScheme="green"
+            onClick={() => setUserDecision("approve")}
+          >
+            Approve
+          </Button>
+        </HStack>
+      </VStack>
+    </Box>
+  );
+};
+
 export default function TaskHistory() {
   const { taskHistory, taskStatus } = useAppState((state) => ({
     taskStatus: state.currentTask.status,
@@ -164,16 +209,27 @@ export default function TaskHistory() {
   };
 
   if (taskHistory.length === 0 && taskStatus !== "running") return null;
-  const historyItems = taskHistory.map((entry, index) => (
+
+  // Sort task history based on the sort state
+  const sortedHistory = [...taskHistory].sort((a, b) => {
+    // Assuming each entry has a unique identifier or timestamp for sorting
+    // Replace 'timestamp' with the appropriate property if different
+    const aTime = a.usage?.prompt_tokens || 0;
+    const bTime = b.usage?.prompt_tokens || 0;
+
+    if (sortNumericDown) {
+      return aTime - bTime; // Ascending
+    } else {
+      return bTime - aTime; // Descending
+    }
+  });
+
+  const historyItems = sortedHistory.map((entry, index) => (
     <TaskHistoryItem key={index} index={index} entry={entry} />
   ));
-  historyItems.unshift(<MatchedNotes key="matched-notes" />);
-  if (!sortNumericDown) {
-    historyItems.reverse();
-  }
 
   return (
-    <VStack mt={8}>
+    <VStack mt={8} align="stretch">
       <HStack w="full">
         <Heading as="h3" size="md">
           Action History
@@ -189,6 +245,10 @@ export default function TaskHistory() {
         <CopyButton text={JSON.stringify(taskHistory, null, 2)} />
       </HStack>
       <Accordion allowMultiple w="full" pb="4">
+        {/* Always render fixed items first */}
+        <PendingApprovalItem />
+        <MatchedNotes />
+        {/* Then render sorted history items */}
         {historyItems}
       </Accordion>
     </VStack>
