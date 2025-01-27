@@ -269,7 +269,10 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
 
           if (wasStopped()) break;
 
-          const needsApproval = await matchesCheckpointRule(query);
+          const needsApproval = await matchesCheckpointRule(
+            query,
+            previousActions,
+          );
 
           if (needsApproval && query) {
             set((state) => {
