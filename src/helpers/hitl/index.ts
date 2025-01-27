@@ -18,7 +18,6 @@ You response will be strictly "true" or "false". It will not contain any further
 
 export type CheckpointRule = {
   id: string;
-  pattern: string;
   description: string;
 };
 

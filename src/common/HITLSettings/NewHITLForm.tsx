@@ -9,7 +9,6 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Textarea,
   Button,
   VStack,
 } from "@chakra-ui/react";
@@ -19,11 +18,10 @@ type NewHITLFormProps = {
   isEditMode: boolean;
   editRule?: {
     id: string;
-    pattern: string;
     description: string;
   };
   closeForm: () => void;
-  onSave: (rule: { pattern: string; description: string }) => void;
+  onSave: (rule: { description: string }) => void;
 };
 
 const NewHITLForm: React.FC<NewHITLFormProps> = ({
@@ -33,13 +31,11 @@ const NewHITLForm: React.FC<NewHITLFormProps> = ({
   closeForm,
   onSave,
 }) => {
-  const [pattern, setPattern] = useState(editRule?.pattern || "");
   const [description, setDescription] = useState(editRule?.description || "");
 
   const handleSubmit = () => {
-    if (!pattern || !description) return;
-    onSave({ pattern, description });
-    setPattern("");
+    if (!description) return;
+    onSave({ description });
     setDescription("");
   };
 
@@ -59,14 +55,6 @@ const NewHITLForm: React.FC<NewHITLFormProps> = ({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="e.g., Confirm before posting to Facebook"
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Pattern</FormLabel>
-              <Textarea
-                value={pattern}
-                onChange={(e) => setPattern(e.target.value)}
-                placeholder="e.g., Confirm before clicking 'Post' button on facebook.com"
               />
             </FormControl>
             <Button colorScheme="blue" w="full" onClick={handleSubmit}>

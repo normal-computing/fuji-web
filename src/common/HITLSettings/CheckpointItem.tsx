@@ -14,9 +14,6 @@ const CheckpointItem = ({ rule, onEdit, onDelete }: CheckpointItemProps) => {
       <Flex alignItems="flex-start">
         <Box flex="1">
           <Text fontWeight="bold">{rule.description}</Text>
-          <Text fontSize="sm" color="gray.600">
-            Pattern: {rule.pattern}
-          </Text>
         </Box>
         <Box>
           <Tooltip label="Edit checkpoint">
