@@ -77,7 +77,8 @@ const CollapsibleComponent = (props: {
       <AccordionButton>
         <HStack flex="1">
           <Box>{props.title}</Box>
-          <CopyButton text={props.text} /> <Spacer />
+          <CopyButton text={props.text} />
+          <Spacer />
           {props.subtitle && (
             <Box as="span" fontSize="xs" color="gray.500" mr={4}>
               {props.subtitle}
@@ -168,6 +169,7 @@ const PendingApprovalItem = () => {
       borderColor="yellow.400"
       p="4"
       backgroundColor="yellow.50"
+      mb={4}
     >
       <VStack align="stretch" spacing={4}>
         <HStack>
@@ -210,26 +212,24 @@ export default function TaskHistory() {
 
   if (taskHistory.length === 0 && taskStatus !== "running") return null;
 
-  // Sort task history based on the sort state
-  const sortedHistory = [...taskHistory].sort((a, b) => {
-    // Assuming each entry has a unique identifier or timestamp for sorting
-    // Replace 'timestamp' with the appropriate property if different
-    const aTime = a.usage?.prompt_tokens || 0;
-    const bTime = b.usage?.prompt_tokens || 0;
-
-    if (sortNumericDown) {
-      return aTime - bTime; // Ascending
-    } else {
-      return bTime - aTime; // Descending
-    }
-  });
-
-  const historyItems = sortedHistory.map((entry, index) => (
+  // Build the basic history items
+  const historyItems = taskHistory.map((entry, index) => (
     <TaskHistoryItem key={index} index={index} entry={entry} />
   ));
 
+  // Insert matched notes at the top
+  historyItems.unshift(<MatchedNotes key="matched-notes" />);
+
+  // Reverse if needed
+  if (!sortNumericDown) {
+    historyItems.reverse();
+  }
+
   return (
     <VStack mt={8} align="stretch">
+      {/* Pending approval item goes above the heading */}
+      <PendingApprovalItem />
+
       <HStack w="full">
         <Heading as="h3" size="md">
           Action History
@@ -245,10 +245,6 @@ export default function TaskHistory() {
         <CopyButton text={JSON.stringify(taskHistory, null, 2)} />
       </HStack>
       <Accordion allowMultiple w="full" pb="4">
-        {/* Always render fixed items first */}
-        <PendingApprovalItem />
-        <MatchedNotes />
-        {/* Then render sorted history items */}
         {historyItems}
       </Accordion>
     </VStack>
