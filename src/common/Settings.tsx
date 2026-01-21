@@ -26,6 +26,7 @@ import ModelDropdown from "./settings/ModelDropdown";
 import AgentModeDropdown from "./settings/AgentModeDropdown";
 import { callRPC } from "../helpers/rpc/pageRPC";
 import CustomKnowledgeBase from "./CustomKnowledgeBase";
+import HITLSettings from "./HITLSettings";
 import SetAPIKey from "./settings/SetAPIKey";
 import { debugMode } from "../constants";
 import { isValidModelSettings } from "../helpers/aiSdkUtils";
@@ -35,7 +36,7 @@ type SettingsProps = {
 };
 
 const Settings = ({ setInSettingsView }: SettingsProps) => {
-  const [view, setView] = useState<"settings" | "knowledge" | "api">(
+  const [view, setView] = useState<"settings" | "knowledge" | "api" | "hitl">(
     "settings",
   );
   const state = useAppState((state) => ({
@@ -53,6 +54,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
 
   const closeSetting = () => setInSettingsView(false);
   const openCKB = () => setView("knowledge");
+  const openHITL = () => setView("hitl");
   const backToSettings = () => setView("settings");
 
   async function checkMicrophonePermission(): Promise<PermissionState> {
@@ -118,6 +120,11 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
               <BreadcrumbLink href="#">API</BreadcrumbLink>
             </BreadcrumbItem>
           )}
+          {view === "hitl" && (
+            <BreadcrumbItem isCurrentPage>
+              <BreadcrumbLink href="#">Checkpoints</BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
         </Breadcrumb>
       </HStack>
       {view === "knowledge" && <CustomKnowledgeBase />}
@@ -129,6 +136,7 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
           onClose={backToSettings}
         />
       )}
+      {view === "hitl" && <HITLSettings />}
       {view === "settings" && (
         <FormControl
           as={VStack}
@@ -222,6 +230,18 @@ const Settings = ({ setInSettingsView }: SettingsProps) => {
             <FormLabel mb="0">Custom Instructions</FormLabel>
             <Spacer />
             <Button rightIcon={<EditIcon />} onClick={openCKB}>
+              Edit
+            </Button>
+          </Flex>
+          <Flex alignItems="center">
+            <Box>
+              <FormLabel mb="0">Safety Checkpoints</FormLabel>
+              <FormHelperText>
+                Define actions that require your approval
+              </FormHelperText>
+            </Box>
+            <Spacer />
+            <Button rightIcon={<EditIcon />} onClick={openHITL}>
               Edit
             </Button>
           </Flex>

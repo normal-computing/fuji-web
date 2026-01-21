@@ -5,12 +5,14 @@ import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { createCurrentTaskSlice, CurrentTaskSlice } from "./currentTask";
 import { createUiSlice, UiSlice } from "./ui";
 import { createSettingsSlice, SettingsSlice } from "./settings";
+import { createHitlSlice, HitlSlice } from "./hitl";
 import { findBestMatchingModel } from "../helpers/aiSdkUtils";
 
 export type StoreType = {
   currentTask: CurrentTaskSlice;
   ui: UiSlice;
   settings: SettingsSlice;
+  hitl: HitlSlice;
 };
 
 export type MyStateCreator<T> = StateCreator<
@@ -27,13 +29,13 @@ export const useAppState = create<StoreType>()(
         currentTask: createCurrentTaskSlice(...a),
         ui: createUiSlice(...a),
         settings: createSettingsSlice(...a),
+        hitl: createHitlSlice(...a),
       })),
     ),
     {
       name: "app-state",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        // Stuff we want to persist
         ui: {
           instructions: state.ui.instructions,
         },
@@ -47,6 +49,7 @@ export const useAppState = create<StoreType>()(
           selectedModel: state.settings.selectedModel,
           voiceMode: state.settings.voiceMode,
           customKnowledgeBase: state.settings.customKnowledgeBase,
+          hitlRules: state.settings.hitlRules,
         },
       }),
       merge: (persistedState, currentState) => {
