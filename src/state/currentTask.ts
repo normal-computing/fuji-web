@@ -28,6 +28,7 @@ import buildAnnotatedScreenshots from "../helpers/buildAnnotatedScreenshots";
 import { voiceControl } from "../helpers/voiceControl";
 import { fetchKnowledge, type Knowledge } from "../helpers/knowledge";
 import { isValidModelSettings, AgentMode } from "../helpers/aiSdkUtils";
+import { matchesCheckpointRule } from "../helpers/hitl";
 
 export type TaskHistoryEntry = {
   prompt: string;
@@ -267,6 +268,35 @@ export const createCurrentTaskSlice: MyStateCreator<CurrentTaskSlice> = (
           }
 
           if (wasStopped()) break;
+
+          const needsApproval = await matchesCheckpointRule(
+            query,
+            previousActions,
+          );
+
+          if (needsApproval && query) {
+            set((state) => {
+              state.hitl.isPendingApproval = true;
+              state.hitl.proposedAction = query.action;
+              state.hitl.userDecision = null;
+            });
+
+            const decision = await get().hitl.waitForApproval();
+
+            // Reset HITL state
+            set((state) => {
+              state.hitl.isPendingApproval = false;
+              state.hitl.proposedAction = null;
+              state.hitl.userDecision = null;
+            });
+
+            if (decision === "reject") {
+              set((state) => {
+                state.currentTask.status = "interrupted";
+              });
+              break;
+            }
+          }
 
           const shouldContinue = await performAction(query);
 

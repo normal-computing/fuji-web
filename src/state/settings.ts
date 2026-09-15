@@ -1,4 +1,5 @@
-import { type Data } from "../helpers/knowledge/index";
+import { type Data } from "../helpers/knowledge";
+import { type CheckpointRule } from "../helpers/hitl";
 import { MyStateCreator } from "./store";
 import {
   SupportedModels,
@@ -16,6 +17,7 @@ export type SettingsSlice = {
   agentMode: AgentMode;
   voiceMode: boolean;
   customKnowledgeBase: Data;
+  hitlRules: CheckpointRule[];
   actions: {
     update: (values: Partial<SettingsSlice>) => void;
   };
@@ -30,6 +32,7 @@ export const createSettingsSlice: MyStateCreator<SettingsSlice> = (set) => ({
   selectedModel: SupportedModels.Gpt4Turbo,
   voiceMode: false,
   customKnowledgeBase: {},
+  hitlRules: [],
   actions: {
     update: (values) => {
       set((state) => {
